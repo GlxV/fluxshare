@@ -1,8630 +1,2921 @@
 #!/usr/bin/env bash
 set -euo pipefail
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/.gitignore b/.gitignore
-new file mode 100644
-index 0000000000000000000000000000000000000000..ef7f098efc21d65e224fbc447ee700aa5e427095
---- /dev/null
-+++ b/.gitignore
-@@ -0,0 +1,6 @@
-+node_modules/
-+dist/
-+apps/client/src-tauri/target/
-+.DS_Store
-+.pnpm-store/
-+.env
-diff --git a/LICENSE b/LICENSE
-new file mode 100644
-index 0000000000000000000000000000000000000000..130a1b12643e42cda5baa93d7d927cc6c7718380
---- /dev/null
-+++ b/LICENSE
-@@ -0,0 +1,21 @@
-+MIT License
-+
-+Copyright (c) 2024 FluxShare
-+
-+Permission is hereby granted, free of charge, to any person obtaining a copy
-+of this software and associated documentation files (the "Software"), to deal
-+in the Software without restriction, including without limitation the rights
-+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-+copies of the Software, and to permit persons to whom the Software is
-+furnished to do so, subject to the following conditions:
-+
-+The above copyright notice and this permission notice shall be included in all
-+copies or substantial portions of the Software.
-+
-+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+SOFTWARE.
-diff --git a/README.md b/README.md
-index c097cbb93a8109522a3301fdcc7ac3004f8a1671..bc9c52d601812aaf8a8d38c09cdeb59576518c90 100644
-GIT binary patch
-literal 2589
-zcmai0&2HO95We#%2F}GoBPz|&x5RPU6n5iUE^-J8aJd}OYcF@%-KAuw=(P{fHwbzN
-zQXr?IPoOvHlk^)>k|jAve6Yxw+4=pxSw5ndw!58PslZvbd8Fk>>KfA4uuDu8$D8C^
-zYC4-tYgJM+9~wo6Z;Y$_B2G??>ux8F(yyl@YE@8_f^u=jVfnYyM!^HA@M~x0KGONq
-zbJD({nX<N2`i4}Oe6xI?jP}FfpMHLIOiahtch$@yHM;DaW1G`!YJ<P#<R!z(#1u@~
-zEk9MBqAy92HJaV>gQBxnm+;_2t(<wMphrY6H8tM(z-=#}*0oKZWse@wd02iN2S$p~
-zBp<VEOmBbm73bHHo<8~Jm&2=++ITdXI0&y}4$qTOUxxUg!$ON!sfL{@Ef*v4aM8td
-ze{``}<N=bgRjyunh)JyJaE>O4u50Ds3vSs}L+>IX`%BdY11k>nw(`1bFc-D_u>8xD
-zpBZ%6-iJwIo2#~+%)gz~ox$`bHK$};Jw~{YxSF(q*Tr%iNytKPx?L60+Sa?}r#V}4
-zo{IBlm){qCqh2}qutV%DD~h62@ha<^V0x7mVQ>0^BfGh`b0g{cJ?o0+gXKvC#4sKO
-zERk_i4Pl-f=BDyNpc9Q#7GoR=J}gjMoJ3QLREmNrhhiiH-(YstvB7o#axoGBtwF6y
-z;7TE2;xJR1>4KF`{YX`$cKN<W)OaLFIB^(Hz{3S=E?J(=nM1_y08Bg_dp9$67bMAl
-zSyZRK29AKO=bf>Y)N#R<RRqy?+E$8sXvLVmW01#FY25OCFq^?Q9=!>}@loD~Yg%K!
-z(x}V3mZv(HHqn27{7FBkxf)*4s)jz_#)+`17)Wu+7!7LJNf(l|8r&`GE~&mngQ*nR
-zIa4Y8B7(r54)s;%ZZN0Eq_0@t#IA{Wl&pLm)Xb>9pob2CyDxxXj@ef$L?9Xv7FCUZ
-z{Q%$j3Qnc>09WV|#v&}b0PjKX<v-|bUsX24@{6+kCK=Ji$+H({CwWuhS*Q$upuczW
-z3X+c(KHNkoIKNYkg|x>ZerW|NaUy?vheZ^F9{0pt+YlYAQ2QLKPh1Uuu)5b1HOjag
-zFk7n;$2Y>0xNSu=GnV77A#FDBzI?%DNP1t2#rHs#hNZic04f<)$yU6btYz<PB^-PQ
-zz-&v1rr2$Hinm*4Xg;WA=KMh36YYU?bsy|InXYr&R|psPoS>Chaac@y*}X(F&yBv}
-zuy=rPNdU1N<8$>H9TvhVsPo{^v}LZ&7+YpfWlg!;7u6b=>~v)q)^UFiZ|k15?T$Cx
-z!+g6XnVZD9?pM<Nv80S$!193ttVlY>wOn7XlSpypV?_f2;zlMn;hG<S#ojtzm-ZPh
-zY&>jv6%4J57`6+@d$u9<o2jgp>Fzzix7@VW$5GGa-q~+-kg)U)j_4q8jd5@|cuWVT
-z5(zej<^%dY+p_XAe58oUEcoW$2!iD0we+QEW7W!Ap67e#@s+dKb+9@y93Mh{$$_Nw
-r)$kge$F@sS7?R(9y?;4+LPLJL6_$5j3jq7|m3_MUe#$a@KxO{}Z*VRF
-
-literal 32
-mcmezWPk}+1L4m=IA%~%qA(f$mA($b9A(5d7$mV6>VgLYymIiMC
-
-diff --git a/apps/client/index.html b/apps/client/index.html
-new file mode 100644
-index 0000000000000000000000000000000000000000..3e7fe94b99b40b46aca9ad83e9d6f13fda90028c
---- /dev/null
-+++ b/apps/client/index.html
-@@ -0,0 +1,12 @@
-+<!DOCTYPE html>
-+<html lang="pt-BR">
-+  <head>
-+    <meta charset="UTF-8" />
-+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-+    <title>FluxShare</title>
-+  </head>
-+  <body class="dark">
-+    <div id="root"></div>
-+    <script type="module" src="/src/index.tsx"></script>
-+  </body>
-+</html>
-diff --git a/apps/client/package.json b/apps/client/package.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..7edd7b12a8c19c5431bdd5ee54e9d8fcd8998f6d
---- /dev/null
-+++ b/apps/client/package.json
-@@ -0,0 +1,32 @@
-+{
-+  "name": "fluxshare-client",
-+  "version": "0.1.0",
-+  "private": true,
-+  "type": "module",
-+  "scripts": {
-+    "dev": "vite --host",
-+    "build": "vite build && tauri build",
-+    "preview": "vite preview",
-+    "tauri": "tauri"
-+  },
-+  "dependencies": {
-+    "@tauri-apps/api": "^1.5.4",
-+    "@tanstack/react-query": "^5.32.1",
-+    "classnames": "^2.5.1",
-+    "react": "^18.2.0",
-+    "react-dom": "^18.2.0",
-+    "react-router-dom": "^6.23.1",
-+    "tailwind-merge": "^2.2.1"
-+  },
-+  "devDependencies": {
-+    "@tauri-apps/cli": "^1.5.9",
-+    "@types/node": "^20.12.7",
-+    "@types/react": "^18.2.79",
-+    "@types/react-dom": "^18.2.25",
-+    "autoprefixer": "^10.4.19",
-+    "postcss": "^8.4.38",
-+    "tailwindcss": "^3.4.3",
-+    "typescript": "^5.4.5",
-+    "vite": "^5.2.9"
-+  }
-+}
-diff --git a/apps/client/postcss.config.cjs b/apps/client/postcss.config.cjs
-new file mode 100644
-index 0000000000000000000000000000000000000000..12a703d900da8159c30e75acbd2c4d87ae177f62
---- /dev/null
-+++ b/apps/client/postcss.config.cjs
-@@ -0,0 +1,6 @@
-+module.exports = {
-+  plugins: {
-+    tailwindcss: {},
-+    autoprefixer: {},
-+  },
-+};
-diff --git a/apps/client/src-tauri/Cargo.lock b/apps/client/src-tauri/Cargo.lock
-new file mode 100644
-index 0000000000000000000000000000000000000000..2e4b4c5c0f9802bf677fdbd484629c69e8efc89e
---- /dev/null
-+++ b/apps/client/src-tauri/Cargo.lock
-@@ -0,0 +1,6374 @@
-+# This file is automatically @generated by Cargo.
-+# It is not intended for manual editing.
-+version = 4
-+
-+[[package]]
-+name = "addr2line"
-+version = "0.25.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1b5d307320b3181d6d7954e663bd7c774a838b8220fe0593c86d9fb09f498b4b"
-+dependencies = [
-+ "gimli",
-+]
-+
-+[[package]]
-+name = "adler2"
-+version = "2.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
-+
-+[[package]]
-+name = "aead"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d122413f284cf2d62fb1b7db97e02edb8cda96d769b16e443a4f6195e35662b0"
-+dependencies = [
-+ "crypto-common",
-+ "generic-array",
-+]
-+
-+[[package]]
-+name = "aes"
-+version = "0.8.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b169f7a6d4742236a0a00c541b845991d0ac43e546831af1249753ab4c3aa3a0"
-+dependencies = [
-+ "cfg-if",
-+ "cipher",
-+ "cpufeatures",
-+]
-+
-+[[package]]
-+name = "aes-gcm"
-+version = "0.10.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "831010a0f742e1209b3bcea8fab6a8e149051ba6099432c8cb2cc117dec3ead1"
-+dependencies = [
-+ "aead",
-+ "aes",
-+ "cipher",
-+ "ctr",
-+ "ghash",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "aho-corasick"
-+version = "1.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8e60d3430d3a69478ad0993f19238d2df97c507009a52b3c10addcd7f6bcb916"
-+dependencies = [
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "alloc-no-stdlib"
-+version = "2.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cc7bb162ec39d46ab1ca8c77bf72e890535becd1751bb45f64c597edb4c8c6b3"
-+
-+[[package]]
-+name = "alloc-stdlib"
-+version = "0.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "94fb8275041c72129eb51b7d0322c29b8387a0386127718b096429201a5d6ece"
-+dependencies = [
-+ "alloc-no-stdlib",
-+]
-+
-+[[package]]
-+name = "android_system_properties"
-+version = "0.1.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
-+dependencies = [
-+ "libc",
-+]
-+
-+[[package]]
-+name = "anyhow"
-+version = "1.0.100"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a23eb6b1614318a8071c9b2521f36b424b2c83db5eb3a0fead4a6c0809af6e61"
-+
-+[[package]]
-+name = "arc-swap"
-+version = "1.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "69f7f8c3906b62b754cd5326047894316021dcfe5a194c8ea52bdd94934a3457"
-+
-+[[package]]
-+name = "argon2"
-+version = "0.5.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3c3610892ee6e0cbce8ae2700349fcf8f98adb0dbfbee85aec3c9179d29cc072"
-+dependencies = [
-+ "base64ct",
-+ "blake2",
-+ "cpufeatures",
-+ "password-hash",
-+]
-+
-+[[package]]
-+name = "arrayref"
-+version = "0.3.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "76a2e8124351fda1ef8aaaa3bbd7ebbcb486bbcd4225aca0aa0d84bb2db8fecb"
-+
-+[[package]]
-+name = "arrayvec"
-+version = "0.7.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
-+
-+[[package]]
-+name = "asn1-rs"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7f6fd5ddaf0351dff5b8da21b2fb4ff8e08ddd02857f0bf69c47639106c0fff0"
-+dependencies = [
-+ "asn1-rs-derive",
-+ "asn1-rs-impl",
-+ "displaydoc",
-+ "nom",
-+ "num-traits",
-+ "rusticata-macros",
-+ "thiserror",
-+ "time",
-+]
-+
-+[[package]]
-+name = "asn1-rs-derive"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "726535892e8eae7e70657b4c8ea93d26b8553afb1ce617caee529ef96d7dee6c"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+ "synstructure 0.12.6",
-+]
-+
-+[[package]]
-+name = "asn1-rs-impl"
-+version = "0.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2777730b2039ac0f95f093556e61b6d26cebed5393ca6f152717777cec3a42ed"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "async-trait"
-+version = "0.1.89"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9035ad2d096bed7955a320ee7e2230574d28fd3c3a0f186cbea1ff3c7eed5dbb"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "atk"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2c3d816ce6f0e2909a96830d6911c2aff044370b1ef92d7f267b43bae5addedd"
-+dependencies = [
-+ "atk-sys",
-+ "bitflags 1.3.2",
-+ "glib",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "atk-sys"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "58aeb089fb698e06db8089971c7ee317ab9644bade33383f63631437b03aafb6"
-+dependencies = [
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "atomic-waker"
-+version = "1.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
-+
-+[[package]]
-+name = "autocfg"
-+version = "1.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
-+
-+[[package]]
-+name = "axum"
-+version = "0.7.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
-+dependencies = [
-+ "async-trait",
-+ "axum-core",
-+ "axum-macros",
-+ "bytes",
-+ "futures-util",
-+ "http 1.3.1",
-+ "http-body 1.0.1",
-+ "http-body-util",
-+ "hyper 1.7.0",
-+ "hyper-util",
-+ "itoa 1.0.15",
-+ "matchit",
-+ "memchr",
-+ "mime",
-+ "percent-encoding",
-+ "pin-project-lite",
-+ "rustversion",
-+ "serde",
-+ "serde_json",
-+ "serde_path_to_error",
-+ "serde_urlencoded",
-+ "sync_wrapper 1.0.2",
-+ "tokio",
-+ "tower",
-+ "tower-layer",
-+ "tower-service",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "axum-core"
-+version = "0.4.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
-+dependencies = [
-+ "async-trait",
-+ "bytes",
-+ "futures-util",
-+ "http 1.3.1",
-+ "http-body 1.0.1",
-+ "http-body-util",
-+ "mime",
-+ "pin-project-lite",
-+ "rustversion",
-+ "sync_wrapper 1.0.2",
-+ "tower-layer",
-+ "tower-service",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "axum-macros"
-+version = "0.4.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "57d123550fa8d071b7255cb0cc04dc302baa6c8c4a79f55701552684d8399bce"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "backtrace"
-+version = "0.3.76"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bb531853791a215d7c62a30daf0dde835f381ab5de4589cfe7c649d2cbe92bd6"
-+dependencies = [
-+ "addr2line",
-+ "cfg-if",
-+ "libc",
-+ "miniz_oxide",
-+ "object",
-+ "rustc-demangle",
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "base16ct"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4c7f02d4ea65f2c1853089ffd8d2787bdbc63de2f0d29dedbcf8ccdfa0ccd4cf"
-+
-+[[package]]
-+name = "base64"
-+version = "0.13.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
-+
-+[[package]]
-+name = "base64"
-+version = "0.21.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
-+
-+[[package]]
-+name = "base64"
-+version = "0.22.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
-+
-+[[package]]
-+name = "base64ct"
-+version = "1.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "55248b47b0caf0546f7988906588779981c43bb1bc9d0c44087278f80cdb44ba"
-+
-+[[package]]
-+name = "bincode"
-+version = "1.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "bitflags"
-+version = "1.3.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
-+
-+[[package]]
-+name = "bitflags"
-+version = "2.9.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2261d10cca569e4643e526d8dc2e62e433cc8aba21ab764233731f8d369bf394"
-+
-+[[package]]
-+name = "blake2"
-+version = "0.10.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
-+dependencies = [
-+ "digest",
-+]
-+
-+[[package]]
-+name = "blake3"
-+version = "1.8.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3888aaa89e4b2a40fca9848e400f6a658a5a3978de7be858e209cafa8be9a4a0"
-+dependencies = [
-+ "arrayref",
-+ "arrayvec",
-+ "cc",
-+ "cfg-if",
-+ "constant_time_eq",
-+]
-+
-+[[package]]
-+name = "block"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
-+
-+[[package]]
-+name = "block-buffer"
-+version = "0.10.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
-+dependencies = [
-+ "generic-array",
-+]
-+
-+[[package]]
-+name = "block-padding"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a8894febbff9f758034a5b8e12d87918f56dfc64a8e1fe757d65e29041538d93"
-+dependencies = [
-+ "generic-array",
-+]
-+
-+[[package]]
-+name = "brotli"
-+version = "7.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cc97b8f16f944bba54f0433f07e30be199b6dc2bd25937444bbad560bcea29bd"
-+dependencies = [
-+ "alloc-no-stdlib",
-+ "alloc-stdlib",
-+ "brotli-decompressor",
-+]
-+
-+[[package]]
-+name = "brotli-decompressor"
-+version = "4.0.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a334ef7c9e23abf0ce748e8cd309037da93e606ad52eb372e4ce327a0dcfbdfd"
-+dependencies = [
-+ "alloc-no-stdlib",
-+ "alloc-stdlib",
-+]
-+
-+[[package]]
-+name = "bstr"
-+version = "1.12.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "234113d19d0d7d613b40e86fb654acf958910802bcceab913a4f9e7cda03b1a4"
-+dependencies = [
-+ "memchr",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "bumpalo"
-+version = "3.19.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "46c5e41b57b8bba42a04676d81cb89e9ee8e859a1a66f80a5a72e1cb76b34d43"
-+
-+[[package]]
-+name = "bytemuck"
-+version = "1.24.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1fbdf580320f38b612e485521afda1ee26d10cc9884efaaa750d383e13e3c5f4"
-+
-+[[package]]
-+name = "byteorder"
-+version = "1.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
-+
-+[[package]]
-+name = "bytes"
-+version = "1.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "cairo-rs"
-+version = "0.15.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c76ee391b03d35510d9fa917357c7f1855bd9a6659c95a1b392e33f49b3369bc"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cairo-sys-rs",
-+ "glib",
-+ "libc",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "cairo-sys-rs"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3c55d429bef56ac9172d25fecb85dc8068307d17acd74b377866b7a1ef25d3c8"
-+dependencies = [
-+ "glib-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "cargo_toml"
-+version = "0.15.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "599aa35200ffff8f04c1925aa1acc92fa2e08874379ef42e210a80e527e60838"
-+dependencies = [
-+ "serde",
-+ "toml 0.7.8",
-+]
-+
-+[[package]]
-+name = "cbc"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "26b52a9543ae338f279b96b0b9fed9c8093744685043739079ce85cd58f289a6"
-+dependencies = [
-+ "cipher",
-+]
-+
-+[[package]]
-+name = "cc"
-+version = "1.2.40"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e1d05d92f4b1fd76aad469d46cdd858ca761576082cd37df81416691e50199fb"
-+dependencies = [
-+ "find-msvc-tools",
-+ "shlex",
-+]
-+
-+[[package]]
-+name = "ccm"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9ae3c82e4355234767756212c570e29833699ab63e6ffd161887314cc5b43847"
-+dependencies = [
-+ "aead",
-+ "cipher",
-+ "ctr",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "cesu8"
-+version = "1.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6d43a04d8753f35258c91f8ec639f792891f748a1edbd759cf1dcea3382ad83c"
-+
-+[[package]]
-+name = "cfb"
-+version = "0.7.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d38f2da7a0a2c4ccf0065be06397cc26a81f4e528be095826eee9d4adbb8c60f"
-+dependencies = [
-+ "byteorder",
-+ "fnv",
-+ "uuid",
-+]
-+
-+[[package]]
-+name = "cfg-expr"
-+version = "0.9.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3431df59f28accaf4cb4eed4a9acc66bea3f3c3753aa6cdc2f024174ef232af7"
-+dependencies = [
-+ "smallvec",
-+]
-+
-+[[package]]
-+name = "cfg-expr"
-+version = "0.15.8"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d067ad48b8650848b989a59a86c6c36a995d02d2bf778d45c3c5d57bc2718f02"
-+dependencies = [
-+ "smallvec",
-+ "target-lexicon",
-+]
-+
-+[[package]]
-+name = "cfg-if"
-+version = "1.0.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
-+
-+[[package]]
-+name = "chacha20"
-+version = "0.9.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c3613f74bd2eac03dad61bd53dbe620703d4371614fe0bc3b9f04dd36fe4e818"
-+dependencies = [
-+ "cfg-if",
-+ "cipher",
-+ "cpufeatures",
-+]
-+
-+[[package]]
-+name = "chacha20poly1305"
-+version = "0.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
-+dependencies = [
-+ "aead",
-+ "chacha20",
-+ "cipher",
-+ "poly1305",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "chrono"
-+version = "0.4.42"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2"
-+dependencies = [
-+ "iana-time-zone",
-+ "js-sys",
-+ "num-traits",
-+ "serde",
-+ "wasm-bindgen",
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "cipher"
-+version = "0.4.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
-+dependencies = [
-+ "crypto-common",
-+ "inout",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "cocoa"
-+version = "0.24.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f425db7937052c684daec3bd6375c8abe2d146dca4b8b143d6db777c39138f3a"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "block",
-+ "cocoa-foundation",
-+ "core-foundation",
-+ "core-graphics",
-+ "foreign-types",
-+ "libc",
-+ "objc",
-+]
-+
-+[[package]]
-+name = "cocoa-foundation"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8c6234cbb2e4c785b456c0644748b1ac416dd045799740356f8363dfe00c93f7"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "block",
-+ "core-foundation",
-+ "core-graphics-types",
-+ "libc",
-+ "objc",
-+]
-+
-+[[package]]
-+name = "color_quant"
-+version = "1.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
-+
-+[[package]]
-+name = "combine"
-+version = "4.6.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
-+dependencies = [
-+ "bytes",
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "const-oid"
-+version = "0.9.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
-+
-+[[package]]
-+name = "constant_time_eq"
-+version = "0.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
-+
-+[[package]]
-+name = "convert_case"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-+
-+[[package]]
-+name = "core-foundation"
-+version = "0.9.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "91e195e091a93c46f7102ec7818a2aa394e1e1771c3ab4825963fa03e45afb8f"
-+dependencies = [
-+ "core-foundation-sys",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "core-foundation-sys"
-+version = "0.8.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
-+
-+[[package]]
-+name = "core-graphics"
-+version = "0.22.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2581bbab3b8ffc6fcbd550bf46c355135d16e9ff2a6ea032ad6b9bf1d7efe4fb"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "core-foundation",
-+ "core-graphics-types",
-+ "foreign-types",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "core-graphics-types"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "45390e6114f68f718cc7a830514a96f903cccd70d02a8f6d9f643ac4ba45afaf"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "core-foundation",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "cpufeatures"
-+version = "0.2.17"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
-+dependencies = [
-+ "libc",
-+]
-+
-+[[package]]
-+name = "crc"
-+version = "3.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9710d3b3739c2e349eb44fe848ad0b7c8cb1e42bd87ee49371df2f7acaf3e675"
-+dependencies = [
-+ "crc-catalog",
-+]
-+
-+[[package]]
-+name = "crc-catalog"
-+version = "2.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "19d374276b40fb8bbdee95aef7c7fa6b5316ec764510eb64b8dd0e2ed0d7e7f5"
-+
-+[[package]]
-+name = "crc32fast"
-+version = "1.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511"
-+dependencies = [
-+ "cfg-if",
-+]
-+
-+[[package]]
-+name = "crossbeam-channel"
-+version = "0.5.15"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "82b8f8f868b36967f9606790d1903570de9ceaf870a7bf9fbbd3016d636a2cb2"
-+dependencies = [
-+ "crossbeam-utils",
-+]
-+
-+[[package]]
-+name = "crossbeam-deque"
-+version = "0.8.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9dd111b7b7f7d55b72c0a6ae361660ee5853c9af73f70c3c2ef6858b950e2e51"
-+dependencies = [
-+ "crossbeam-epoch",
-+ "crossbeam-utils",
-+]
-+
-+[[package]]
-+name = "crossbeam-epoch"
-+version = "0.9.18"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5b82ac4a3c2ca9c3460964f020e1402edd5753411d7737aa39c3714ad1b5420e"
-+dependencies = [
-+ "crossbeam-utils",
-+]
-+
-+[[package]]
-+name = "crossbeam-utils"
-+version = "0.8.21"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
-+
-+[[package]]
-+name = "crypto-bigint"
-+version = "0.5.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0dc92fb57ca44df6db8059111ab3af99a63d5d0f8375d9972e319a379c6bab76"
-+dependencies = [
-+ "generic-array",
-+ "rand_core 0.6.4",
-+ "subtle",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "crypto-common"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
-+dependencies = [
-+ "generic-array",
-+ "rand_core 0.6.4",
-+ "typenum",
-+]
-+
-+[[package]]
-+name = "cssparser"
-+version = "0.27.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "754b69d351cdc2d8ee09ae203db831e005560fc6030da058f86ad60c92a9cb0a"
-+dependencies = [
-+ "cssparser-macros",
-+ "dtoa-short",
-+ "itoa 0.4.8",
-+ "matches",
-+ "phf 0.8.0",
-+ "proc-macro2",
-+ "quote",
-+ "smallvec",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "cssparser-macros"
-+version = "0.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "13b588ba4ac1a99f7f2964d24b3d896ddc6bf847ee3855dbd4366f058cfcd331"
-+dependencies = [
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "ctor"
-+version = "0.2.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "32a2785755761f3ddc1492979ce1e48d2c00d09311c39e4466429188f3dd6501"
-+dependencies = [
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "ctr"
-+version = "0.9.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0369ee1ad671834580515889b80f2ea915f23b8be8d0daa4bbaf2ac5c7590835"
-+dependencies = [
-+ "cipher",
-+]
-+
-+[[package]]
-+name = "curve25519-dalek"
-+version = "4.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "97fb8b7c4503de7d6ae7b42ab72a5a59857b4c937ec27a3d4539dba95b5ab2be"
-+dependencies = [
-+ "cfg-if",
-+ "cpufeatures",
-+ "curve25519-dalek-derive",
-+ "fiat-crypto",
-+ "rustc_version",
-+ "subtle",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "curve25519-dalek-derive"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "darling"
-+version = "0.21.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9cdf337090841a411e2a7f3deb9187445851f91b309c0c0a29e05f74a00a48c0"
-+dependencies = [
-+ "darling_core",
-+ "darling_macro",
-+]
-+
-+[[package]]
-+name = "darling_core"
-+version = "0.21.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1247195ecd7e3c85f83c8d2a366e4210d588e802133e1e355180a9870b517ea4"
-+dependencies = [
-+ "fnv",
-+ "ident_case",
-+ "proc-macro2",
-+ "quote",
-+ "strsim",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "darling_macro"
-+version = "0.21.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d38308df82d1080de0afee5d069fa14b0326a88c14f15c5ccda35b4a6c414c81"
-+dependencies = [
-+ "darling_core",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "data-encoding"
-+version = "2.9.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
-+
-+[[package]]
-+name = "der"
-+version = "0.7.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e7c1832837b905bbfb5101e07cc24c8deddf52f93225eee6ead5f4d63d53ddcb"
-+dependencies = [
-+ "const-oid",
-+ "pem-rfc7468",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "der-parser"
-+version = "8.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dbd676fbbab537128ef0278adb5576cf363cff6aa22a7b24effe97347cfab61e"
-+dependencies = [
-+ "asn1-rs",
-+ "displaydoc",
-+ "nom",
-+ "num-bigint",
-+ "num-traits",
-+ "rusticata-macros",
-+]
-+
-+[[package]]
-+name = "deranged"
-+version = "0.5.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a41953f86f8a05768a6cda24def994fd2f424b04ec5c719cf89989779f199071"
-+dependencies = [
-+ "powerfmt",
-+ "serde_core",
-+]
-+
-+[[package]]
-+name = "derive_more"
-+version = "0.99.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6edb4b64a43d977b8e99788fe3a04d483834fba1215a7e02caa415b626497f7f"
-+dependencies = [
-+ "convert_case",
-+ "proc-macro2",
-+ "quote",
-+ "rustc_version",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "digest"
-+version = "0.10.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
-+dependencies = [
-+ "block-buffer",
-+ "const-oid",
-+ "crypto-common",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "dirs"
-+version = "5.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
-+dependencies = [
-+ "dirs-sys",
-+]
-+
-+[[package]]
-+name = "dirs-next"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b98cf8ebf19c3d1b223e151f99a4f9f0690dca41414773390fc824184ac833e1"
-+dependencies = [
-+ "cfg-if",
-+ "dirs-sys-next",
-+]
-+
-+[[package]]
-+name = "dirs-sys"
-+version = "0.4.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c"
-+dependencies = [
-+ "libc",
-+ "option-ext",
-+ "redox_users",
-+ "windows-sys 0.48.0",
-+]
-+
-+[[package]]
-+name = "dirs-sys-next"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4ebda144c4fe02d1f7ea1a7d9641b6fc6b580adcfa024ae48797ecdeb6825b4d"
-+dependencies = [
-+ "libc",
-+ "redox_users",
-+ "winapi",
-+]
-+
-+[[package]]
-+name = "dispatch"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
-+
-+[[package]]
-+name = "displaydoc"
-+version = "0.2.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "97369cbbc041bc366949bc74d34658d6cda5621039731c6310521892a3a20ae0"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "dtoa"
-+version = "1.0.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d6add3b8cff394282be81f3fc1a0605db594ed69890078ca6e2cab1c408bcf04"
-+
-+[[package]]
-+name = "dtoa-short"
-+version = "0.3.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87"
-+dependencies = [
-+ "dtoa",
-+]
-+
-+[[package]]
-+name = "dunce"
-+version = "1.0.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
-+
-+[[package]]
-+name = "dyn-clone"
-+version = "1.0.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
-+
-+[[package]]
-+name = "ecdsa"
-+version = "0.16.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ee27f32b5c5292967d2d4a9d7f1e0b0aed2c15daded5a60300e4abb9d8020bca"
-+dependencies = [
-+ "der",
-+ "digest",
-+ "elliptic-curve",
-+ "rfc6979",
-+ "signature",
-+ "spki",
-+]
-+
-+[[package]]
-+name = "elliptic-curve"
-+version = "0.13.8"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b5e6043086bf7973472e0c7dff2142ea0b680d30e18d9cc40f267efbf222bd47"
-+dependencies = [
-+ "base16ct",
-+ "crypto-bigint",
-+ "digest",
-+ "ff",
-+ "generic-array",
-+ "group",
-+ "hkdf",
-+ "pem-rfc7468",
-+ "pkcs8",
-+ "rand_core 0.6.4",
-+ "sec1",
-+ "subtle",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "embed-resource"
-+version = "2.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d506610004cfc74a6f5ee7e8c632b355de5eca1f03ee5e5e0ec11b77d4eb3d61"
-+dependencies = [
-+ "cc",
-+ "memchr",
-+ "rustc_version",
-+ "toml 0.8.23",
-+ "vswhom",
-+ "winreg 0.52.0",
-+]
-+
-+[[package]]
-+name = "embed_plist"
-+version = "1.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4ef6b89e5b37196644d8796de5268852ff179b44e96276cf4290264843743bb7"
-+
-+[[package]]
-+name = "encoding_rs"
-+version = "0.8.35"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
-+dependencies = [
-+ "cfg-if",
-+]
-+
-+[[package]]
-+name = "equivalent"
-+version = "1.0.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
-+
-+[[package]]
-+name = "errno"
-+version = "0.3.14"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
-+dependencies = [
-+ "libc",
-+ "windows-sys 0.61.1",
-+]
-+
-+[[package]]
-+name = "fastrand"
-+version = "2.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
-+
-+[[package]]
-+name = "fdeflate"
-+version = "0.3.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
-+dependencies = [
-+ "simd-adler32",
-+]
-+
-+[[package]]
-+name = "ff"
-+version = "0.13.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c0b50bfb653653f9ca9095b427bed08ab8d75a137839d9ad64eb11810d5b6393"
-+dependencies = [
-+ "rand_core 0.6.4",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "fiat-crypto"
-+version = "0.2.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
-+
-+[[package]]
-+name = "field-offset"
-+version = "0.3.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "38e2275cc4e4fc009b0669731a1e5ab7ebf11f469eaede2bab9309a5b4d6057f"
-+dependencies = [
-+ "memoffset 0.9.1",
-+ "rustc_version",
-+]
-+
-+[[package]]
-+name = "filetime"
-+version = "0.2.26"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bc0505cd1b6fa6580283f6bdf70a73fcf4aba1184038c90902b92b3dd0df63ed"
-+dependencies = [
-+ "cfg-if",
-+ "libc",
-+ "libredox",
-+ "windows-sys 0.60.2",
-+]
-+
-+[[package]]
-+name = "find-msvc-tools"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0399f9d26e5191ce32c498bebd31e7a3ceabc2745f0ac54af3f335126c3f24b3"
-+
-+[[package]]
-+name = "flate2"
-+version = "1.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4a3d7db9596fecd151c5f638c0ee5d5bd487b6e0ea232e5dc96d5250f6f94b1d"
-+dependencies = [
-+ "crc32fast",
-+ "miniz_oxide",
-+]
-+
-+[[package]]
-+name = "fluent-uri"
-+version = "0.1.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "17c704e9dbe1ddd863da1e6ff3567795087b1eb201ce80d8fa81162e1516500d"
-+dependencies = [
-+ "bitflags 1.3.2",
-+]
-+
-+[[package]]
-+name = "fluxshare"
-+version = "0.1.0"
-+dependencies = [
-+ "anyhow",
-+ "argon2",
-+ "axum",
-+ "blake3",
-+ "bytes",
-+ "chacha20poly1305",
-+ "chrono",
-+ "dirs",
-+ "fs_extra",
-+ "parking_lot",
-+ "quinn",
-+ "rand 0.8.5",
-+ "serde",
-+ "serde_json",
-+ "tauri",
-+ "tauri-build",
-+ "tempfile",
-+ "thiserror",
-+ "tokio",
-+ "tracing",
-+ "tracing-appender",
-+ "tracing-subscriber",
-+ "url",
-+ "webrtc",
-+]
-+
-+[[package]]
-+name = "fnv"
-+version = "1.0.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
-+
-+[[package]]
-+name = "foreign-types"
-+version = "0.3.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f6f339eb8adc052cd2ca78910fda869aefa38d22d5cb648e6485e4d3fc06f3b1"
-+dependencies = [
-+ "foreign-types-shared",
-+]
-+
-+[[package]]
-+name = "foreign-types-shared"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
-+
-+[[package]]
-+name = "form_urlencoded"
-+version = "1.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
-+dependencies = [
-+ "percent-encoding",
-+]
-+
-+[[package]]
-+name = "fs_extra"
-+version = "1.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
-+
-+[[package]]
-+name = "futf"
-+version = "0.1.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df420e2e84819663797d1ec6544b13c5be84629e7bb00dc960d6917db2987843"
-+dependencies = [
-+ "mac",
-+ "new_debug_unreachable",
-+]
-+
-+[[package]]
-+name = "futures"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "65bc07b1a8bc7c85c5f2e110c476c7389b4554ba72af57d8445ea63a576b0876"
-+dependencies = [
-+ "futures-channel",
-+ "futures-core",
-+ "futures-executor",
-+ "futures-io",
-+ "futures-sink",
-+ "futures-task",
-+ "futures-util",
-+]
-+
-+[[package]]
-+name = "futures-channel"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2dff15bf788c671c1934e366d07e30c1814a8ef514e1af724a602e8a2fbe1b10"
-+dependencies = [
-+ "futures-core",
-+ "futures-sink",
-+]
-+
-+[[package]]
-+name = "futures-core"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "05f29059c0c2090612e8d742178b0580d2dc940c837851ad723096f87af6663e"
-+
-+[[package]]
-+name = "futures-executor"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1e28d1d997f585e54aebc3f97d39e72338912123a67330d723fdbb564d646c9f"
-+dependencies = [
-+ "futures-core",
-+ "futures-task",
-+ "futures-util",
-+]
-+
-+[[package]]
-+name = "futures-io"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9e5c1b78ca4aae1ac06c48a526a655760685149f0d465d21f37abfe57ce075c6"
-+
-+[[package]]
-+name = "futures-macro"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "162ee34ebcb7c64a8abebc059ce0fee27c2262618d7b60ed8faf72fef13c3650"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "futures-sink"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e575fab7d1e0dcb8d0c7bcf9a63ee213816ab51902e6d244a95819acacf1d4f7"
-+
-+[[package]]
-+name = "futures-task"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f90f7dce0722e95104fcb095585910c0977252f286e354b5e3bd38902cd99988"
-+
-+[[package]]
-+name = "futures-util"
-+version = "0.3.31"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9fa08315bb612088cc391249efdc3bc77536f16c91f6cf495e6fbe85b20a4a81"
-+dependencies = [
-+ "futures-channel",
-+ "futures-core",
-+ "futures-io",
-+ "futures-macro",
-+ "futures-sink",
-+ "futures-task",
-+ "memchr",
-+ "pin-project-lite",
-+ "pin-utils",
-+ "slab",
-+]
-+
-+[[package]]
-+name = "fxhash"
-+version = "0.2.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
-+dependencies = [
-+ "byteorder",
-+]
-+
-+[[package]]
-+name = "gdk"
-+version = "0.15.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a6e05c1f572ab0e1f15be94217f0dc29088c248b14f792a5ff0af0d84bcda9e8"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cairo-rs",
-+ "gdk-pixbuf",
-+ "gdk-sys",
-+ "gio",
-+ "glib",
-+ "libc",
-+ "pango",
-+]
-+
-+[[package]]
-+name = "gdk-pixbuf"
-+version = "0.15.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ad38dd9cc8b099cceecdf41375bb6d481b1b5a7cd5cd603e10a69a9383f8619a"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "gdk-pixbuf-sys",
-+ "gio",
-+ "glib",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "gdk-pixbuf-sys"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "140b2f5378256527150350a8346dbdb08fadc13453a7a2d73aecd5fab3c402a7"
-+dependencies = [
-+ "gio-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "gdk-sys"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "32e7a08c1e8f06f4177fb7e51a777b8c1689f743a7bc11ea91d44d2226073a88"
-+dependencies = [
-+ "cairo-sys-rs",
-+ "gdk-pixbuf-sys",
-+ "gio-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "pango-sys",
-+ "pkg-config",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "gdkwayland-sys"
-+version = "0.15.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cca49a59ad8cfdf36ef7330fe7bdfbe1d34323220cc16a0de2679ee773aee2c2"
-+dependencies = [
-+ "gdk-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "pkg-config",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "gdkx11-sys"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b4b7f8c7a84b407aa9b143877e267e848ff34106578b64d1e0a24bf550716178"
-+dependencies = [
-+ "gdk-sys",
-+ "glib-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+ "x11",
-+]
-+
-+[[package]]
-+name = "generator"
-+version = "0.7.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5cc16584ff22b460a382b7feec54b23d2908d858152e5739a120b949293bd74e"
-+dependencies = [
-+ "cc",
-+ "libc",
-+ "log",
-+ "rustversion",
-+ "windows 0.48.0",
-+]
-+
-+[[package]]
-+name = "generic-array"
-+version = "0.14.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
-+dependencies = [
-+ "typenum",
-+ "version_check",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "getrandom"
-+version = "0.1.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8fc3cb4d91f53b50155bdcfd23f6a4c39ae1969c2ae85982b135750cccaf5fce"
-+dependencies = [
-+ "cfg-if",
-+ "libc",
-+ "wasi 0.9.0+wasi-snapshot-preview1",
-+]
-+
-+[[package]]
-+name = "getrandom"
-+version = "0.2.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "335ff9f135e4384c8150d6f27c6daed433577f86b4750418338c01a1a2528592"
-+dependencies = [
-+ "cfg-if",
-+ "libc",
-+ "wasi 0.11.1+wasi-snapshot-preview1",
-+]
-+
-+[[package]]
-+name = "getrandom"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "26145e563e54f2cadc477553f1ec5ee650b00862f0a58bcd12cbdc5f0ea2d2f4"
-+dependencies = [
-+ "cfg-if",
-+ "libc",
-+ "r-efi",
-+ "wasi 0.14.7+wasi-0.2.4",
-+]
-+
-+[[package]]
-+name = "ghash"
-+version = "0.5.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f0d8a4362ccb29cb0b265253fb0a2728f592895ee6854fd9bc13f2ffda266ff1"
-+dependencies = [
-+ "opaque-debug",
-+ "polyval",
-+]
-+
-+[[package]]
-+name = "gimli"
-+version = "0.32.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7"
-+
-+[[package]]
-+name = "gio"
-+version = "0.15.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "68fdbc90312d462781a395f7a16d96a2b379bb6ef8cd6310a2df272771c4283b"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "futures-channel",
-+ "futures-core",
-+ "futures-io",
-+ "gio-sys",
-+ "glib",
-+ "libc",
-+ "once_cell",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "gio-sys"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "32157a475271e2c4a023382e9cab31c4584ee30a97da41d3c4e9fdd605abcf8d"
-+dependencies = [
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+ "winapi",
-+]
-+
-+[[package]]
-+name = "glib"
-+version = "0.15.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "edb0306fbad0ab5428b0ca674a23893db909a98582969c9b537be4ced78c505d"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "futures-channel",
-+ "futures-core",
-+ "futures-executor",
-+ "futures-task",
-+ "glib-macros",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "once_cell",
-+ "smallvec",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "glib-macros"
-+version = "0.15.13"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "10c6ae9f6fa26f4fb2ac16b528d138d971ead56141de489f8111e259b9df3c4a"
-+dependencies = [
-+ "anyhow",
-+ "heck 0.4.1",
-+ "proc-macro-crate",
-+ "proc-macro-error",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "glib-sys"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ef4b192f8e65e9cf76cbf4ea71fa8e3be4a0e18ffe3d68b8da6836974cc5bad4"
-+dependencies = [
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "glob"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
-+
-+[[package]]
-+name = "globset"
-+version = "0.4.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "54a1028dfc5f5df5da8a56a73e6c153c9a9708ec57232470703592a3f18e49f5"
-+dependencies = [
-+ "aho-corasick",
-+ "bstr",
-+ "log",
-+ "regex-automata",
-+ "regex-syntax",
-+]
-+
-+[[package]]
-+name = "gobject-sys"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0d57ce44246becd17153bd035ab4d32cfee096a657fc01f2231c9278378d1e0a"
-+dependencies = [
-+ "glib-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "group"
-+version = "0.13.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f0f9ef7462f7c099f518d754361858f86d8a07af53ba9af0fe635bbccb151a63"
-+dependencies = [
-+ "ff",
-+ "rand_core 0.6.4",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "gtk"
-+version = "0.15.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "92e3004a2d5d6d8b5057d2b57b3712c9529b62e82c77f25c1fecde1fd5c23bd0"
-+dependencies = [
-+ "atk",
-+ "bitflags 1.3.2",
-+ "cairo-rs",
-+ "field-offset",
-+ "futures-channel",
-+ "gdk",
-+ "gdk-pixbuf",
-+ "gio",
-+ "glib",
-+ "gtk-sys",
-+ "gtk3-macros",
-+ "libc",
-+ "once_cell",
-+ "pango",
-+ "pkg-config",
-+]
-+
-+[[package]]
-+name = "gtk-sys"
-+version = "0.15.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d5bc2f0587cba247f60246a0ca11fe25fb733eabc3de12d1965fc07efab87c84"
-+dependencies = [
-+ "atk-sys",
-+ "cairo-sys-rs",
-+ "gdk-pixbuf-sys",
-+ "gdk-sys",
-+ "gio-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "pango-sys",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "gtk3-macros"
-+version = "0.15.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "684c0456c086e8e7e9af73ec5b84e35938df394712054550e81558d21c44ab0d"
-+dependencies = [
-+ "anyhow",
-+ "proc-macro-crate",
-+ "proc-macro-error",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "h2"
-+version = "0.3.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0beca50380b1fc32983fc1cb4587bfa4bb9e78fc259aad4a0032d2080309222d"
-+dependencies = [
-+ "bytes",
-+ "fnv",
-+ "futures-core",
-+ "futures-sink",
-+ "futures-util",
-+ "http 0.2.12",
-+ "indexmap 2.11.4",
-+ "slab",
-+ "tokio",
-+ "tokio-util",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "hashbrown"
-+version = "0.12.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
-+
-+[[package]]
-+name = "hashbrown"
-+version = "0.16.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d"
-+
-+[[package]]
-+name = "heck"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
-+dependencies = [
-+ "unicode-segmentation",
-+]
-+
-+[[package]]
-+name = "heck"
-+version = "0.4.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
-+
-+[[package]]
-+name = "heck"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
-+
-+[[package]]
-+name = "hex"
-+version = "0.4.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-+
-+[[package]]
-+name = "hkdf"
-+version = "0.12.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7b5f8eb2ad728638ea2c7d47a21db23b7b58a72ed6a38256b8a1849f15fbbdf7"
-+dependencies = [
-+ "hmac",
-+]
-+
-+[[package]]
-+name = "hmac"
-+version = "0.12.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
-+dependencies = [
-+ "digest",
-+]
-+
-+[[package]]
-+name = "html5ever"
-+version = "0.26.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bea68cab48b8459f17cf1c944c67ddc572d272d9f2b274140f223ecb1da4a3b7"
-+dependencies = [
-+ "log",
-+ "mac",
-+ "markup5ever",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "http"
-+version = "0.2.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "601cbb57e577e2f5ef5be8e7b83f0f63994f25aa94d673e54a92d5c516d101f1"
-+dependencies = [
-+ "bytes",
-+ "fnv",
-+ "itoa 1.0.15",
-+]
-+
-+[[package]]
-+name = "http"
-+version = "1.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f4a85d31aea989eead29a3aaf9e1115a180df8282431156e533de47660892565"
-+dependencies = [
-+ "bytes",
-+ "fnv",
-+ "itoa 1.0.15",
-+]
-+
-+[[package]]
-+name = "http-body"
-+version = "0.4.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7ceab25649e9960c0311ea418d17bee82c0dcec1bd053b5f9a66e265a693bed2"
-+dependencies = [
-+ "bytes",
-+ "http 0.2.12",
-+ "pin-project-lite",
-+]
-+
-+[[package]]
-+name = "http-body"
-+version = "1.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1efedce1fb8e6913f23e0c92de8e62cd5b772a67e7b3946df930a62566c93184"
-+dependencies = [
-+ "bytes",
-+ "http 1.3.1",
-+]
-+
-+[[package]]
-+name = "http-body-util"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b021d93e26becf5dc7e1b75b1bed1fd93124b374ceb73f43d4d4eafec896a64a"
-+dependencies = [
-+ "bytes",
-+ "futures-core",
-+ "http 1.3.1",
-+ "http-body 1.0.1",
-+ "pin-project-lite",
-+]
-+
-+[[package]]
-+name = "http-range"
-+version = "0.1.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "21dec9db110f5f872ed9699c3ecf50cf16f423502706ba5c72462e28d3157573"
-+
-+[[package]]
-+name = "httparse"
-+version = "1.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
-+
-+[[package]]
-+name = "httpdate"
-+version = "1.0.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
-+
-+[[package]]
-+name = "hyper"
-+version = "0.14.32"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "41dfc780fdec9373c01bae43289ea34c972e40ee3c9f6b3c8801a35f35586ce7"
-+dependencies = [
-+ "bytes",
-+ "futures-channel",
-+ "futures-core",
-+ "futures-util",
-+ "h2",
-+ "http 0.2.12",
-+ "http-body 0.4.6",
-+ "httparse",
-+ "httpdate",
-+ "itoa 1.0.15",
-+ "pin-project-lite",
-+ "socket2 0.5.10",
-+ "tokio",
-+ "tower-service",
-+ "tracing",
-+ "want",
-+]
-+
-+[[package]]
-+name = "hyper"
-+version = "1.7.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "eb3aa54a13a0dfe7fbe3a59e0c76093041720fdc77b110cc0fc260fafb4dc51e"
-+dependencies = [
-+ "atomic-waker",
-+ "bytes",
-+ "futures-channel",
-+ "futures-core",
-+ "http 1.3.1",
-+ "http-body 1.0.1",
-+ "httparse",
-+ "httpdate",
-+ "itoa 1.0.15",
-+ "pin-project-lite",
-+ "pin-utils",
-+ "smallvec",
-+ "tokio",
-+]
-+
-+[[package]]
-+name = "hyper-tls"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d6183ddfa99b85da61a140bea0efc93fdf56ceaa041b37d553518030827f9905"
-+dependencies = [
-+ "bytes",
-+ "hyper 0.14.32",
-+ "native-tls",
-+ "tokio",
-+ "tokio-native-tls",
-+]
-+
-+[[package]]
-+name = "hyper-util"
-+version = "0.1.17"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3c6995591a8f1380fcb4ba966a252a4b29188d51d2b89e3a252f5305be65aea8"
-+dependencies = [
-+ "bytes",
-+ "futures-core",
-+ "http 1.3.1",
-+ "http-body 1.0.1",
-+ "hyper 1.7.0",
-+ "pin-project-lite",
-+ "tokio",
-+ "tower-service",
-+]
-+
-+[[package]]
-+name = "iana-time-zone"
-+version = "0.1.64"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "33e57f83510bb73707521ebaffa789ec8caf86f9657cad665b092b581d40e9fb"
-+dependencies = [
-+ "android_system_properties",
-+ "core-foundation-sys",
-+ "iana-time-zone-haiku",
-+ "js-sys",
-+ "log",
-+ "wasm-bindgen",
-+ "windows-core",
-+]
-+
-+[[package]]
-+name = "iana-time-zone-haiku"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
-+dependencies = [
-+ "cc",
-+]
-+
-+[[package]]
-+name = "ico"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cc50b891e4acf8fe0e71ef88ec43ad82ee07b3810ad09de10f1d01f072ed4b98"
-+dependencies = [
-+ "byteorder",
-+ "png",
-+]
-+
-+[[package]]
-+name = "icu_collections"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "200072f5d0e3614556f94a9930d5dc3e0662a652823904c3a75dc3b0af7fee47"
-+dependencies = [
-+ "displaydoc",
-+ "potential_utf",
-+ "yoke",
-+ "zerofrom",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "icu_locale_core"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0cde2700ccaed3872079a65fb1a78f6c0a36c91570f28755dda67bc8f7d9f00a"
-+dependencies = [
-+ "displaydoc",
-+ "litemap",
-+ "tinystr",
-+ "writeable",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "icu_normalizer"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "436880e8e18df4d7bbc06d58432329d6458cc84531f7ac5f024e93deadb37979"
-+dependencies = [
-+ "displaydoc",
-+ "icu_collections",
-+ "icu_normalizer_data",
-+ "icu_properties",
-+ "icu_provider",
-+ "smallvec",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "icu_normalizer_data"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "00210d6893afc98edb752b664b8890f0ef174c8adbb8d0be9710fa66fbbf72d3"
-+
-+[[package]]
-+name = "icu_properties"
-+version = "2.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "016c619c1eeb94efb86809b015c58f479963de65bdb6253345c1a1276f22e32b"
-+dependencies = [
-+ "displaydoc",
-+ "icu_collections",
-+ "icu_locale_core",
-+ "icu_properties_data",
-+ "icu_provider",
-+ "potential_utf",
-+ "zerotrie",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "icu_properties_data"
-+version = "2.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "298459143998310acd25ffe6810ed544932242d3f07083eee1084d83a71bd632"
-+
-+[[package]]
-+name = "icu_provider"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "03c80da27b5f4187909049ee2d72f276f0d9f99a42c306bd0131ecfe04d8e5af"
-+dependencies = [
-+ "displaydoc",
-+ "icu_locale_core",
-+ "stable_deref_trait",
-+ "tinystr",
-+ "writeable",
-+ "yoke",
-+ "zerofrom",
-+ "zerotrie",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "ident_case"
-+version = "1.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
-+
-+[[package]]
-+name = "idna"
-+version = "1.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3b0875f23caa03898994f6ddc501886a45c7d3d62d04d2d90788d47be1b1e4de"
-+dependencies = [
-+ "idna_adapter",
-+ "smallvec",
-+ "utf8_iter",
-+]
-+
-+[[package]]
-+name = "idna_adapter"
-+version = "1.2.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3acae9609540aa318d1bc588455225fb2085b9ed0c4f6bd0d9d5bcd86f1a0344"
-+dependencies = [
-+ "icu_normalizer",
-+ "icu_properties",
-+]
-+
-+[[package]]
-+name = "ignore"
-+version = "0.4.23"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6d89fd380afde86567dfba715db065673989d6253f42b88179abd3eae47bda4b"
-+dependencies = [
-+ "crossbeam-deque",
-+ "globset",
-+ "log",
-+ "memchr",
-+ "regex-automata",
-+ "same-file",
-+ "walkdir",
-+ "winapi-util",
-+]
-+
-+[[package]]
-+name = "image"
-+version = "0.24.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5690139d2f55868e080017335e4b94cb7414274c74f1669c84fb5feba2c9f69d"
-+dependencies = [
-+ "bytemuck",
-+ "byteorder",
-+ "color_quant",
-+ "num-traits",
-+]
-+
-+[[package]]
-+name = "indexmap"
-+version = "1.9.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
-+dependencies = [
-+ "autocfg",
-+ "hashbrown 0.12.3",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "indexmap"
-+version = "2.11.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4b0f83760fb341a774ed326568e19f5a863af4a952def8c39f9ab92fd95b88e5"
-+dependencies = [
-+ "equivalent",
-+ "hashbrown 0.16.0",
-+ "serde",
-+ "serde_core",
-+]
-+
-+[[package]]
-+name = "infer"
-+version = "0.13.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f551f8c3a39f68f986517db0d1759de85881894fdc7db798bd2a9df9cb04b7fc"
-+dependencies = [
-+ "cfb",
-+]
-+
-+[[package]]
-+name = "inout"
-+version = "0.1.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
-+dependencies = [
-+ "block-padding",
-+ "generic-array",
-+]
-+
-+[[package]]
-+name = "instant"
-+version = "0.1.13"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222"
-+dependencies = [
-+ "cfg-if",
-+]
-+
-+[[package]]
-+name = "interceptor"
-+version = "0.11.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5b12e186d2a4c21225df6beb8ae5d81817c928da12e7ce78d0953fc74d88b590"
-+dependencies = [
-+ "async-trait",
-+ "bytes",
-+ "log",
-+ "rand 0.8.5",
-+ "rtcp",
-+ "rtp",
-+ "thiserror",
-+ "tokio",
-+ "waitgroup",
-+ "webrtc-srtp",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "io-uring"
-+version = "0.7.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "046fa2d4d00aea763528b4950358d0ead425372445dc8ff86312b3c69ff7727b"
-+dependencies = [
-+ "bitflags 2.9.4",
-+ "cfg-if",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "ipnet"
-+version = "2.11.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "469fb0b9cefa57e3ef31275ee7cacb78f2fdca44e4765491884a2b119d4eb130"
-+
-+[[package]]
-+name = "itoa"
-+version = "0.4.8"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b71991ff56294aa922b450139ee08b3bfc70982c6b2c7562771375cf73542dd4"
-+
-+[[package]]
-+name = "itoa"
-+version = "1.0.15"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
-+
-+[[package]]
-+name = "javascriptcore-rs"
-+version = "0.16.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bf053e7843f2812ff03ef5afe34bb9c06ffee120385caad4f6b9967fcd37d41c"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "glib",
-+ "javascriptcore-rs-sys",
-+]
-+
-+[[package]]
-+name = "javascriptcore-rs-sys"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "905fbb87419c5cde6e3269537e4ea7d46431f3008c5d057e915ef3f115e7793c"
-+dependencies = [
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 5.0.0",
-+]
-+
-+[[package]]
-+name = "jni"
-+version = "0.20.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "039022cdf4d7b1cf548d31f60ae783138e5fd42013f6271049d7df7afadef96c"
-+dependencies = [
-+ "cesu8",
-+ "combine",
-+ "jni-sys",
-+ "log",
-+ "thiserror",
-+ "walkdir",
-+]
-+
-+[[package]]
-+name = "jni-sys"
-+version = "0.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
-+
-+[[package]]
-+name = "js-sys"
-+version = "0.3.81"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ec48937a97411dcb524a265206ccd4c90bb711fca92b2792c407f268825b9305"
-+dependencies = [
-+ "once_cell",
-+ "wasm-bindgen",
-+]
-+
-+[[package]]
-+name = "json-patch"
-+version = "2.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5b1fb8864823fad91877e6caea0baca82e49e8db50f8e5c9f9a453e27d3330fc"
-+dependencies = [
-+ "jsonptr",
-+ "serde",
-+ "serde_json",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "jsonptr"
-+version = "0.4.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1c6e529149475ca0b2820835d3dce8fcc41c6b943ca608d32f35b449255e4627"
-+dependencies = [
-+ "fluent-uri",
-+ "serde",
-+ "serde_json",
-+]
-+
-+[[package]]
-+name = "kuchikiki"
-+version = "0.8.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f29e4755b7b995046f510a7520c42b2fed58b77bd94d5a87a8eb43d2fd126da8"
-+dependencies = [
-+ "cssparser",
-+ "html5ever",
-+ "indexmap 1.9.3",
-+ "matches",
-+ "selectors",
-+]
-+
-+[[package]]
-+name = "lazy_static"
-+version = "1.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
-+
-+[[package]]
-+name = "libc"
-+version = "0.2.176"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "58f929b4d672ea937a23a1ab494143d968337a5f47e56d0815df1e0890ddf174"
-+
-+[[package]]
-+name = "libredox"
-+version = "0.1.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "416f7e718bdb06000964960ffa43b4335ad4012ae8b99060261aa4a8088d5ccb"
-+dependencies = [
-+ "bitflags 2.9.4",
-+ "libc",
-+ "redox_syscall",
-+]
-+
-+[[package]]
-+name = "linux-raw-sys"
-+version = "0.11.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
-+
-+[[package]]
-+name = "litemap"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
-+
-+[[package]]
-+name = "lock_api"
-+version = "0.4.14"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
-+dependencies = [
-+ "scopeguard",
-+]
-+
-+[[package]]
-+name = "log"
-+version = "0.4.28"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
-+
-+[[package]]
-+name = "loom"
-+version = "0.5.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ff50ecb28bb86013e935fb6683ab1f6d3a20016f123c76fd4c27470076ac30f5"
-+dependencies = [
-+ "cfg-if",
-+ "generator",
-+ "scoped-tls",
-+ "serde",
-+ "serde_json",
-+ "tracing",
-+ "tracing-subscriber",
-+]
-+
-+[[package]]
-+name = "mac"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
-+
-+[[package]]
-+name = "malloc_buf"
-+version = "0.0.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
-+dependencies = [
-+ "libc",
-+]
-+
-+[[package]]
-+name = "markup5ever"
-+version = "0.11.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7a2629bb1404f3d34c2e921f21fd34ba00b206124c81f65c50b43b6aaefeb016"
-+dependencies = [
-+ "log",
-+ "phf 0.10.1",
-+ "phf_codegen 0.10.0",
-+ "string_cache",
-+ "string_cache_codegen",
-+ "tendril",
-+]
-+
-+[[package]]
-+name = "matchers"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d1525a2a28c7f4fa0fc98bb91ae755d1e2d1505079e05539e35bc876b5d65ae9"
-+dependencies = [
-+ "regex-automata",
-+]
-+
-+[[package]]
-+name = "matches"
-+version = "0.1.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
-+
-+[[package]]
-+name = "matchit"
-+version = "0.7.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
-+
-+[[package]]
-+name = "md-5"
-+version = "0.10.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d89e7ee0cfbedfc4da3340218492196241d89eefb6dab27de5df917a6d2e78cf"
-+dependencies = [
-+ "cfg-if",
-+ "digest",
-+]
-+
-+[[package]]
-+name = "memchr"
-+version = "2.7.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
-+
-+[[package]]
-+name = "memoffset"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5de893c32cde5f383baa4c04c5d6dbdd735cfd4a794b0debdb2bb1b421da5ff4"
-+dependencies = [
-+ "autocfg",
-+]
-+
-+[[package]]
-+name = "memoffset"
-+version = "0.9.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
-+dependencies = [
-+ "autocfg",
-+]
-+
-+[[package]]
-+name = "mime"
-+version = "0.3.17"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
-+
-+[[package]]
-+name = "minimal-lexical"
-+version = "0.2.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
-+
-+[[package]]
-+name = "minisign-verify"
-+version = "0.2.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e856fdd13623a2f5f2f54676a4ee49502a96a80ef4a62bcedd23d52427c44d43"
-+
-+[[package]]
-+name = "miniz_oxide"
-+version = "0.8.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316"
-+dependencies = [
-+ "adler2",
-+ "simd-adler32",
-+]
-+
-+[[package]]
-+name = "mio"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "78bed444cc8a2160f01cbcf811ef18cac863ad68ae8ca62092e8db51d51c761c"
-+dependencies = [
-+ "libc",
-+ "wasi 0.11.1+wasi-snapshot-preview1",
-+ "windows-sys 0.59.0",
-+]
-+
-+[[package]]
-+name = "native-tls"
-+version = "0.2.14"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "87de3442987e9dbec73158d5c715e7ad9072fda936bb03d19d7fa10e00520f0e"
-+dependencies = [
-+ "libc",
-+ "log",
-+ "openssl",
-+ "openssl-probe",
-+ "openssl-sys",
-+ "schannel",
-+ "security-framework",
-+ "security-framework-sys",
-+ "tempfile",
-+]
-+
-+[[package]]
-+name = "ndk"
-+version = "0.6.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2032c77e030ddee34a6787a64166008da93f6a352b629261d0fee232b8742dd4"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "jni-sys",
-+ "ndk-sys",
-+ "num_enum",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "ndk-context"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "27b02d87554356db9e9a873add8782d4ea6e3e58ea071a9adb9a2e8ddb884a8b"
-+
-+[[package]]
-+name = "ndk-sys"
-+version = "0.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6e5a6ae77c8ee183dcbbba6150e2e6b9f3f4196a7666c02a715a95692ec1fa97"
-+dependencies = [
-+ "jni-sys",
-+]
-+
-+[[package]]
-+name = "new_debug_unreachable"
-+version = "1.0.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
-+
-+[[package]]
-+name = "nix"
-+version = "0.26.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "598beaf3cc6fdd9a5dfb1630c2800c7acd31df7aaf0f565796fba2b53ca1af1b"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cfg-if",
-+ "libc",
-+ "memoffset 0.7.1",
-+ "pin-utils",
-+]
-+
-+[[package]]
-+name = "nodrop"
-+version = "0.1.14"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
-+
-+[[package]]
-+name = "nom"
-+version = "7.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
-+dependencies = [
-+ "memchr",
-+ "minimal-lexical",
-+]
-+
-+[[package]]
-+name = "nu-ansi-term"
-+version = "0.50.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d4a28e057d01f97e61255210fcff094d74ed0466038633e95017f5beb68e4399"
-+dependencies = [
-+ "windows-sys 0.52.0",
-+]
-+
-+[[package]]
-+name = "num-bigint"
-+version = "0.4.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
-+dependencies = [
-+ "num-integer",
-+ "num-traits",
-+]
-+
-+[[package]]
-+name = "num-conv"
-+version = "0.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "51d515d32fb182ee37cda2ccdcb92950d6a3c2893aa280e540671c2cd0f3b1d9"
-+
-+[[package]]
-+name = "num-integer"
-+version = "0.1.46"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
-+dependencies = [
-+ "num-traits",
-+]
-+
-+[[package]]
-+name = "num-traits"
-+version = "0.2.19"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
-+dependencies = [
-+ "autocfg",
-+]
-+
-+[[package]]
-+name = "num_enum"
-+version = "0.5.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1f646caf906c20226733ed5b1374287eb97e3c2a5c227ce668c1f2ce20ae57c9"
-+dependencies = [
-+ "num_enum_derive",
-+]
-+
-+[[package]]
-+name = "num_enum_derive"
-+version = "0.5.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dcbff9bc912032c62bf65ef1d5aea88983b420f4f839db1e9b0c281a25c9c799"
-+dependencies = [
-+ "proc-macro-crate",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "objc"
-+version = "0.2.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
-+dependencies = [
-+ "malloc_buf",
-+ "objc_exception",
-+]
-+
-+[[package]]
-+name = "objc-foundation"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1add1b659e36c9607c7aab864a76c7a4c2760cd0cd2e120f3fb8b952c7e22bf9"
-+dependencies = [
-+ "block",
-+ "objc",
-+ "objc_id",
-+]
-+
-+[[package]]
-+name = "objc_exception"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ad970fb455818ad6cba4c122ad012fae53ae8b4795f86378bce65e4f6bab2ca4"
-+dependencies = [
-+ "cc",
-+]
-+
-+[[package]]
-+name = "objc_id"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c92d4ddb4bd7b50d730c215ff871754d0da6b2178849f8a2a2ab69712d0c073b"
-+dependencies = [
-+ "objc",
-+]
-+
-+[[package]]
-+name = "object"
-+version = "0.37.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ff76201f031d8863c38aa7f905eca4f53abbfa15f609db4277d44cd8938f33fe"
-+dependencies = [
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "oid-registry"
-+version = "0.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9bedf36ffb6ba96c2eb7144ef6270557b52e54b20c0a8e1eb2ff99a6c6959bff"
-+dependencies = [
-+ "asn1-rs",
-+]
-+
-+[[package]]
-+name = "once_cell"
-+version = "1.21.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-+
-+[[package]]
-+name = "opaque-debug"
-+version = "0.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
-+
-+[[package]]
-+name = "open"
-+version = "3.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2078c0039e6a54a0c42c28faa984e115fb4c2d5bf2208f77d1961002df8576f8"
-+dependencies = [
-+ "pathdiff",
-+ "windows-sys 0.42.0",
-+]
-+
-+[[package]]
-+name = "openssl"
-+version = "0.10.73"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8505734d46c8ab1e19a1dce3aef597ad87dcb4c37e7188231769bd6bd51cebf8"
-+dependencies = [
-+ "bitflags 2.9.4",
-+ "cfg-if",
-+ "foreign-types",
-+ "libc",
-+ "once_cell",
-+ "openssl-macros",
-+ "openssl-sys",
-+]
-+
-+[[package]]
-+name = "openssl-macros"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "openssl-probe"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d05e27ee213611ffe7d6348b942e8f942b37114c00cc03cec254295a4a17852e"
-+
-+[[package]]
-+name = "openssl-sys"
-+version = "0.9.109"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "90096e2e47630d78b7d1c20952dc621f957103f8bc2c8359ec81290d75238571"
-+dependencies = [
-+ "cc",
-+ "libc",
-+ "pkg-config",
-+ "vcpkg",
-+]
-+
-+[[package]]
-+name = "option-ext"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
-+
-+[[package]]
-+name = "os_pipe"
-+version = "1.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "db335f4760b14ead6290116f2427bf33a14d4f0617d49f78a246de10c1831224"
-+dependencies = [
-+ "libc",
-+ "windows-sys 0.59.0",
-+]
-+
-+[[package]]
-+name = "p256"
-+version = "0.13.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c9863ad85fa8f4460f9c48cb909d38a0d689dba1f6f6988a5e3e0d31071bcd4b"
-+dependencies = [
-+ "ecdsa",
-+ "elliptic-curve",
-+ "primeorder",
-+ "sha2",
-+]
-+
-+[[package]]
-+name = "p384"
-+version = "0.13.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "fe42f1670a52a47d448f14b6a5c61dd78fce51856e68edaa38f7ae3a46b8d6b6"
-+dependencies = [
-+ "ecdsa",
-+ "elliptic-curve",
-+ "primeorder",
-+ "sha2",
-+]
-+
-+[[package]]
-+name = "pango"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "22e4045548659aee5313bde6c582b0d83a627b7904dd20dc2d9ef0895d414e4f"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "glib",
-+ "libc",
-+ "once_cell",
-+ "pango-sys",
-+]
-+
-+[[package]]
-+name = "pango-sys"
-+version = "0.15.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d2a00081cde4661982ed91d80ef437c20eacaf6aa1a5962c0279ae194662c3aa"
-+dependencies = [
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "parking_lot"
-+version = "0.12.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
-+dependencies = [
-+ "lock_api",
-+ "parking_lot_core",
-+]
-+
-+[[package]]
-+name = "parking_lot_core"
-+version = "0.9.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1"
-+dependencies = [
-+ "cfg-if",
-+ "libc",
-+ "redox_syscall",
-+ "smallvec",
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "password-hash"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
-+dependencies = [
-+ "base64ct",
-+ "rand_core 0.6.4",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "pathdiff"
-+version = "0.2.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
-+
-+[[package]]
-+name = "pem"
-+version = "3.0.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "38af38e8470ac9dee3ce1bae1af9c1671fffc44ddfd8bd1d0a3445bf349a8ef3"
-+dependencies = [
-+ "base64 0.22.1",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "pem-rfc7468"
-+version = "0.7.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "88b39c9bfcfc231068454382784bb460aae594343fb030d46e9f50a645418412"
-+dependencies = [
-+ "base64ct",
-+]
-+
-+[[package]]
-+name = "percent-encoding"
-+version = "2.3.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
-+
-+[[package]]
-+name = "phf"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
-+dependencies = [
-+ "phf_macros 0.8.0",
-+ "phf_shared 0.8.0",
-+ "proc-macro-hack",
-+]
-+
-+[[package]]
-+name = "phf"
-+version = "0.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "fabbf1ead8a5bcbc20f5f8b939ee3f5b0f6f281b6ad3468b84656b658b455259"
-+dependencies = [
-+ "phf_shared 0.10.0",
-+]
-+
-+[[package]]
-+name = "phf"
-+version = "0.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1fd6780a80ae0c52cc120a26a1a42c1ae51b247a253e4e06113d23d2c2edd078"
-+dependencies = [
-+ "phf_macros 0.11.3",
-+ "phf_shared 0.11.3",
-+]
-+
-+[[package]]
-+name = "phf_codegen"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cbffee61585b0411840d3ece935cce9cb6321f01c45477d30066498cd5e1a815"
-+dependencies = [
-+ "phf_generator 0.8.0",
-+ "phf_shared 0.8.0",
-+]
-+
-+[[package]]
-+name = "phf_codegen"
-+version = "0.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4fb1c3a8bc4dd4e5cfce29b44ffc14bedd2ee294559a294e2a4d4c9e9a6a13cd"
-+dependencies = [
-+ "phf_generator 0.10.0",
-+ "phf_shared 0.10.0",
-+]
-+
-+[[package]]
-+name = "phf_generator"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "17367f0cc86f2d25802b2c26ee58a7b23faeccf78a396094c13dced0d0182526"
-+dependencies = [
-+ "phf_shared 0.8.0",
-+ "rand 0.7.3",
-+]
-+
-+[[package]]
-+name = "phf_generator"
-+version = "0.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5d5285893bb5eb82e6aaf5d59ee909a06a16737a8970984dd7746ba9283498d6"
-+dependencies = [
-+ "phf_shared 0.10.0",
-+ "rand 0.8.5",
-+]
-+
-+[[package]]
-+name = "phf_generator"
-+version = "0.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3c80231409c20246a13fddb31776fb942c38553c51e871f8cbd687a4cfb5843d"
-+dependencies = [
-+ "phf_shared 0.11.3",
-+ "rand 0.8.5",
-+]
-+
-+[[package]]
-+name = "phf_macros"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7f6fde18ff429ffc8fe78e2bf7f8b7a5a5a6e2a8b58bc5a9ac69198bbda9189c"
-+dependencies = [
-+ "phf_generator 0.8.0",
-+ "phf_shared 0.8.0",
-+ "proc-macro-hack",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "phf_macros"
-+version = "0.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f84ac04429c13a7ff43785d75ad27569f2951ce0ffd30a3321230db2fc727216"
-+dependencies = [
-+ "phf_generator 0.11.3",
-+ "phf_shared 0.11.3",
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "phf_shared"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c00cf8b9eafe68dde5e9eaa2cef8ee84a9336a47d566ec55ca16589633b65af7"
-+dependencies = [
-+ "siphasher 0.3.11",
-+]
-+
-+[[package]]
-+name = "phf_shared"
-+version = "0.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b6796ad771acdc0123d2a88dc428b5e38ef24456743ddb1744ed628f9815c096"
-+dependencies = [
-+ "siphasher 0.3.11",
-+]
-+
-+[[package]]
-+name = "phf_shared"
-+version = "0.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "67eabc2ef2a60eb7faa00097bd1ffdb5bd28e62bf39990626a582201b7a754e5"
-+dependencies = [
-+ "siphasher 1.0.1",
-+]
-+
-+[[package]]
-+name = "pin-project-lite"
-+version = "0.2.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3b3cff922bd51709b605d9ead9aa71031d81447142d828eb4a6eba76fe619f9b"
-+
-+[[package]]
-+name = "pin-utils"
-+version = "0.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
-+
-+[[package]]
-+name = "pkcs8"
-+version = "0.10.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
-+dependencies = [
-+ "der",
-+ "spki",
-+]
-+
-+[[package]]
-+name = "pkg-config"
-+version = "0.3.32"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
-+
-+[[package]]
-+name = "plist"
-+version = "1.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "740ebea15c5d1428f910cd1a5f52cebf8d25006245ed8ade92702f4943d91e07"
-+dependencies = [
-+ "base64 0.22.1",
-+ "indexmap 2.11.4",
-+ "quick-xml",
-+ "serde",
-+ "time",
-+]
-+
-+[[package]]
-+name = "png"
-+version = "0.17.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "82151a2fc869e011c153adc57cf2789ccb8d9906ce52c0b39a6b5697749d7526"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "crc32fast",
-+ "fdeflate",
-+ "flate2",
-+ "miniz_oxide",
-+]
-+
-+[[package]]
-+name = "poly1305"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8159bd90725d2df49889a078b54f4f79e87f1f8a8444194cdca81d38f5393abf"
-+dependencies = [
-+ "cpufeatures",
-+ "opaque-debug",
-+ "universal-hash",
-+]
-+
-+[[package]]
-+name = "polyval"
-+version = "0.6.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9d1fe60d06143b2430aa532c94cfe9e29783047f06c0d7fd359a9a51b729fa25"
-+dependencies = [
-+ "cfg-if",
-+ "cpufeatures",
-+ "opaque-debug",
-+ "universal-hash",
-+]
-+
-+[[package]]
-+name = "potential_utf"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "84df19adbe5b5a0782edcab45899906947ab039ccf4573713735ee7de1e6b08a"
-+dependencies = [
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "powerfmt"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
-+
-+[[package]]
-+name = "ppv-lite86"
-+version = "0.2.21"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9"
-+dependencies = [
-+ "zerocopy",
-+]
-+
-+[[package]]
-+name = "precomputed-hash"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
-+
-+[[package]]
-+name = "primeorder"
-+version = "0.13.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "353e1ca18966c16d9deb1c69278edbc5f194139612772bd9537af60ac231e1e6"
-+dependencies = [
-+ "elliptic-curve",
-+]
-+
-+[[package]]
-+name = "proc-macro-crate"
-+version = "1.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7f4c021e1093a56626774e81216a4ce732a735e5bad4868a03f3ed65ca0c3919"
-+dependencies = [
-+ "once_cell",
-+ "toml_edit 0.19.15",
-+]
-+
-+[[package]]
-+name = "proc-macro-error"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
-+dependencies = [
-+ "proc-macro-error-attr",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+ "version_check",
-+]
-+
-+[[package]]
-+name = "proc-macro-error-attr"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "version_check",
-+]
-+
-+[[package]]
-+name = "proc-macro-hack"
-+version = "0.5.20+deprecated"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
-+
-+[[package]]
-+name = "proc-macro2"
-+version = "1.0.101"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
-+dependencies = [
-+ "unicode-ident",
-+]
-+
-+[[package]]
-+name = "quick-xml"
-+version = "0.38.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "42a232e7487fc2ef313d96dde7948e7a3c05101870d8985e4fd8d26aedd27b89"
-+dependencies = [
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "quinn"
-+version = "0.10.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8cc2c5017e4b43d5995dcea317bc46c1e09404c0a9664d2908f7f02dfe943d75"
-+dependencies = [
-+ "bytes",
-+ "pin-project-lite",
-+ "quinn-proto",
-+ "quinn-udp",
-+ "rustc-hash",
-+ "rustls",
-+ "thiserror",
-+ "tokio",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "quinn-proto"
-+version = "0.10.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "141bf7dfde2fbc246bfd3fe12f2455aa24b0fbd9af535d8c86c7bd1381ff2b1a"
-+dependencies = [
-+ "bytes",
-+ "rand 0.8.5",
-+ "ring 0.16.20",
-+ "rustc-hash",
-+ "rustls",
-+ "rustls-native-certs",
-+ "slab",
-+ "thiserror",
-+ "tinyvec",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "quinn-udp"
-+version = "0.4.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "055b4e778e8feb9f93c4e439f71dc2156ef13360b432b799e179a8c4cdf0b1d7"
-+dependencies = [
-+ "bytes",
-+ "libc",
-+ "socket2 0.5.10",
-+ "tracing",
-+ "windows-sys 0.48.0",
-+]
-+
-+[[package]]
-+name = "quote"
-+version = "1.0.41"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ce25767e7b499d1b604768e7cde645d14cc8584231ea6b295e9c9eb22c02e1d1"
-+dependencies = [
-+ "proc-macro2",
-+]
-+
-+[[package]]
-+name = "r-efi"
-+version = "5.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f"
-+
-+[[package]]
-+name = "rand"
-+version = "0.7.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6a6b1679d49b24bbfe0c803429aa1874472f50d9b363131f0e89fc356b544d03"
-+dependencies = [
-+ "getrandom 0.1.16",
-+ "libc",
-+ "rand_chacha 0.2.2",
-+ "rand_core 0.5.1",
-+ "rand_hc",
-+ "rand_pcg",
-+]
-+
-+[[package]]
-+name = "rand"
-+version = "0.8.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404"
-+dependencies = [
-+ "libc",
-+ "rand_chacha 0.3.1",
-+ "rand_core 0.6.4",
-+]
-+
-+[[package]]
-+name = "rand_chacha"
-+version = "0.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f4c8ed856279c9737206bf725bf36935d8666ead7aa69b52be55af369d193402"
-+dependencies = [
-+ "ppv-lite86",
-+ "rand_core 0.5.1",
-+]
-+
-+[[package]]
-+name = "rand_chacha"
-+version = "0.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
-+dependencies = [
-+ "ppv-lite86",
-+ "rand_core 0.6.4",
-+]
-+
-+[[package]]
-+name = "rand_core"
-+version = "0.5.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "90bde5296fc891b0cef12a6d03ddccc162ce7b2aff54160af9338f8d40df6d19"
-+dependencies = [
-+ "getrandom 0.1.16",
-+]
-+
-+[[package]]
-+name = "rand_core"
-+version = "0.6.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
-+dependencies = [
-+ "getrandom 0.2.16",
-+]
-+
-+[[package]]
-+name = "rand_hc"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ca3129af7b92a17112d59ad498c6f81eaf463253766b90396d39ea7a39d6613c"
-+dependencies = [
-+ "rand_core 0.5.1",
-+]
-+
-+[[package]]
-+name = "rand_pcg"
-+version = "0.2.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "16abd0c1b639e9eb4d7c50c0b8100b0d0f849be2349829c740fe8e6eb4816429"
-+dependencies = [
-+ "rand_core 0.5.1",
-+]
-+
-+[[package]]
-+name = "raw-window-handle"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
-+
-+[[package]]
-+name = "rcgen"
-+version = "0.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "52c4f3084aa3bc7dfbba4eff4fab2a54db4324965d8872ab933565e6fbd83bc6"
-+dependencies = [
-+ "pem",
-+ "ring 0.16.20",
-+ "time",
-+ "x509-parser",
-+ "yasna",
-+]
-+
-+[[package]]
-+name = "redox_syscall"
-+version = "0.5.18"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d"
-+dependencies = [
-+ "bitflags 2.9.4",
-+]
-+
-+[[package]]
-+name = "redox_users"
-+version = "0.4.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ba009ff324d1fc1b900bd1fdb31564febe58a8ccc8a6fdbb93b543d33b13ca43"
-+dependencies = [
-+ "getrandom 0.2.16",
-+ "libredox",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "ref-cast"
-+version = "1.0.25"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f354300ae66f76f1c85c5f84693f0ce81d747e2c3f21a45fef496d89c960bf7d"
-+dependencies = [
-+ "ref-cast-impl",
-+]
-+
-+[[package]]
-+name = "ref-cast-impl"
-+version = "1.0.25"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b7186006dcb21920990093f30e3dea63b7d6e977bf1256be20c3563a5db070da"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "regex"
-+version = "1.11.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8b5288124840bee7b386bc413c487869b360b2b4ec421ea56425128692f2a82c"
-+dependencies = [
-+ "aho-corasick",
-+ "memchr",
-+ "regex-automata",
-+ "regex-syntax",
-+]
-+
-+[[package]]
-+name = "regex-automata"
-+version = "0.4.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "833eb9ce86d40ef33cb1306d8accf7bc8ec2bfea4355cbdebb3df68b40925cad"
-+dependencies = [
-+ "aho-corasick",
-+ "memchr",
-+ "regex-syntax",
-+]
-+
-+[[package]]
-+name = "regex-syntax"
-+version = "0.8.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "caf4aa5b0f434c91fe5c7f1ecb6a5ece2130b02ad2a590589dda5146df959001"
-+
-+[[package]]
-+name = "reqwest"
-+version = "0.11.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dd67538700a17451e7cba03ac727fb961abb7607553461627b97de0b89cf4a62"
-+dependencies = [
-+ "base64 0.21.7",
-+ "bytes",
-+ "encoding_rs",
-+ "futures-core",
-+ "futures-util",
-+ "h2",
-+ "http 0.2.12",
-+ "http-body 0.4.6",
-+ "hyper 0.14.32",
-+ "hyper-tls",
-+ "ipnet",
-+ "js-sys",
-+ "log",
-+ "mime",
-+ "native-tls",
-+ "once_cell",
-+ "percent-encoding",
-+ "pin-project-lite",
-+ "rustls-pemfile",
-+ "serde",
-+ "serde_json",
-+ "serde_urlencoded",
-+ "sync_wrapper 0.1.2",
-+ "system-configuration",
-+ "tokio",
-+ "tokio-native-tls",
-+ "tokio-util",
-+ "tower-service",
-+ "url",
-+ "wasm-bindgen",
-+ "wasm-bindgen-futures",
-+ "wasm-streams",
-+ "web-sys",
-+ "winreg 0.50.0",
-+]
-+
-+[[package]]
-+name = "rfc6979"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
-+dependencies = [
-+ "hmac",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "rfd"
-+version = "0.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0149778bd99b6959285b0933288206090c50e2327f47a9c463bfdbf45c8823ea"
-+dependencies = [
-+ "block",
-+ "dispatch",
-+ "glib-sys",
-+ "gobject-sys",
-+ "gtk-sys",
-+ "js-sys",
-+ "lazy_static",
-+ "log",
-+ "objc",
-+ "objc-foundation",
-+ "objc_id",
-+ "raw-window-handle",
-+ "wasm-bindgen",
-+ "wasm-bindgen-futures",
-+ "web-sys",
-+ "windows 0.37.0",
-+]
-+
-+[[package]]
-+name = "ring"
-+version = "0.16.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3053cf52e236a3ed746dfc745aa9cacf1b791d846bdaf412f60a8d7d6e17c8fc"
-+dependencies = [
-+ "cc",
-+ "libc",
-+ "once_cell",
-+ "spin",
-+ "untrusted 0.7.1",
-+ "web-sys",
-+ "winapi",
-+]
-+
-+[[package]]
-+name = "ring"
-+version = "0.17.14"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7"
-+dependencies = [
-+ "cc",
-+ "cfg-if",
-+ "getrandom 0.2.16",
-+ "libc",
-+ "untrusted 0.9.0",
-+ "windows-sys 0.52.0",
-+]
-+
-+[[package]]
-+name = "rtcp"
-+version = "0.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "33648a781874466a62d89e265fee9f17e32bc7d05a256e6cca41bf97eadcd8aa"
-+dependencies = [
-+ "bytes",
-+ "thiserror",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "rtp"
-+version = "0.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "47fca9bd66ae0b1f3f649b8f5003d6176433d7293b78b0fce7e1031816bdd99d"
-+dependencies = [
-+ "bytes",
-+ "rand 0.8.5",
-+ "serde",
-+ "thiserror",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "rustc-demangle"
-+version = "0.1.26"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "56f7d92ca342cea22a06f2121d944b4fd82af56988c270852495420f961d4ace"
-+
-+[[package]]
-+name = "rustc-hash"
-+version = "1.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
-+
-+[[package]]
-+name = "rustc_version"
-+version = "0.4.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
-+dependencies = [
-+ "semver",
-+]
-+
-+[[package]]
-+name = "rusticata-macros"
-+version = "4.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "faf0c4a6ece9950b9abdb62b1cfcf2a68b3b67a10ba445b3bb85be2a293d0632"
-+dependencies = [
-+ "nom",
-+]
-+
-+[[package]]
-+name = "rustix"
-+version = "1.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cd15f8a2c5551a84d56efdc1cd049089e409ac19a3072d5037a17fd70719ff3e"
-+dependencies = [
-+ "bitflags 2.9.4",
-+ "errno",
-+ "libc",
-+ "linux-raw-sys",
-+ "windows-sys 0.61.1",
-+]
-+
-+[[package]]
-+name = "rustls"
-+version = "0.21.12"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3f56a14d1f48b391359b22f731fd4bd7e43c97f3c50eee276f3aa09c94784d3e"
-+dependencies = [
-+ "log",
-+ "ring 0.17.14",
-+ "rustls-webpki",
-+ "sct",
-+]
-+
-+[[package]]
-+name = "rustls-native-certs"
-+version = "0.6.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a9aace74cb666635c918e9c12bc0d348266037aa8eb599b5cba565709a8dff00"
-+dependencies = [
-+ "openssl-probe",
-+ "rustls-pemfile",
-+ "schannel",
-+ "security-framework",
-+]
-+
-+[[package]]
-+name = "rustls-pemfile"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1c74cae0a4cf6ccbbf5f359f08efdf8ee7e1dc532573bf0db71968cb56b1448c"
-+dependencies = [
-+ "base64 0.21.7",
-+]
-+
-+[[package]]
-+name = "rustls-webpki"
-+version = "0.101.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8b6275d1ee7a1cd780b64aca7726599a1dbc893b1e64144529e55c3c2f745765"
-+dependencies = [
-+ "ring 0.17.14",
-+ "untrusted 0.9.0",
-+]
-+
-+[[package]]
-+name = "rustversion"
-+version = "1.0.22"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
-+
-+[[package]]
-+name = "ryu"
-+version = "1.0.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
-+
-+[[package]]
-+name = "same-file"
-+version = "1.0.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
-+dependencies = [
-+ "winapi-util",
-+]
-+
-+[[package]]
-+name = "schannel"
-+version = "0.1.28"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "891d81b926048e76efe18581bf793546b4c0eaf8448d72be8de2bbee5fd166e1"
-+dependencies = [
-+ "windows-sys 0.61.1",
-+]
-+
-+[[package]]
-+name = "schemars"
-+version = "0.9.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4cd191f9397d57d581cddd31014772520aa448f65ef991055d7f61582c65165f"
-+dependencies = [
-+ "dyn-clone",
-+ "ref-cast",
-+ "serde",
-+ "serde_json",
-+]
-+
-+[[package]]
-+name = "schemars"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "82d20c4491bc164fa2f6c5d44565947a52ad80b9505d8e36f8d54c27c739fcd0"
-+dependencies = [
-+ "dyn-clone",
-+ "ref-cast",
-+ "serde",
-+ "serde_json",
-+]
-+
-+[[package]]
-+name = "scoped-tls"
-+version = "1.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
-+
-+[[package]]
-+name = "scopeguard"
-+version = "1.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-+
-+[[package]]
-+name = "sct"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "da046153aa2352493d6cb7da4b6e5c0c057d8a1d0a9aa8560baffdd945acd414"
-+dependencies = [
-+ "ring 0.17.14",
-+ "untrusted 0.9.0",
-+]
-+
-+[[package]]
-+name = "sdp"
-+version = "0.6.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "13254db766b17451aced321e7397ebf0a446ef0c8d2942b6e67a95815421093f"
-+dependencies = [
-+ "rand 0.8.5",
-+ "substring",
-+ "thiserror",
-+ "url",
-+]
-+
-+[[package]]
-+name = "sec1"
-+version = "0.7.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d3e97a565f76233a6003f9f5c54be1d9c5bdfa3eccfb189469f11ec4901c47dc"
-+dependencies = [
-+ "base16ct",
-+ "der",
-+ "generic-array",
-+ "pkcs8",
-+ "subtle",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "security-framework"
-+version = "2.11.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "897b2245f0b511c87893af39b033e5ca9cce68824c4d7e7630b5a1d339658d02"
-+dependencies = [
-+ "bitflags 2.9.4",
-+ "core-foundation",
-+ "core-foundation-sys",
-+ "libc",
-+ "security-framework-sys",
-+]
-+
-+[[package]]
-+name = "security-framework-sys"
-+version = "2.15.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cc1f0cbffaac4852523ce30d8bd3c5cdc873501d96ff467ca09b6767bb8cd5c0"
-+dependencies = [
-+ "core-foundation-sys",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "selectors"
-+version = "0.22.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df320f1889ac4ba6bc0cdc9c9af7af4bd64bb927bccdf32d81140dc1f9be12fe"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cssparser",
-+ "derive_more",
-+ "fxhash",
-+ "log",
-+ "matches",
-+ "phf 0.8.0",
-+ "phf_codegen 0.8.0",
-+ "precomputed-hash",
-+ "servo_arc",
-+ "smallvec",
-+ "thin-slice",
-+]
-+
-+[[package]]
-+name = "semver"
-+version = "1.0.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
-+dependencies = [
-+ "serde",
-+ "serde_core",
-+]
-+
-+[[package]]
-+name = "serde"
-+version = "1.0.228"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
-+dependencies = [
-+ "serde_core",
-+ "serde_derive",
-+]
-+
-+[[package]]
-+name = "serde_core"
-+version = "1.0.228"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
-+dependencies = [
-+ "serde_derive",
-+]
-+
-+[[package]]
-+name = "serde_derive"
-+version = "1.0.228"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "serde_json"
-+version = "1.0.145"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "402a6f66d8c709116cf22f558eab210f5a50187f702eb4d7e5ef38d9a7f1c79c"
-+dependencies = [
-+ "indexmap 2.11.4",
-+ "itoa 1.0.15",
-+ "memchr",
-+ "ryu",
-+ "serde",
-+ "serde_core",
-+]
-+
-+[[package]]
-+name = "serde_path_to_error"
-+version = "0.1.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
-+dependencies = [
-+ "itoa 1.0.15",
-+ "serde",
-+ "serde_core",
-+]
-+
-+[[package]]
-+name = "serde_repr"
-+version = "0.1.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "175ee3e80ae9982737ca543e96133087cbd9a485eecc3bc4de9c1a37b47ea59c"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "serde_spanned"
-+version = "0.6.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "serde_urlencoded"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d3491c14715ca2294c4d6a88f15e84739788c1d030eed8c110436aafdaa2f3fd"
-+dependencies = [
-+ "form_urlencoded",
-+ "itoa 1.0.15",
-+ "ryu",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "serde_with"
-+version = "3.15.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6093cd8c01b25262b84927e0f7151692158fab02d961e04c979d3903eba7ecc5"
-+dependencies = [
-+ "base64 0.22.1",
-+ "chrono",
-+ "hex",
-+ "indexmap 1.9.3",
-+ "indexmap 2.11.4",
-+ "schemars 0.9.0",
-+ "schemars 1.0.4",
-+ "serde_core",
-+ "serde_json",
-+ "serde_with_macros",
-+ "time",
-+]
-+
-+[[package]]
-+name = "serde_with_macros"
-+version = "3.15.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a7e6c180db0816026a61afa1cff5344fb7ebded7e4d3062772179f2501481c27"
-+dependencies = [
-+ "darling",
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "serialize-to-javascript"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "04f3666a07a197cdb77cdf306c32be9b7f598d7060d50cfd4d5aa04bfd92f6c5"
-+dependencies = [
-+ "serde",
-+ "serde_json",
-+ "serialize-to-javascript-impl",
-+]
-+
-+[[package]]
-+name = "serialize-to-javascript-impl"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "772ee033c0916d670af7860b6e1ef7d658a4629a6d0b4c8c3e67f09b3765b75d"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "servo_arc"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d98238b800e0d1576d8b6e3de32827c2d74bee68bb97748dcf5071fb53965432"
-+dependencies = [
-+ "nodrop",
-+ "stable_deref_trait",
-+]
-+
-+[[package]]
-+name = "sha1"
-+version = "0.10.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e3bf829a2d51ab4a5ddf1352d8470c140cadc8301b2ae1789db023f01cedd6ba"
-+dependencies = [
-+ "cfg-if",
-+ "cpufeatures",
-+ "digest",
-+]
-+
-+[[package]]
-+name = "sha2"
-+version = "0.10.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
-+dependencies = [
-+ "cfg-if",
-+ "cpufeatures",
-+ "digest",
-+]
-+
-+[[package]]
-+name = "sharded-slab"
-+version = "0.1.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
-+dependencies = [
-+ "lazy_static",
-+]
-+
-+[[package]]
-+name = "shared_child"
-+version = "1.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1e362d9935bc50f019969e2f9ecd66786612daae13e8f277be7bfb66e8bed3f7"
-+dependencies = [
-+ "libc",
-+ "sigchld",
-+ "windows-sys 0.60.2",
-+]
-+
-+[[package]]
-+name = "shlex"
-+version = "1.3.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
-+
-+[[package]]
-+name = "sigchld"
-+version = "0.2.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "47106eded3c154e70176fc83df9737335c94ce22f821c32d17ed1db1f83badb1"
-+dependencies = [
-+ "libc",
-+ "os_pipe",
-+ "signal-hook",
-+]
-+
-+[[package]]
-+name = "signal-hook"
-+version = "0.3.18"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
-+dependencies = [
-+ "libc",
-+ "signal-hook-registry",
-+]
-+
-+[[package]]
-+name = "signal-hook-registry"
-+version = "1.4.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b2a4719bff48cee6b39d12c020eeb490953ad2443b7055bd0b21fca26bd8c28b"
-+dependencies = [
-+ "libc",
-+]
-+
-+[[package]]
-+name = "signature"
-+version = "2.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
-+dependencies = [
-+ "digest",
-+ "rand_core 0.6.4",
-+]
-+
-+[[package]]
-+name = "simd-adler32"
-+version = "0.3.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d66dc143e6b11c1eddc06d5c423cfc97062865baf299914ab64caa38182078fe"
-+
-+[[package]]
-+name = "siphasher"
-+version = "0.3.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "38b58827f4464d87d377d175e90bf58eb00fd8716ff0a62f80356b5e61555d0d"
-+
-+[[package]]
-+name = "siphasher"
-+version = "1.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
-+
-+[[package]]
-+name = "slab"
-+version = "0.4.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7a2ae44ef20feb57a68b23d846850f861394c2e02dc425a50098ae8c90267589"
-+
-+[[package]]
-+name = "smallvec"
-+version = "1.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
-+
-+[[package]]
-+name = "smol_str"
-+version = "0.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dd538fb6910ac1099850255cf94a94df6551fbdd602454387d0adb2d1ca6dead"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "socket2"
-+version = "0.5.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e22376abed350d73dd1cd119b57ffccad95b4e585a7cda43e286245ce23c0678"
-+dependencies = [
-+ "libc",
-+ "windows-sys 0.52.0",
-+]
-+
-+[[package]]
-+name = "socket2"
-+version = "0.6.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "233504af464074f9d066d7b5416c5f9b894a5862a6506e306f7b816cdd6f1807"
-+dependencies = [
-+ "libc",
-+ "windows-sys 0.59.0",
-+]
-+
-+[[package]]
-+name = "soup2"
-+version = "0.2.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b2b4d76501d8ba387cf0fefbe055c3e0a59891d09f0f995ae4e4b16f6b60f3c0"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "gio",
-+ "glib",
-+ "libc",
-+ "once_cell",
-+ "soup2-sys",
-+]
-+
-+[[package]]
-+name = "soup2-sys"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "009ef427103fcb17f802871647a7fa6c60cbb654b4c4e4c0ac60a31c5f6dc9cf"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "gio-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "libc",
-+ "system-deps 5.0.0",
-+]
-+
-+[[package]]
-+name = "spin"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-+
-+[[package]]
-+name = "spki"
-+version = "0.7.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
-+dependencies = [
-+ "base64ct",
-+ "der",
-+]
-+
-+[[package]]
-+name = "stable_deref_trait"
-+version = "1.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
-+
-+[[package]]
-+name = "state"
-+version = "0.5.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dbe866e1e51e8260c9eed836a042a5e7f6726bb2b411dffeaa712e19c388f23b"
-+dependencies = [
-+ "loom",
-+]
-+
-+[[package]]
-+name = "string_cache"
-+version = "0.8.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bf776ba3fa74f83bf4b63c3dcbbf82173db2632ed8452cb2d891d33f459de70f"
-+dependencies = [
-+ "new_debug_unreachable",
-+ "parking_lot",
-+ "phf_shared 0.11.3",
-+ "precomputed-hash",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "string_cache_codegen"
-+version = "0.5.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c711928715f1fe0fe509c53b43e993a9a557babc2d0a3567d0a3006f1ac931a0"
-+dependencies = [
-+ "phf_generator 0.11.3",
-+ "phf_shared 0.11.3",
-+ "proc-macro2",
-+ "quote",
-+]
-+
-+[[package]]
-+name = "strsim"
-+version = "0.11.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
-+
-+[[package]]
-+name = "stun"
-+version = "0.5.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d3f371788132e9d623e6eab4ba28aac083763a4133f045e6ebaee5ceb869803d"
-+dependencies = [
-+ "base64 0.21.7",
-+ "crc",
-+ "lazy_static",
-+ "md-5",
-+ "rand 0.8.5",
-+ "ring 0.17.14",
-+ "subtle",
-+ "thiserror",
-+ "tokio",
-+ "url",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "substring"
-+version = "1.4.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "42ee6433ecef213b2e72f587ef64a2f5943e7cd16fbd82dbe8bc07486c534c86"
-+dependencies = [
-+ "autocfg",
-+]
-+
-+[[package]]
-+name = "subtle"
-+version = "2.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
-+
-+[[package]]
-+name = "syn"
-+version = "1.0.109"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "unicode-ident",
-+]
-+
-+[[package]]
-+name = "syn"
-+version = "2.0.106"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ede7c438028d4436d71104916910f5bb611972c5cfd7f89b8300a8186e6fada6"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "unicode-ident",
-+]
-+
-+[[package]]
-+name = "sync_wrapper"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2047c6ded9c721764247e62cd3b03c09ffc529b2ba5b10ec482ae507a4a70160"
-+
-+[[package]]
-+name = "sync_wrapper"
-+version = "1.0.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0bf256ce5efdfa370213c1dabab5935a12e49f2c58d15e9eac2870d3b4f27263"
-+
-+[[package]]
-+name = "synstructure"
-+version = "0.12.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f36bdaa60a83aca3921b5259d5400cbf5e90fc51931376a9bd4a0eb79aa7210f"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+ "unicode-xid",
-+]
-+
-+[[package]]
-+name = "synstructure"
-+version = "0.13.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "728a70f3dbaf5bab7f0c4b1ac8d7ae5ea60a4b5549c8a5914361c99147a709d2"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "system-configuration"
-+version = "0.5.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ba3a3adc5c275d719af8cb4272ea1c4a6d668a777f37e115f6d11ddbc1c8e0e7"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "core-foundation",
-+ "system-configuration-sys",
-+]
-+
-+[[package]]
-+name = "system-configuration-sys"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a75fb188eb626b924683e3b95e3a48e63551fcfb51949de2f06a9d91dbee93c9"
-+dependencies = [
-+ "core-foundation-sys",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "system-deps"
-+version = "5.0.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "18db855554db7bd0e73e06cf7ba3df39f97812cb11d3f75e71c39bf45171797e"
-+dependencies = [
-+ "cfg-expr 0.9.1",
-+ "heck 0.3.3",
-+ "pkg-config",
-+ "toml 0.5.11",
-+ "version-compare 0.0.11",
-+]
-+
-+[[package]]
-+name = "system-deps"
-+version = "6.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a3e535eb8dded36d55ec13eddacd30dec501792ff23a0b1682c38601b8cf2349"
-+dependencies = [
-+ "cfg-expr 0.15.8",
-+ "heck 0.5.0",
-+ "pkg-config",
-+ "toml 0.8.23",
-+ "version-compare 0.2.0",
-+]
-+
-+[[package]]
-+name = "tao"
-+version = "0.16.10"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "48d298c441a1da46e28e8ad8ec205aab7fd8cd71b9d10e05454224eef422e1ae"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cairo-rs",
-+ "cc",
-+ "cocoa",
-+ "core-foundation",
-+ "core-graphics",
-+ "crossbeam-channel",
-+ "dispatch",
-+ "gdk",
-+ "gdk-pixbuf",
-+ "gdk-sys",
-+ "gdkwayland-sys",
-+ "gdkx11-sys",
-+ "gio",
-+ "glib",
-+ "glib-sys",
-+ "gtk",
-+ "image",
-+ "instant",
-+ "jni",
-+ "lazy_static",
-+ "libc",
-+ "log",
-+ "ndk",
-+ "ndk-context",
-+ "ndk-sys",
-+ "objc",
-+ "once_cell",
-+ "parking_lot",
-+ "png",
-+ "raw-window-handle",
-+ "scopeguard",
-+ "serde",
-+ "tao-macros",
-+ "unicode-segmentation",
-+ "uuid",
-+ "windows 0.39.0",
-+ "windows-implement 0.39.0",
-+ "x11-dl",
-+]
-+
-+[[package]]
-+name = "tao-macros"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f4e16beb8b2ac17db28eab8bca40e62dbfbb34c0fcdc6d9826b11b7b5d047dfd"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "tar"
-+version = "0.4.44"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1d863878d212c87a19c1a610eb53bb01fe12951c0501cf5a0d65f724914a667a"
-+dependencies = [
-+ "filetime",
-+ "libc",
-+ "xattr",
-+]
-+
-+[[package]]
-+name = "target-lexicon"
-+version = "0.12.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "61c41af27dd6d1e27b1b16b489db798443478cef1f06a660c96db617ba5de3b1"
-+
-+[[package]]
-+name = "tauri"
-+version = "1.8.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3ae1f57c291a6ab8e1d2e6b8ad0a35ff769c9925deb8a89de85425ff08762d0c"
-+dependencies = [
-+ "anyhow",
-+ "base64 0.22.1",
-+ "bytes",
-+ "cocoa",
-+ "dirs-next",
-+ "dunce",
-+ "embed_plist",
-+ "encoding_rs",
-+ "flate2",
-+ "futures-util",
-+ "getrandom 0.2.16",
-+ "glib",
-+ "glob",
-+ "gtk",
-+ "heck 0.5.0",
-+ "http 0.2.12",
-+ "ignore",
-+ "indexmap 1.9.3",
-+ "infer",
-+ "log",
-+ "minisign-verify",
-+ "objc",
-+ "once_cell",
-+ "open",
-+ "os_pipe",
-+ "percent-encoding",
-+ "plist",
-+ "rand 0.8.5",
-+ "raw-window-handle",
-+ "regex",
-+ "reqwest",
-+ "rfd",
-+ "semver",
-+ "serde",
-+ "serde_json",
-+ "serde_repr",
-+ "serialize-to-javascript",
-+ "shared_child",
-+ "state",
-+ "tar",
-+ "tauri-macros",
-+ "tauri-runtime",
-+ "tauri-runtime-wry",
-+ "tauri-utils",
-+ "tempfile",
-+ "thiserror",
-+ "time",
-+ "tokio",
-+ "url",
-+ "uuid",
-+ "webkit2gtk",
-+ "webview2-com",
-+ "windows 0.39.0",
-+ "zip",
-+]
-+
-+[[package]]
-+name = "tauri-build"
-+version = "1.5.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2db08694eec06f53625cfc6fff3a363e084e5e9a238166d2989996413c346453"
-+dependencies = [
-+ "anyhow",
-+ "cargo_toml",
-+ "dirs-next",
-+ "heck 0.5.0",
-+ "json-patch",
-+ "semver",
-+ "serde",
-+ "serde_json",
-+ "tauri-utils",
-+ "tauri-winres",
-+ "walkdir",
-+]
-+
-+[[package]]
-+name = "tauri-codegen"
-+version = "1.4.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "53438d78c4a037ffe5eafa19e447eea599bedfb10844cb08ec53c2471ac3ac3f"
-+dependencies = [
-+ "base64 0.21.7",
-+ "brotli",
-+ "ico",
-+ "json-patch",
-+ "plist",
-+ "png",
-+ "proc-macro2",
-+ "quote",
-+ "regex",
-+ "semver",
-+ "serde",
-+ "serde_json",
-+ "sha2",
-+ "tauri-utils",
-+ "thiserror",
-+ "time",
-+ "uuid",
-+ "walkdir",
-+]
-+
-+[[package]]
-+name = "tauri-macros"
-+version = "1.4.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "233988ac08c1ed3fe794cd65528d48d8f7ed4ab3895ca64cdaa6ad4d00c45c0b"
-+dependencies = [
-+ "heck 0.5.0",
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+ "tauri-codegen",
-+ "tauri-utils",
-+]
-+
-+[[package]]
-+name = "tauri-runtime"
-+version = "0.14.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8066855882f00172935e3fa7d945126580c34dcbabab43f5d4f0c2398a67d47b"
-+dependencies = [
-+ "gtk",
-+ "http 0.2.12",
-+ "http-range",
-+ "rand 0.8.5",
-+ "raw-window-handle",
-+ "serde",
-+ "serde_json",
-+ "tauri-utils",
-+ "thiserror",
-+ "url",
-+ "uuid",
-+ "webview2-com",
-+ "windows 0.39.0",
-+]
-+
-+[[package]]
-+name = "tauri-runtime-wry"
-+version = "0.14.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ce361fec1e186705371f1c64ae9dd2a3a6768bc530d0a2d5e75a634bb416ad4d"
-+dependencies = [
-+ "cocoa",
-+ "gtk",
-+ "percent-encoding",
-+ "rand 0.8.5",
-+ "raw-window-handle",
-+ "tauri-runtime",
-+ "tauri-utils",
-+ "uuid",
-+ "webkit2gtk",
-+ "webview2-com",
-+ "windows 0.39.0",
-+ "wry",
-+]
-+
-+[[package]]
-+name = "tauri-utils"
-+version = "1.6.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c357952645e679de02cd35007190fcbce869b93ffc61b029f33fe02648453774"
-+dependencies = [
-+ "brotli",
-+ "ctor",
-+ "dunce",
-+ "glob",
-+ "heck 0.5.0",
-+ "html5ever",
-+ "infer",
-+ "json-patch",
-+ "kuchikiki",
-+ "log",
-+ "memchr",
-+ "phf 0.11.3",
-+ "proc-macro2",
-+ "quote",
-+ "semver",
-+ "serde",
-+ "serde_json",
-+ "serde_with",
-+ "thiserror",
-+ "url",
-+ "walkdir",
-+ "windows-version",
-+]
-+
-+[[package]]
-+name = "tauri-winres"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5993dc129e544393574288923d1ec447c857f3f644187f4fbf7d9a875fbfc4fb"
-+dependencies = [
-+ "embed-resource",
-+ "toml 0.7.8",
-+]
-+
-+[[package]]
-+name = "tempfile"
-+version = "3.23.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2d31c77bdf42a745371d260a26ca7163f1e0924b64afa0b688e61b5a9fa02f16"
-+dependencies = [
-+ "fastrand",
-+ "getrandom 0.3.3",
-+ "once_cell",
-+ "rustix",
-+ "windows-sys 0.61.1",
-+]
-+
-+[[package]]
-+name = "tendril"
-+version = "0.4.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d24a120c5fc464a3458240ee02c299ebcb9d67b5249c8848b09d639dca8d7bb0"
-+dependencies = [
-+ "futf",
-+ "mac",
-+ "utf-8",
-+]
-+
-+[[package]]
-+name = "thin-slice"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8eaa81235c7058867fa8c0e7314f33dcce9c215f535d1913822a2b3f5e289f3c"
-+
-+[[package]]
-+name = "thiserror"
-+version = "1.0.69"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
-+dependencies = [
-+ "thiserror-impl",
-+]
-+
-+[[package]]
-+name = "thiserror-impl"
-+version = "1.0.69"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "thread_local"
-+version = "1.1.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f60246a4944f24f6e018aa17cdeffb7818b76356965d03b07d6a9886e8962185"
-+dependencies = [
-+ "cfg-if",
-+]
-+
-+[[package]]
-+name = "time"
-+version = "0.3.44"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "91e7d9e3bb61134e77bde20dd4825b97c010155709965fedf0f49bb138e52a9d"
-+dependencies = [
-+ "deranged",
-+ "itoa 1.0.15",
-+ "num-conv",
-+ "powerfmt",
-+ "serde",
-+ "time-core",
-+ "time-macros",
-+]
-+
-+[[package]]
-+name = "time-core"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "40868e7c1d2f0b8d73e4a8c7f0ff63af4f6d19be117e90bd73eb1d62cf831c6b"
-+
-+[[package]]
-+name = "time-macros"
-+version = "0.2.24"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "30cfb0125f12d9c277f35663a0a33f8c30190f4e4574868a330595412d34ebf3"
-+dependencies = [
-+ "num-conv",
-+ "time-core",
-+]
-+
-+[[package]]
-+name = "tinystr"
-+version = "0.8.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5d4f6d1145dcb577acf783d4e601bc1d76a13337bb54e6233add580b07344c8b"
-+dependencies = [
-+ "displaydoc",
-+ "zerovec",
-+]
-+
-+[[package]]
-+name = "tinyvec"
-+version = "1.10.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bfa5fdc3bce6191a1dbc8c02d5c8bffcf557bafa17c124c5264a458f1b0613fa"
-+dependencies = [
-+ "tinyvec_macros",
-+]
-+
-+[[package]]
-+name = "tinyvec_macros"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-+
-+[[package]]
-+name = "tokio"
-+version = "1.47.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "89e49afdadebb872d3145a5638b59eb0691ea23e46ca484037cfab3b76b95038"
-+dependencies = [
-+ "backtrace",
-+ "bytes",
-+ "io-uring",
-+ "libc",
-+ "mio",
-+ "parking_lot",
-+ "pin-project-lite",
-+ "signal-hook-registry",
-+ "slab",
-+ "socket2 0.6.0",
-+ "tokio-macros",
-+ "windows-sys 0.59.0",
-+]
-+
-+[[package]]
-+name = "tokio-macros"
-+version = "2.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6e06d43f1345a3bcd39f6a56dbb7dcab2ba47e68e8ac134855e7e2bdbaf8cab8"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "tokio-native-tls"
-+version = "0.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bbae76ab933c85776efabc971569dd6119c580d8f5d448769dec1764bf796ef2"
-+dependencies = [
-+ "native-tls",
-+ "tokio",
-+]
-+
-+[[package]]
-+name = "tokio-util"
-+version = "0.7.16"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "14307c986784f72ef81c89db7d9e28d6ac26d16213b109ea501696195e6e3ce5"
-+dependencies = [
-+ "bytes",
-+ "futures-core",
-+ "futures-sink",
-+ "pin-project-lite",
-+ "tokio",
-+]
-+
-+[[package]]
-+name = "toml"
-+version = "0.5.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f4f7f0dd8d50a853a531c426359045b1998f04219d88799810762cd4ad314234"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "toml"
-+version = "0.7.8"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257"
-+dependencies = [
-+ "serde",
-+ "serde_spanned",
-+ "toml_datetime",
-+ "toml_edit 0.19.15",
-+]
-+
-+[[package]]
-+name = "toml"
-+version = "0.8.23"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dc1beb996b9d83529a9e75c17a1686767d148d70663143c7854d8b4a09ced362"
-+dependencies = [
-+ "serde",
-+ "serde_spanned",
-+ "toml_datetime",
-+ "toml_edit 0.22.27",
-+]
-+
-+[[package]]
-+name = "toml_datetime"
-+version = "0.6.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "22cddaf88f4fbc13c51aebbf5f8eceb5c7c5a9da2ac40a13519eb5b0a0e8f11c"
-+dependencies = [
-+ "serde",
-+]
-+
-+[[package]]
-+name = "toml_edit"
-+version = "0.19.15"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
-+dependencies = [
-+ "indexmap 2.11.4",
-+ "serde",
-+ "serde_spanned",
-+ "toml_datetime",
-+ "winnow 0.5.40",
-+]
-+
-+[[package]]
-+name = "toml_edit"
-+version = "0.22.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a"
-+dependencies = [
-+ "indexmap 2.11.4",
-+ "serde",
-+ "serde_spanned",
-+ "toml_datetime",
-+ "toml_write",
-+ "winnow 0.7.13",
-+]
-+
-+[[package]]
-+name = "toml_write"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5d99f8c9a7727884afe522e9bd5edbfc91a3312b36a77b5fb8926e4c31a41801"
-+
-+[[package]]
-+name = "tower"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d039ad9159c98b70ecfd540b2573b97f7f52c3e8d9f8ad57a24b916a536975f9"
-+dependencies = [
-+ "futures-core",
-+ "futures-util",
-+ "pin-project-lite",
-+ "sync_wrapper 1.0.2",
-+ "tokio",
-+ "tower-layer",
-+ "tower-service",
-+ "tracing",
-+]
-+
-+[[package]]
-+name = "tower-layer"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "121c2a6cda46980bb0fcd1647ffaf6cd3fc79a013de288782836f6df9c48780e"
-+
-+[[package]]
-+name = "tower-service"
-+version = "0.3.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
-+
-+[[package]]
-+name = "tracing"
-+version = "0.1.41"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "784e0ac535deb450455cbfa28a6f0df145ea1bb7ae51b821cf5e7927fdcfbdd0"
-+dependencies = [
-+ "log",
-+ "pin-project-lite",
-+ "tracing-attributes",
-+ "tracing-core",
-+]
-+
-+[[package]]
-+name = "tracing-appender"
-+version = "0.2.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "3566e8ce28cc0a3fe42519fc80e6b4c943cc4c8cef275620eb8dac2d3d4e06cf"
-+dependencies = [
-+ "crossbeam-channel",
-+ "thiserror",
-+ "time",
-+ "tracing-subscriber",
-+]
-+
-+[[package]]
-+name = "tracing-attributes"
-+version = "0.1.30"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "81383ab64e72a7a8b8e13130c49e3dab29def6d0c7d76a03087b3cf71c5c6903"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "tracing-core"
-+version = "0.1.34"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b9d12581f227e93f094d3af2ae690a574abb8a2b9b7a96e7cfe9647b2b617678"
-+dependencies = [
-+ "once_cell",
-+ "valuable",
-+]
-+
-+[[package]]
-+name = "tracing-log"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3"
-+dependencies = [
-+ "log",
-+ "once_cell",
-+ "tracing-core",
-+]
-+
-+[[package]]
-+name = "tracing-serde"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "704b1aeb7be0d0a84fc9828cae51dab5970fee5088f83d1dd7ee6f6246fc6ff1"
-+dependencies = [
-+ "serde",
-+ "tracing-core",
-+]
-+
-+[[package]]
-+name = "tracing-subscriber"
-+version = "0.3.20"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2054a14f5307d601f88daf0553e1cbf472acc4f2c51afab632431cdcd72124d5"
-+dependencies = [
-+ "matchers",
-+ "nu-ansi-term",
-+ "once_cell",
-+ "regex-automata",
-+ "serde",
-+ "serde_json",
-+ "sharded-slab",
-+ "smallvec",
-+ "thread_local",
-+ "tracing",
-+ "tracing-core",
-+ "tracing-log",
-+ "tracing-serde",
-+]
-+
-+[[package]]
-+name = "try-lock"
-+version = "0.2.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-+
-+[[package]]
-+name = "turn"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ffb2ac4f331064513ad510b7a36edc0df555bd61672986607f7c9ff46f98f415"
-+dependencies = [
-+ "async-trait",
-+ "base64 0.21.7",
-+ "futures",
-+ "log",
-+ "md-5",
-+ "rand 0.8.5",
-+ "ring 0.17.14",
-+ "stun",
-+ "thiserror",
-+ "tokio",
-+ "tokio-util",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "typenum"
-+version = "1.19.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
-+
-+[[package]]
-+name = "unicode-ident"
-+version = "1.0.19"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f63a545481291138910575129486daeaf8ac54aee4387fe7906919f7830c7d9d"
-+
-+[[package]]
-+name = "unicode-segmentation"
-+version = "1.12.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
-+
-+[[package]]
-+name = "unicode-xid"
-+version = "0.2.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
-+
-+[[package]]
-+name = "universal-hash"
-+version = "0.5.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "fc1de2c688dc15305988b563c3854064043356019f97a4b46276fe734c4f07ea"
-+dependencies = [
-+ "crypto-common",
-+ "subtle",
-+]
-+
-+[[package]]
-+name = "untrusted"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
-+
-+[[package]]
-+name = "untrusted"
-+version = "0.9.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
-+
-+[[package]]
-+name = "url"
-+version = "2.5.7"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "08bc136a29a3d1758e07a9cca267be308aeebf5cfd5a10f3f67ab2097683ef5b"
-+dependencies = [
-+ "form_urlencoded",
-+ "idna",
-+ "percent-encoding",
-+ "serde",
-+]
-+
-+[[package]]
-+name = "utf-8"
-+version = "0.7.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
-+
-+[[package]]
-+name = "utf8_iter"
-+version = "1.0.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
-+
-+[[package]]
-+name = "uuid"
-+version = "1.18.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2f87b8aa10b915a06587d0dec516c282ff295b475d94abf425d62b57710070a2"
-+dependencies = [
-+ "getrandom 0.3.3",
-+ "js-sys",
-+ "wasm-bindgen",
-+]
-+
-+[[package]]
-+name = "valuable"
-+version = "0.1.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
-+
-+[[package]]
-+name = "vcpkg"
-+version = "0.2.15"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
-+
-+[[package]]
-+name = "version-compare"
-+version = "0.0.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1c18c859eead79d8b95d09e4678566e8d70105c4e7b251f707a03df32442661b"
-+
-+[[package]]
-+name = "version-compare"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "852e951cb7832cb45cb1169900d19760cfa39b82bc0ea9c0e5a14ae88411c98b"
-+
-+[[package]]
-+name = "version_check"
-+version = "0.9.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-+
-+[[package]]
-+name = "vswhom"
-+version = "0.1.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "be979b7f07507105799e854203b470ff7c78a1639e330a58f183b5fea574608b"
-+dependencies = [
-+ "libc",
-+ "vswhom-sys",
-+]
-+
-+[[package]]
-+name = "vswhom-sys"
-+version = "0.1.3"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "fb067e4cbd1ff067d1df46c9194b5de0e98efd2810bbc95c5d5e5f25a3231150"
-+dependencies = [
-+ "cc",
-+ "libc",
-+]
-+
-+[[package]]
-+name = "waitgroup"
-+version = "0.1.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d1f50000a783467e6c0200f9d10642f4bc424e39efc1b770203e88b488f79292"
-+dependencies = [
-+ "atomic-waker",
-+]
-+
-+[[package]]
-+name = "walkdir"
-+version = "2.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
-+dependencies = [
-+ "same-file",
-+ "winapi-util",
-+]
-+
-+[[package]]
-+name = "want"
-+version = "0.3.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bfa7760aed19e106de2c7c0b581b509f2f25d3dacaf737cb82ac61bc6d760b0e"
-+dependencies = [
-+ "try-lock",
-+]
-+
-+[[package]]
-+name = "wasi"
-+version = "0.9.0+wasi-snapshot-preview1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
-+
-+[[package]]
-+name = "wasi"
-+version = "0.11.1+wasi-snapshot-preview1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ccf3ec651a847eb01de73ccad15eb7d99f80485de043efb2f370cd654f4ea44b"
-+
-+[[package]]
-+name = "wasi"
-+version = "0.14.7+wasi-0.2.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "883478de20367e224c0090af9cf5f9fa85bed63a95c1abf3afc5c083ebc06e8c"
-+dependencies = [
-+ "wasip2",
-+]
-+
-+[[package]]
-+name = "wasip2"
-+version = "1.0.1+wasi-0.2.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0562428422c63773dad2c345a1882263bbf4d65cf3f42e90921f787ef5ad58e7"
-+dependencies = [
-+ "wit-bindgen",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen"
-+version = "0.2.104"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c1da10c01ae9f1ae40cbfac0bac3b1e724b320abfcf52229f80b547c0d250e2d"
-+dependencies = [
-+ "cfg-if",
-+ "once_cell",
-+ "rustversion",
-+ "wasm-bindgen-macro",
-+ "wasm-bindgen-shared",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen-backend"
-+version = "0.2.104"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "671c9a5a66f49d8a47345ab942e2cb93c7d1d0339065d4f8139c486121b43b19"
-+dependencies = [
-+ "bumpalo",
-+ "log",
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+ "wasm-bindgen-shared",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen-futures"
-+version = "0.4.54"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7e038d41e478cc73bae0ff9b36c60cff1c98b8f38f8d7e8061e79ee63608ac5c"
-+dependencies = [
-+ "cfg-if",
-+ "js-sys",
-+ "once_cell",
-+ "wasm-bindgen",
-+ "web-sys",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen-macro"
-+version = "0.2.104"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7ca60477e4c59f5f2986c50191cd972e3a50d8a95603bc9434501cf156a9a119"
-+dependencies = [
-+ "quote",
-+ "wasm-bindgen-macro-support",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen-macro-support"
-+version = "0.2.104"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9f07d2f20d4da7b26400c9f4a0511e6e0345b040694e8a75bd41d578fa4421d7"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+ "wasm-bindgen-backend",
-+ "wasm-bindgen-shared",
-+]
-+
-+[[package]]
-+name = "wasm-bindgen-shared"
-+version = "0.2.104"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "bad67dc8b2a1a6e5448428adec4c3e84c43e561d8c9ee8a9e5aabeb193ec41d1"
-+dependencies = [
-+ "unicode-ident",
-+]
-+
-+[[package]]
-+name = "wasm-streams"
-+version = "0.4.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "15053d8d85c7eccdbefef60f06769760a563c7f0a9d6902a13d35c7800b0ad65"
-+dependencies = [
-+ "futures-util",
-+ "js-sys",
-+ "wasm-bindgen",
-+ "wasm-bindgen-futures",
-+ "web-sys",
-+]
-+
-+[[package]]
-+name = "web-sys"
-+version = "0.3.81"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9367c417a924a74cae129e6a2ae3b47fabb1f8995595ab474029da749a8be120"
-+dependencies = [
-+ "js-sys",
-+ "wasm-bindgen",
-+]
-+
-+[[package]]
-+name = "webkit2gtk"
-+version = "0.18.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b8f859735e4a452aeb28c6c56a852967a8a76c8eb1cc32dbf931ad28a13d6370"
-+dependencies = [
-+ "bitflags 1.3.2",
-+ "cairo-rs",
-+ "gdk",
-+ "gdk-sys",
-+ "gio",
-+ "gio-sys",
-+ "glib",
-+ "glib-sys",
-+ "gobject-sys",
-+ "gtk",
-+ "gtk-sys",
-+ "javascriptcore-rs",
-+ "libc",
-+ "once_cell",
-+ "soup2",
-+ "webkit2gtk-sys",
-+]
-+
-+[[package]]
-+name = "webkit2gtk-sys"
-+version = "0.18.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "4d76ca6ecc47aeba01ec61e480139dda143796abcae6f83bcddf50d6b5b1dcf3"
-+dependencies = [
-+ "atk-sys",
-+ "bitflags 1.3.2",
-+ "cairo-sys-rs",
-+ "gdk-pixbuf-sys",
-+ "gdk-sys",
-+ "gio-sys",
-+ "glib-sys",
-+ "gobject-sys",
-+ "gtk-sys",
-+ "javascriptcore-rs-sys",
-+ "libc",
-+ "pango-sys",
-+ "pkg-config",
-+ "soup2-sys",
-+ "system-deps 6.2.2",
-+]
-+
-+[[package]]
-+name = "webrtc"
-+version = "0.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1fbdf025f0fa62f4bf252b2fb0cff0a04d3eac2021c440096649e62f4e48553d"
-+dependencies = [
-+ "arc-swap",
-+ "async-trait",
-+ "bytes",
-+ "cfg-if",
-+ "hex",
-+ "interceptor",
-+ "lazy_static",
-+ "log",
-+ "rand 0.8.5",
-+ "rcgen",
-+ "regex",
-+ "ring 0.17.14",
-+ "rtcp",
-+ "rtp",
-+ "rustls",
-+ "sdp",
-+ "serde",
-+ "serde_json",
-+ "sha2",
-+ "smol_str",
-+ "stun",
-+ "thiserror",
-+ "time",
-+ "tokio",
-+ "turn",
-+ "url",
-+ "waitgroup",
-+ "webrtc-data",
-+ "webrtc-dtls",
-+ "webrtc-ice",
-+ "webrtc-mdns",
-+ "webrtc-media",
-+ "webrtc-sctp",
-+ "webrtc-srtp",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-data"
-+version = "0.8.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e8c08e648e10572b9edbe741074e0f4d3cb221aa7cdf9a814ee71606de312f33"
-+dependencies = [
-+ "bytes",
-+ "log",
-+ "thiserror",
-+ "tokio",
-+ "webrtc-sctp",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-dtls"
-+version = "0.9.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "188ce061a2371bdf4df54b136c89a6df243ed0ef6b03431b4bd18482cd718dfe"
-+dependencies = [
-+ "aes",
-+ "aes-gcm",
-+ "async-trait",
-+ "bincode",
-+ "byteorder",
-+ "cbc",
-+ "ccm",
-+ "der-parser",
-+ "hkdf",
-+ "hmac",
-+ "log",
-+ "p256",
-+ "p384",
-+ "rand 0.8.5",
-+ "rand_core 0.6.4",
-+ "rcgen",
-+ "ring 0.17.14",
-+ "rustls",
-+ "sec1",
-+ "serde",
-+ "sha1",
-+ "sha2",
-+ "subtle",
-+ "thiserror",
-+ "tokio",
-+ "webrtc-util",
-+ "x25519-dalek",
-+ "x509-parser",
-+]
-+
-+[[package]]
-+name = "webrtc-ice"
-+version = "0.10.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a1bbd6b3dea22cc6e961e22b012e843d8869e2ac8e76b96e54d4a25e311857ad"
-+dependencies = [
-+ "arc-swap",
-+ "async-trait",
-+ "crc",
-+ "log",
-+ "rand 0.8.5",
-+ "serde",
-+ "serde_json",
-+ "stun",
-+ "thiserror",
-+ "tokio",
-+ "turn",
-+ "url",
-+ "uuid",
-+ "waitgroup",
-+ "webrtc-mdns",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-mdns"
-+version = "0.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ce981f93104a8debb3563bb0cedfe4aa2f351fdf6b53f346ab50009424125c08"
-+dependencies = [
-+ "log",
-+ "socket2 0.5.10",
-+ "thiserror",
-+ "tokio",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-media"
-+version = "0.7.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "280017b6b9625ef7329146332518b339c3cceff231cc6f6a9e0e6acab25ca4af"
-+dependencies = [
-+ "byteorder",
-+ "bytes",
-+ "rand 0.8.5",
-+ "rtp",
-+ "thiserror",
-+]
-+
-+[[package]]
-+name = "webrtc-sctp"
-+version = "0.9.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "df75ec042002fe995194712cbeb2029107a60a7eab646f1b789eb1be94d0e367"
-+dependencies = [
-+ "arc-swap",
-+ "async-trait",
-+ "bytes",
-+ "crc",
-+ "log",
-+ "rand 0.8.5",
-+ "thiserror",
-+ "tokio",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-srtp"
-+version = "0.12.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "383b0f0f73ee6cce396bdbc4d54ec661861a59eae9fc988914c1a8d82c5ac272"
-+dependencies = [
-+ "aead",
-+ "aes",
-+ "aes-gcm",
-+ "byteorder",
-+ "bytes",
-+ "ctr",
-+ "hmac",
-+ "log",
-+ "rtcp",
-+ "rtp",
-+ "sha1",
-+ "subtle",
-+ "thiserror",
-+ "tokio",
-+ "webrtc-util",
-+]
-+
-+[[package]]
-+name = "webrtc-util"
-+version = "0.8.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5e85154ef743d9a2a116d104faaaa82740a281b8b4bed5ee691a2df6c133d873"
-+dependencies = [
-+ "async-trait",
-+ "bitflags 1.3.2",
-+ "bytes",
-+ "ipnet",
-+ "lazy_static",
-+ "libc",
-+ "log",
-+ "nix",
-+ "rand 0.8.5",
-+ "thiserror",
-+ "tokio",
-+ "winapi",
-+]
-+
-+[[package]]
-+name = "webview2-com"
-+version = "0.19.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b4a769c9f1a64a8734bde70caafac2b96cada12cd4aefa49196b3a386b8b4178"
-+dependencies = [
-+ "webview2-com-macros",
-+ "webview2-com-sys",
-+ "windows 0.39.0",
-+ "windows-implement 0.39.0",
-+]
-+
-+[[package]]
-+name = "webview2-com-macros"
-+version = "0.6.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "eaebe196c01691db62e9e4ca52c5ef1e4fd837dcae27dae3ada599b5a8fd05ac"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 1.0.109",
-+]
-+
-+[[package]]
-+name = "webview2-com-sys"
-+version = "0.19.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "aac48ef20ddf657755fdcda8dfed2a7b4fc7e4581acce6fe9b88c3d64f29dee7"
-+dependencies = [
-+ "regex",
-+ "serde",
-+ "serde_json",
-+ "thiserror",
-+ "windows 0.39.0",
-+ "windows-bindgen",
-+ "windows-metadata",
-+]
-+
-+[[package]]
-+name = "winapi"
-+version = "0.3.9"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419"
-+dependencies = [
-+ "winapi-i686-pc-windows-gnu",
-+ "winapi-x86_64-pc-windows-gnu",
-+]
-+
-+[[package]]
-+name = "winapi-i686-pc-windows-gnu"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
-+
-+[[package]]
-+name = "winapi-util"
-+version = "0.1.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
-+dependencies = [
-+ "windows-sys 0.61.1",
-+]
-+
-+[[package]]
-+name = "winapi-x86_64-pc-windows-gnu"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
-+
-+[[package]]
-+name = "windows"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "57b543186b344cc61c85b5aab0d2e3adf4e0f99bc076eff9aa5927bcc0b8a647"
-+dependencies = [
-+ "windows_aarch64_msvc 0.37.0",
-+ "windows_i686_gnu 0.37.0",
-+ "windows_i686_msvc 0.37.0",
-+ "windows_x86_64_gnu 0.37.0",
-+ "windows_x86_64_msvc 0.37.0",
-+]
-+
-+[[package]]
-+name = "windows"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f1c4bd0a50ac6020f65184721f758dba47bb9fbc2133df715ec74a237b26794a"
-+dependencies = [
-+ "windows-implement 0.39.0",
-+ "windows_aarch64_msvc 0.39.0",
-+ "windows_i686_gnu 0.39.0",
-+ "windows_i686_msvc 0.39.0",
-+ "windows_x86_64_gnu 0.39.0",
-+ "windows_x86_64_msvc 0.39.0",
-+]
-+
-+[[package]]
-+name = "windows"
-+version = "0.48.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f"
-+dependencies = [
-+ "windows-targets 0.48.5",
-+]
-+
-+[[package]]
-+name = "windows-bindgen"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "68003dbd0e38abc0fb85b939240f4bce37c43a5981d3df37ccbaaa981b47cb41"
-+dependencies = [
-+ "windows-metadata",
-+ "windows-tokens",
-+]
-+
-+[[package]]
-+name = "windows-core"
-+version = "0.62.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6844ee5416b285084d3d3fffd743b925a6c9385455f64f6d4fa3031c4c2749a9"
-+dependencies = [
-+ "windows-implement 0.60.1",
-+ "windows-interface",
-+ "windows-link",
-+ "windows-result",
-+ "windows-strings",
-+]
-+
-+[[package]]
-+name = "windows-implement"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ba01f98f509cb5dc05f4e5fc95e535f78260f15fea8fe1a8abdd08f774f1cee7"
-+dependencies = [
-+ "syn 1.0.109",
-+ "windows-tokens",
-+]
-+
-+[[package]]
-+name = "windows-implement"
-+version = "0.60.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "edb307e42a74fb6de9bf3a02d9712678b22399c87e6fa869d6dfcd8c1b7754e0"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "windows-interface"
-+version = "0.59.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c0abd1ddbc6964ac14db11c7213d6532ef34bd9aa042c2e5935f59d7908b46a5"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "windows-link"
-+version = "0.2.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "45e46c0661abb7180e7b9c281db115305d49ca1709ab8242adf09666d2173c65"
-+
-+[[package]]
-+name = "windows-metadata"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9ee5e275231f07c6e240d14f34e1b635bf1faa1c76c57cfd59a5cdb9848e4278"
-+
-+[[package]]
-+name = "windows-result"
-+version = "0.4.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7084dcc306f89883455a206237404d3eaf961e5bd7e0f312f7c91f57eb44167f"
-+dependencies = [
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "windows-strings"
-+version = "0.5.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7218c655a553b0bed4426cf54b20d7ba363ef543b52d515b3e48d7fd55318dda"
-+dependencies = [
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.42.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5a3e1820f08b8513f676f7ab6c1f99ff312fb97b553d30ff4dd86f9f15728aa7"
-+dependencies = [
-+ "windows_aarch64_gnullvm 0.42.2",
-+ "windows_aarch64_msvc 0.42.2",
-+ "windows_i686_gnu 0.42.2",
-+ "windows_i686_msvc 0.42.2",
-+ "windows_x86_64_gnu 0.42.2",
-+ "windows_x86_64_gnullvm 0.42.2",
-+ "windows_x86_64_msvc 0.42.2",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.48.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "677d2418bec65e3338edb076e806bc1ec15693c5d0104683f2efe857f61056a9"
-+dependencies = [
-+ "windows-targets 0.48.5",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.52.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d"
-+dependencies = [
-+ "windows-targets 0.52.6",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.59.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "1e38bc4d79ed67fd075bcc251a1c39b32a1776bbe92e5bef1f0bf1f8c531853b"
-+dependencies = [
-+ "windows-targets 0.52.6",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.60.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
-+dependencies = [
-+ "windows-targets 0.53.4",
-+]
-+
-+[[package]]
-+name = "windows-sys"
-+version = "0.61.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6f109e41dd4a3c848907eb83d5a42ea98b3769495597450cf6d153507b166f0f"
-+dependencies = [
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "windows-targets"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9a2fa6e2155d7247be68c096456083145c183cbbbc2764150dda45a87197940c"
-+dependencies = [
-+ "windows_aarch64_gnullvm 0.48.5",
-+ "windows_aarch64_msvc 0.48.5",
-+ "windows_i686_gnu 0.48.5",
-+ "windows_i686_msvc 0.48.5",
-+ "windows_x86_64_gnu 0.48.5",
-+ "windows_x86_64_gnullvm 0.48.5",
-+ "windows_x86_64_msvc 0.48.5",
-+]
-+
-+[[package]]
-+name = "windows-targets"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9b724f72796e036ab90c1021d4780d4d3d648aca59e491e6b98e725b84e99973"
-+dependencies = [
-+ "windows_aarch64_gnullvm 0.52.6",
-+ "windows_aarch64_msvc 0.52.6",
-+ "windows_i686_gnu 0.52.6",
-+ "windows_i686_gnullvm 0.52.6",
-+ "windows_i686_msvc 0.52.6",
-+ "windows_x86_64_gnu 0.52.6",
-+ "windows_x86_64_gnullvm 0.52.6",
-+ "windows_x86_64_msvc 0.52.6",
-+]
-+
-+[[package]]
-+name = "windows-targets"
-+version = "0.53.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2d42b7b7f66d2a06854650af09cfdf8713e427a439c97ad65a6375318033ac4b"
-+dependencies = [
-+ "windows-link",
-+ "windows_aarch64_gnullvm 0.53.0",
-+ "windows_aarch64_msvc 0.53.0",
-+ "windows_i686_gnu 0.53.0",
-+ "windows_i686_gnullvm 0.53.0",
-+ "windows_i686_msvc 0.53.0",
-+ "windows_x86_64_gnu 0.53.0",
-+ "windows_x86_64_gnullvm 0.53.0",
-+ "windows_x86_64_msvc 0.53.0",
-+]
-+
-+[[package]]
-+name = "windows-tokens"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f838de2fe15fe6bac988e74b798f26499a8b21a9d97edec321e79b28d1d7f597"
-+
-+[[package]]
-+name = "windows-version"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "700dad7c058606087f6fdc1f88da5841e06da40334413c6cd4367b25ef26d24e"
-+dependencies = [
-+ "windows-link",
-+]
-+
-+[[package]]
-+name = "windows_aarch64_gnullvm"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "597a5118570b68bc08d8d59125332c54f1ba9d9adeedeef5b99b02ba2b0698f8"
-+
-+[[package]]
-+name = "windows_aarch64_gnullvm"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2b38e32f0abccf9987a4e3079dfb67dcd799fb61361e53e2882c3cbaf0d905d8"
-+
-+[[package]]
-+name = "windows_aarch64_gnullvm"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "32a4622180e7a0ec044bb555404c800bc9fd9ec262ec147edd5989ccd0c02cd3"
-+
-+[[package]]
-+name = "windows_aarch64_gnullvm"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "86b8d5f90ddd19cb4a147a5fa63ca848db3df085e25fee3cc10b39b6eebae764"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2623277cb2d1c216ba3b578c0f3cf9cdebeddb6e66b1b218bb33596ea7769c3a"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ec7711666096bd4096ffa835238905bb33fb87267910e154b18b44eaabb340f2"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e08e8864a60f06ef0d0ff4ba04124db8b0fb3be5776a5cd47641e942e58c4d43"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "dc35310971f3b2dbbf3f0690a219f40e2d9afcf64f9ab7cc1be722937c26b4bc"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "09ec2a7bb152e2252b53fa7803150007879548bc709c039df7627cabbd05d469"
-+
-+[[package]]
-+name = "windows_aarch64_msvc"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c7651a1f62a11b8cbd5e0d42526e55f2c99886c77e007179efff86c2b137e66c"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d3925fd0b0b804730d44d4b6278c50f9699703ec49bcd628020f46f4ba07d9e1"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "763fc57100a5f7042e3057e7e8d9bdd7860d330070251a73d003563a3bb49e1b"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c61d927d8da41da96a81f029489353e68739737d3beca43145c8afec9a31a84f"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a75915e7def60c94dcef72200b9a8e58e5091744960da64ec734a6c6e9b3743e"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8e9b5ad5ab802e97eb8e295ac6720e509ee4c243f69d781394014ebfe8bbfa0b"
-+
-+[[package]]
-+name = "windows_i686_gnu"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c1dc67659d35f387f5f6c479dc4e28f1d4bb90ddd1a5d3da2e5d97b42d6272c3"
-+
-+[[package]]
-+name = "windows_i686_gnullvm"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0eee52d38c090b3caa76c563b86c3a4bd71ef1a819287c19d586d7334ae8ed66"
-+
-+[[package]]
-+name = "windows_i686_gnullvm"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9ce6ccbdedbf6d6354471319e781c0dfef054c81fbc7cf83f338a4296c0cae11"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ce907ac74fe331b524c1298683efbf598bb031bc84d5e274db2083696d07c57c"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7bc7cbfe58828921e10a9f446fcaaf649204dcfe6c1ddd712c5eebae6bda1106"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "44d840b6ec649f480a41c8d80f9c65108b92d89345dd94027bfe06ac444d1060"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8f55c233f70c4b27f66c523580f78f1004e8b5a8b659e05a4eb49d4166cca406"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "240948bc05c5e7c6dabba28bf89d89ffce3e303022809e73deaefe4f6ec56c66"
-+
-+[[package]]
-+name = "windows_i686_msvc"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "581fee95406bb13382d2f65cd4a908ca7b1e4c2f1917f143ba16efe98a589b5d"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2babfba0828f2e6b32457d5341427dcbb577ceef556273229959ac23a10af33d"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "6868c165637d653ae1e8dc4d82c25d4f97dd6605eaa8d784b5c6e0ab2a252b65"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "8de912b8b8feb55c064867cf047dda097f92d51efad5b491dfb98f6bbb70cb36"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "53d40abd2583d23e4718fddf1ebec84dbff8381c07cae67ff7768bbf19c6718e"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78"
-+
-+[[package]]
-+name = "windows_x86_64_gnu"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "2e55b5ac9ea33f2fc1716d1742db15574fd6fc8dadc51caab1c16a3d3b4190ba"
-+
-+[[package]]
-+name = "windows_x86_64_gnullvm"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "26d41b46a36d453748aedef1486d5c7a85db22e56aff34643984ea85514e94a3"
-+
-+[[package]]
-+name = "windows_x86_64_gnullvm"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0b7b52767868a23d5bab768e390dc5f5c55825b6d30b86c844ff2dc7414044cc"
-+
-+[[package]]
-+name = "windows_x86_64_gnullvm"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
-+
-+[[package]]
-+name = "windows_x86_64_gnullvm"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0a6e035dd0599267ce1ee132e51c27dd29437f63325753051e71dd9e42406c57"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.37.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f4dd6dc7df2d84cf7b33822ed5b86318fb1781948e9663bacd047fc9dd52259d"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.39.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5e4d40883ae9cae962787ca76ba76390ffa29214667a111db9e0a1ad8377e809"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.42.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.48.5"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.52.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
-+
-+[[package]]
-+name = "windows_x86_64_msvc"
-+version = "0.53.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
-+
-+[[package]]
-+name = "winnow"
-+version = "0.5.40"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
-+dependencies = [
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "winnow"
-+version = "0.7.13"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "21a0236b59786fed61e2a80582dd500fe61f18b5dca67a4a067d0bc9039339cf"
-+dependencies = [
-+ "memchr",
-+]
-+
-+[[package]]
-+name = "winreg"
-+version = "0.50.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1"
-+dependencies = [
-+ "cfg-if",
-+ "windows-sys 0.48.0",
-+]
-+
-+[[package]]
-+name = "winreg"
-+version = "0.52.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "a277a57398d4bfa075df44f501a17cfdf8542d224f0d36095a2adc7aee4ef0a5"
-+dependencies = [
-+ "cfg-if",
-+ "windows-sys 0.48.0",
-+]
-+
-+[[package]]
-+name = "wit-bindgen"
-+version = "0.46.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "f17a85883d4e6d00e8a97c586de764dabcc06133f7f1d55dce5cdc070ad7fe59"
-+
-+[[package]]
-+name = "writeable"
-+version = "0.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ea2f10b9bb0928dfb1b42b65e1f9e36f7f54dbdf08457afefb38afcdec4fa2bb"
-+
-+[[package]]
-+name = "wry"
-+version = "0.24.11"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c55c80b12287eb1ff7c365fc2f7a5037cb6181bd44c9fce81c8d1cf7605ffad6"
-+dependencies = [
-+ "base64 0.13.1",
-+ "block",
-+ "cocoa",
-+ "core-graphics",
-+ "crossbeam-channel",
-+ "dunce",
-+ "gdk",
-+ "gio",
-+ "glib",
-+ "gtk",
-+ "html5ever",
-+ "http 0.2.12",
-+ "kuchikiki",
-+ "libc",
-+ "log",
-+ "objc",
-+ "objc_id",
-+ "once_cell",
-+ "serde",
-+ "serde_json",
-+ "sha2",
-+ "soup2",
-+ "tao",
-+ "thiserror",
-+ "url",
-+ "webkit2gtk",
-+ "webkit2gtk-sys",
-+ "webview2-com",
-+ "windows 0.39.0",
-+ "windows-implement 0.39.0",
-+]
-+
-+[[package]]
-+name = "x11"
-+version = "2.21.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "502da5464ccd04011667b11c435cb992822c2c0dbde1770c988480d312a0db2e"
-+dependencies = [
-+ "libc",
-+ "pkg-config",
-+]
-+
-+[[package]]
-+name = "x11-dl"
-+version = "2.21.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "38735924fedd5314a6e548792904ed8c6de6636285cb9fec04d5b1db85c1516f"
-+dependencies = [
-+ "libc",
-+ "once_cell",
-+ "pkg-config",
-+]
-+
-+[[package]]
-+name = "x25519-dalek"
-+version = "2.0.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "c7e468321c81fb07fa7f4c636c3972b9100f0346e5b6a9f2bd0603a52f7ed277"
-+dependencies = [
-+ "curve25519-dalek",
-+ "rand_core 0.6.4",
-+ "serde",
-+ "zeroize",
-+]
-+
-+[[package]]
-+name = "x509-parser"
-+version = "0.15.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "7069fba5b66b9193bd2c5d3d4ff12b839118f6bcbef5328efafafb5395cf63da"
-+dependencies = [
-+ "asn1-rs",
-+ "data-encoding",
-+ "der-parser",
-+ "lazy_static",
-+ "nom",
-+ "oid-registry",
-+ "ring 0.16.20",
-+ "rusticata-macros",
-+ "thiserror",
-+ "time",
-+]
-+
-+[[package]]
-+name = "xattr"
-+version = "1.6.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "32e45ad4206f6d2479085147f02bc2ef834ac85886624a23575ae137c8aa8156"
-+dependencies = [
-+ "libc",
-+ "rustix",
-+]
-+
-+[[package]]
-+name = "yasna"
-+version = "0.5.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
-+dependencies = [
-+ "time",
-+]
-+
-+[[package]]
-+name = "yoke"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5f41bb01b8226ef4bfd589436a297c53d118f65921786300e427be8d487695cc"
-+dependencies = [
-+ "serde",
-+ "stable_deref_trait",
-+ "yoke-derive",
-+ "zerofrom",
-+]
-+
-+[[package]]
-+name = "yoke-derive"
-+version = "0.8.0"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "38da3c9736e16c5d3c8c597a9aaa5d1fa565d0532ae05e27c24aa62fb32c0ab6"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+ "synstructure 0.13.2",
-+]
-+
-+[[package]]
-+name = "zerocopy"
-+version = "0.8.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "0894878a5fa3edfd6da3f88c4805f4c8558e2b996227a3d864f47fe11e38282c"
-+dependencies = [
-+ "zerocopy-derive",
-+]
-+
-+[[package]]
-+name = "zerocopy-derive"
-+version = "0.8.27"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "88d2b8d9c68ad2b9e4340d7832716a4d21a22a1154777ad56ea55c51a9cf3831"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "zerofrom"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "50cc42e0333e05660c3587f3bf9d0478688e15d870fab3346451ce7f8c9fbea5"
-+dependencies = [
-+ "zerofrom-derive",
-+]
-+
-+[[package]]
-+name = "zerofrom-derive"
-+version = "0.1.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "d71e5d6e06ab090c67b5e44993ec16b72dcbaabc526db883a360057678b48502"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+ "synstructure 0.13.2",
-+]
-+
-+[[package]]
-+name = "zeroize"
-+version = "1.8.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "b97154e67e32c85465826e8bcc1c59429aaaf107c1e4a9e53c8d8ccd5eff88d0"
-+dependencies = [
-+ "zeroize_derive",
-+]
-+
-+[[package]]
-+name = "zeroize_derive"
-+version = "1.4.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "zerotrie"
-+version = "0.2.2"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "36f0bbd478583f79edad978b407914f61b2972f5af6fa089686016be8f9af595"
-+dependencies = [
-+ "displaydoc",
-+ "yoke",
-+ "zerofrom",
-+]
-+
-+[[package]]
-+name = "zerovec"
-+version = "0.11.4"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "e7aa2bd55086f1ab526693ecbe444205da57e25f4489879da80635a46d90e73b"
-+dependencies = [
-+ "yoke",
-+ "zerofrom",
-+ "zerovec-derive",
-+]
-+
-+[[package]]
-+name = "zerovec-derive"
-+version = "0.11.1"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "5b96237efa0c878c64bd89c436f661be4e46b2f3eff1ebb976f7ef2321d2f58f"
-+dependencies = [
-+ "proc-macro2",
-+ "quote",
-+ "syn 2.0.106",
-+]
-+
-+[[package]]
-+name = "zip"
-+version = "0.6.6"
-+source = "registry+https://github.com/rust-lang/crates.io-index"
-+checksum = "760394e246e4c28189f19d488c058bf16f564016aefac5d32bb1f3b51d5e9261"
-+dependencies = [
-+ "byteorder",
-+ "crc32fast",
-+ "crossbeam-utils",
-+]
-diff --git a/apps/client/src-tauri/Cargo.toml b/apps/client/src-tauri/Cargo.toml
-new file mode 100644
-index 0000000000000000000000000000000000000000..471de05a33272308c52b2de8eae1d4ee3241fce7
---- /dev/null
-+++ b/apps/client/src-tauri/Cargo.toml
-@@ -0,0 +1,42 @@
-+[package]
-+name = "fluxshare"
-+version = "0.1.0"
-+edition = "2021"
-+description = "FluxShare Tauri backend"
-+authors = ["FluxShare Team"]
-+license = "MIT"
-+
-+[lib]
-+name = "fluxshare_lib"
-+crate-type = ["cdylib", "rlib"]
-+
-+[build-dependencies]
-+tauri-build = { version = "1.5", features = [] }
-+
-+[dependencies]
-+anyhow = "1"
-+argon2 = "0.5"
-+axum = { version = "0.7", features = ["macros"] }
-+blake3 = "1"
-+bytes = "1"
-+chacha20poly1305 = { version = "0.10", features = ["std"] }
-+chrono = { version = "0.4", features = ["serde"] }
-+fs_extra = "1"
-+serde = { version = "1", features = ["derive"] }
-+serde_json = "1"
-+thiserror = "1"
-+tauri = { version = "1.5", features = ["shell-open", "process-command-api", "dialog-open", "updater"] }
-+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "process", "signal", "sync", "time"] }
-+tracing = "0.1"
-+tracing-appender = "0.2"
-+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
-+webrtc = "0.10"
-+quinn = { version = "0.10", features = ["rustls"] }
-+url = "2"
-+rand = "0.8"
-+parking_lot = "0.12"
-+dirs = "5"
-+
-+[dev-dependencies]
-+rand = "0.8"
-+tempfile = "3"
-diff --git a/apps/client/src-tauri/src/commands/files.rs b/apps/client/src-tauri/src/commands/files.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..3f3281d83f9801296d2d67ef72d0f5e53928ef44
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/files.rs
-@@ -0,0 +1,45 @@
-+use std::fs;
-+use std::path::PathBuf;
-+
-+use super::transfer::FileEntry;
-+
-+#[tauri::command]
-+pub fn list_files(paths: Vec<String>) -> Result<Vec<FileEntry>, String> {
-+    let mut entries = Vec::new();
-+    for path in paths {
-+        let path_buf = PathBuf::from(&path);
-+        let metadata = fs::metadata(&path_buf).map_err(|e| e.to_string())?;
-+        let name = path_buf
-+            .file_name()
-+            .map(|n| n.to_string_lossy().to_string())
-+            .unwrap_or_else(|| path.clone());
-+        let checksum = if metadata.is_file() {
-+            Some(calculate_checksum(&path_buf).map_err(|e| e.to_string())?)
-+        } else {
-+            None
-+        };
-+        entries.push(FileEntry {
-+            path: path.clone(),
-+            name,
-+            size: metadata.len(),
-+            is_dir: metadata.is_dir(),
-+            checksum,
-+        });
-+    }
-+    Ok(entries)
-+}
-+
-+fn calculate_checksum(path: &PathBuf) -> anyhow::Result<String> {
-+    use std::io::Read;
-+    let mut file = fs::File::open(path)?;
-+    let mut hasher = blake3::Hasher::new();
-+    let mut buffer = [0u8; 8192];
-+    loop {
-+        let read = file.read(&mut buffer)?;
-+        if read == 0 {
-+            break;
-+        }
-+        hasher.update(&buffer[..read]);
-+    }
-+    Ok(hasher.finalize().to_hex().to_string())
-+}
-diff --git a/apps/client/src-tauri/src/commands/quic.rs b/apps/client/src-tauri/src/commands/quic.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..5fd114dc4b2ca012dd3682ef859639d6d076437f
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/quic.rs
-@@ -0,0 +1,42 @@
-+use std::net::SocketAddr;
-+
-+use parking_lot::Mutex;
-+use quinn::{ClientConfig, Endpoint};
-+use std::sync::Arc;
-+
-+#[derive(Clone, Default)]
-+pub struct QuicManager {
-+    endpoint: Arc<Mutex<Option<Endpoint>>>,
-+}
-+
-+impl QuicManager {
-+    async fn ensure_endpoint(&self) -> anyhow::Result<Endpoint> {
-+        if let Some(ep) = self.endpoint.lock().as_ref() {
-+            return Ok(ep.clone());
-+        }
-+        let client_cfg = ClientConfig::with_native_roots();
-+        let (endpoint, _incoming) = Endpoint::client("0.0.0.0:0".parse::<SocketAddr>()?)?;
-+        endpoint.set_default_client_config(client_cfg);
-+        *self.endpoint.lock() = Some(endpoint.clone());
-+        Ok(endpoint)
-+    }
-+}
-+
-+#[tauri::command]
-+pub async fn quic_start(
-+    manager: tauri::State<'_, QuicManager>,
-+    self_id: String,
-+    remote_addr: String,
-+) -> Result<(), String> {
-+    let endpoint = manager
-+        .ensure_endpoint()
-+        .await
-+        .map_err(|e| format!("erro ao criar endpoint QUIC: {e}"))?;
-+    let addr: SocketAddr = remote_addr.parse().map_err(|e| e.to_string())?;
-+    let connection = endpoint
-+        .connect(addr, "fluxshare")
-+        .map_err(|e| e.to_string())?;
-+    let _ = connection.await.map_err(|e| e.to_string())?;
-+    tracing::info!("quic_connected", self_id = %self_id, remote = %remote_addr);
-+    Ok(())
-+}
-diff --git a/apps/client/src-tauri/src/commands/settings.rs b/apps/client/src-tauri/src/commands/settings.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..e18ba9e90c99674082a8e48d67884c02655ca46f
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/settings.rs
-@@ -0,0 +1,94 @@
-+use std::fs;
-+use std::path::PathBuf;
-+use std::sync::Arc;
-+
-+use parking_lot::Mutex;
-+use serde::{Deserialize, Serialize};
-+
-+#[derive(Debug, Clone, Serialize, Deserialize)]
-+pub struct Settings {
-+    pub chunk_size: u64,
-+    pub parallel_chunks: u32,
-+    pub ice_timeout_ms: u64,
-+    pub cloudflared_path: String,
-+}
-+
-+impl Default for Settings {
-+    fn default() -> Self {
-+        Self {
-+            chunk_size: 1024 * 1024,
-+            parallel_chunks: 4,
-+            ice_timeout_ms: 30_000,
-+            cloudflared_path: "cloudflared".into(),
-+        }
-+    }
-+}
-+
-+#[derive(Clone)]
-+pub struct SettingsManager {
-+    inner: Arc<Mutex<Settings>>,
-+    path: Arc<PathBuf>,
-+}
-+
-+impl Default for SettingsManager {
-+    fn default() -> Self {
-+        let path = settings_path();
-+        let settings = load_settings(&path).unwrap_or_default();
-+        Self {
-+            inner: Arc::new(Mutex::new(settings)),
-+            path: Arc::new(path),
-+        }
-+    }
-+}
-+
-+impl SettingsManager {
-+    pub fn ensure_initialized(&self) -> anyhow::Result<()> {
-+        if !self.path.exists() {
-+            if let Some(parent) = self.path.parent() {
-+                fs::create_dir_all(parent)?;
-+            }
-+            let defaults = Settings::default();
-+            fs::write(&*self.path, serde_json::to_string_pretty(&defaults)?)?;
-+        }
-+        Ok(())
-+    }
-+
-+    pub fn get_settings(&self) -> anyhow::Result<Settings> {
-+        Ok(self.inner.lock().clone())
-+    }
-+
-+    pub fn update(&self, settings: Settings) -> anyhow::Result<()> {
-+        *self.inner.lock() = settings.clone();
-+        if let Some(parent) = self.path.parent() {
-+            fs::create_dir_all(parent)?;
-+        }
-+        fs::write(&*self.path, serde_json::to_string_pretty(&settings)?)?;
-+        Ok(())
-+    }
-+}
-+
-+fn settings_path() -> PathBuf {
-+    if let Ok(custom) = std::env::var("FLUXSHARE_DATA_DIR") {
-+        return PathBuf::from(custom).join("settings.json");
-+    }
-+    let base = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-+    base.join(".fluxshare").join("settings.json")
-+}
-+
-+fn load_settings(path: &PathBuf) -> Option<Settings> {
-+    let data = fs::read_to_string(path).ok()?;
-+    serde_json::from_str(&data).ok()
-+}
-+
-+#[tauri::command]
-+pub fn get_settings(manager: tauri::State<'_, SettingsManager>) -> Result<Settings, String> {
-+    manager.get_settings().map_err(|e| e.to_string())
-+}
-+
-+#[tauri::command]
-+pub fn set_settings(
-+    manager: tauri::State<'_, SettingsManager>,
-+    settings: Settings,
-+) -> Result<(), String> {
-+    manager.update(settings).map_err(|e| e.to_string())
-+}
-diff --git a/apps/client/src-tauri/src/commands/transfer.rs b/apps/client/src-tauri/src/commands/transfer.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..6bf5ba6441e88c223b4402e3d91e90800ec6efb2
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/transfer.rs
-@@ -0,0 +1,477 @@
-+use std::collections::HashMap;
-+use std::fs::{self, File};
-+use std::io::Read;
-+use std::path::{Path, PathBuf};
-+use std::sync::Arc;
-+use std::time::{Duration, Instant};
-+
-+use anyhow::Context;
-+use argon2::Argon2;
-+use blake3::Hasher;
-+use parking_lot::Mutex;
-+use serde::{Deserialize, Serialize};
-+
-+#[derive(Debug, Clone, Serialize, Deserialize)]
-+#[serde(rename_all = "camelCase")]
-+pub struct FileEntry {
-+    pub path: String,
-+    pub name: String,
-+    pub size: u64,
-+    pub is_dir: bool,
-+    pub checksum: Option<String>,
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-+#[serde(rename_all = "camelCase")]
-+pub struct FileProgress {
-+    pub path: String,
-+    pub transferred: u64,
-+    pub total: u64,
-+    pub done: bool,
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize)]
-+#[serde(rename_all = "camelCase")]
-+pub struct TransferStatus {
-+    pub session_id: String,
-+    pub total_bytes: u64,
-+    pub transferred_bytes: u64,
-+    pub file_progress: Vec<FileProgress>,
-+    pub rate: f64,
-+    pub eta_seconds: Option<f64>,
-+    pub state: String,
-+    #[serde(skip, default = "instant_now")]
-+    pub started_at: Instant,
-+}
-+
-+fn instant_now() -> Instant {
-+    Instant::now()
-+}
-+
-+impl TransferStatus {
-+    fn new(session_id: String, files: &[FileEntry]) -> Self {
-+        let total = files.iter().map(|f| f.size).sum();
-+        Self {
-+            session_id,
-+            total_bytes: total,
-+            transferred_bytes: 0,
-+            file_progress: files
-+                .iter()
-+                .map(|f| FileProgress {
-+                    path: f.path.clone(),
-+                    transferred: 0,
-+                    total: f.size,
-+                    done: false,
-+                })
-+                .collect(),
-+            rate: 0.0,
-+            eta_seconds: None,
-+            state: "pending".into(),
-+            started_at: Instant::now(),
-+        }
-+    }
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize)]
-+pub struct SendOptions {
-+    #[serde(default)]
-+    pub encrypt: bool,
-+    pub password: Option<String>,
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-+pub struct ChunkInfo {
-+    pub index: u64,
-+    pub hash: String,
-+    pub size: u64,
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-+pub struct FileManifest {
-+    pub path: String,
-+    pub chunks: Vec<ChunkInfo>,
-+    pub final_hash: Option<String>,
-+    pub size: u64,
-+}
-+
-+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-+pub struct TransferManifest {
-+    pub session_id: String,
-+    pub encrypted: bool,
-+    pub files: HashMap<String, FileManifest>,
-+}
-+
-+#[derive(Clone, Default)]
-+pub struct TransferManager {
-+    inner: Arc<Mutex<HashMap<String, TransferStatus>>>,
-+}
-+
-+impl TransferManager {
-+    pub fn set_status(&self, session_id: String, status: TransferStatus) {
-+        self.inner.lock().insert(session_id, status);
-+    }
-+
-+    pub fn get_status(&self, session_id: &str) -> Option<TransferStatus> {
-+        self.inner.lock().get(session_id).cloned()
-+    }
-+}
-+
-+#[tauri::command]
-+pub async fn send_files(
-+    transfer_manager: tauri::State<'_, TransferManager>,
-+    settings: tauri::State<'_, crate::commands::settings::SettingsManager>,
-+    session_id: String,
-+    files: Vec<FileEntry>,
-+    options: SendOptions,
-+) -> Result<(), String> {
-+    if files.is_empty() {
-+        return Err("nenhum arquivo fornecido".into());
-+    }
-+    let chunk_size = settings
-+        .get_settings()
-+        .map_err(|e| e.to_string())?
-+        .chunk_size;
-+    let manager = transfer_manager.inner.clone();
-+    let manifest_dir = manifest_dir();
-+    let options_clone = options.clone();
-+
-+    transfer_manager.set_status(
-+        session_id.clone(),
-+        TransferStatus::new(session_id.clone(), &files),
-+    );
-+
-+    tauri::async_runtime::spawn(async move {
-+        if let Err(err) = execute_transfer(
-+            session_id,
-+            files,
-+            options_clone,
-+            chunk_size,
-+            manifest_dir,
-+            manager,
-+        )
-+        .await
-+        {
-+            tracing::error!(?err, "transfer failed");
-+        }
-+    });
-+
-+    Ok(())
-+}
-+
-+async fn execute_transfer(
-+    session_id: String,
-+    files: Vec<FileEntry>,
-+    options: SendOptions,
-+    chunk_size: u64,
-+    manifest_dir: PathBuf,
-+    manager: Arc<Mutex<HashMap<String, TransferStatus>>>,
-+) -> anyhow::Result<()> {
-+    let manifest_path = manifest_dir.join(format!("{}.json", session_id));
-+    let mut manifest = load_manifest(&manifest_path).unwrap_or_else(|| TransferManifest {
-+        session_id: session_id.clone(),
-+        encrypted: options.encrypt,
-+        files: HashMap::new(),
-+    });
-+
-+    let started = Instant::now();
-+    let mut total_transferred = 0u64;
-+    let mut last_tick = Instant::now();
-+    let mut last_transferred = 0u64;
-+
-+    let key = if options.encrypt {
-+        Some(derive_key(
-+            options.password.as_deref().unwrap_or(""),
-+            &session_id,
-+        )?)
-+    } else {
-+        None
-+    };
-+
-+    update_status(
-+        |status| {
-+            status.state = "transferindo".into();
-+        },
-+        &manager,
-+        &session_id,
-+    );
-+
-+    for file in files {
-+        if file.is_dir {
-+            continue;
-+        }
-+        let path = PathBuf::from(&file.path);
-+        let mut handle =
-+            File::open(&path).with_context(|| format!("abrir arquivo {}", path.display()))?;
-+        let mut file_hasher = Hasher::new();
-+        let mut chunk_index = 0u64;
-+        let entry = manifest
-+            .files
-+            .entry(file.path.clone())
-+            .or_insert_with(|| FileManifest {
-+                path: file.path.clone(),
-+                size: file.size,
-+                ..Default::default()
-+            });
-+
-+        // Determine resume state
-+        update_status(
-+            |status| {
-+                status.state = "resumindo".into();
-+                if let Some(p) = status
-+                    .file_progress
-+                    .iter_mut()
-+                    .find(|p| p.path == file.path)
-+                {
-+                    let reused_bytes: u64 = entry.chunks.iter().map(|c| c.size).sum();
-+                    p.transferred = reused_bytes.min(p.total);
-+                }
-+            },
-+            &manager,
-+            &session_id,
-+        );
-+
-+        loop {
-+            let mut buffer = vec![0u8; chunk_size as usize];
-+            let read = handle.read(&mut buffer)?;
-+            if read == 0 {
-+                break;
-+            }
-+            buffer.truncate(read);
-+            let chunk_hash = blake3::hash(&buffer).to_hex().to_string();
-+
-+            if let Some(existing) = entry.chunks.iter().find(|c| c.index == chunk_index) {
-+                if existing.hash == chunk_hash && existing.size == read as u64 {
-+                    file_hasher.update(&buffer);
-+                    total_transferred += read as u64;
-+                    update_progress(
-+                        &manager,
-+                        &session_id,
-+                        &file.path,
-+                        read as u64,
-+                        total_transferred,
-+                        started,
-+                    );
-+                    chunk_index += 1;
-+                    continue;
-+                }
-+            }
-+
-+            if let Some(key) = &key {
-+                use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, Key, Nonce};
-+                let cipher = ChaCha20Poly1305::new(Key::from_slice(key));
-+                let mut nonce_bytes = [0u8; 12];
-+                nonce_bytes[..8].copy_from_slice(&chunk_index.to_be_bytes());
-+                let nonce = Nonce::from_slice(&nonce_bytes);
-+                let _encrypted = cipher
-+                    .encrypt(nonce, buffer.as_ref())
-+                    .context("encrypt chunk")?;
-+            }
-+
-+            file_hasher.update(&buffer);
-+
-+            entry.chunks.retain(|c| c.index != chunk_index);
-+            entry.chunks.push(ChunkInfo {
-+                index: chunk_index,
-+                hash: chunk_hash,
-+                size: read as u64,
-+            });
-+            save_manifest(&manifest_path, &manifest)?;
-+
-+            total_transferred += read as u64;
-+            update_progress(
-+                &manager,
-+                &session_id,
-+                &file.path,
-+                read as u64,
-+                total_transferred,
-+                started,
-+            );
-+
-+            let now = Instant::now();
-+            if now.duration_since(last_tick) >= Duration::from_secs(1) {
-+                let delta = total_transferred - last_transferred;
-+                let rate = delta as f64 / now.duration_since(last_tick).as_secs_f64();
-+                update_status(
-+                    |status| {
-+                        status.rate = rate;
-+                        if status.total_bytes > 0 {
-+                            let remaining =
-+                                status.total_bytes.saturating_sub(status.transferred_bytes);
-+                            status.eta_seconds = Some(remaining as f64 / rate.max(1.0));
-+                        }
-+                    },
-+                    &manager,
-+                    &session_id,
-+                );
-+                last_tick = now;
-+                last_transferred = total_transferred;
-+            }
-+
-+            chunk_index += 1;
-+        }
-+
-+        entry.final_hash = Some(file_hasher.finalize().to_hex().to_string());
-+        save_manifest(&manifest_path, &manifest)?;
-+        update_status(
-+            |status| {
-+                if let Some(p) = status
-+                    .file_progress
-+                    .iter_mut()
-+                    .find(|p| p.path == file.path)
-+                {
-+                    p.done = true;
-+                    p.transferred = p.total;
-+                }
-+            },
-+            &manager,
-+            &session_id,
-+        );
-+    }
-+
-+    update_status(
-+        |status| {
-+            status.state = "concluído".into();
-+            status.transferred_bytes = status.total_bytes;
-+            status.rate = 0.0;
-+            status.eta_seconds = Some(0.0);
-+        },
-+        &manager,
-+        &session_id,
-+    );
-+
-+    Ok(())
-+}
-+
-+fn update_progress(
-+    manager: &Arc<Mutex<HashMap<String, TransferStatus>>>,
-+    session_id: &str,
-+    file_path: &str,
-+    chunk_bytes: u64,
-+    total_transferred: u64,
-+    started: Instant,
-+) {
-+    update_status(
-+        |status| {
-+            if let Some(p) = status
-+                .file_progress
-+                .iter_mut()
-+                .find(|p| p.path == file_path)
-+            {
-+                p.transferred = (p.transferred + chunk_bytes).min(p.total);
-+            }
-+            status.transferred_bytes = total_transferred;
-+            let elapsed = started.elapsed().as_secs_f64().max(0.001);
-+            status.rate = status.transferred_bytes as f64 / elapsed;
-+        },
-+        manager,
-+        session_id,
-+    );
-+}
-+
-+fn update_status<F>(
-+    mut f: F,
-+    manager: &Arc<Mutex<HashMap<String, TransferStatus>>>,
-+    session_id: &str,
-+) where
-+    F: FnMut(&mut TransferStatus),
-+{
-+    if let Some(status) = manager.lock().get_mut(session_id) {
-+        f(status);
-+    }
-+}
-+
-+fn derive_key(password: &str, session_id: &str) -> anyhow::Result<[u8; 32]> {
-+    let mut salt_bytes = [0u8; 16];
-+    let digest = blake3::hash(session_id.as_bytes());
-+    salt_bytes.copy_from_slice(&digest.as_bytes()[..16]);
-+    let mut output = [0u8; 32];
-+    Argon2::default()
-+        .hash_password_into(password.as_bytes(), &salt_bytes, &mut output)
-+        .context("argon2 derivation")?;
-+    Ok(output)
-+}
-+
-+fn manifest_dir() -> PathBuf {
-+    if let Ok(custom) = std::env::var("FLUXSHARE_DATA_DIR") {
-+        let dir = PathBuf::from(custom).join("manifests");
-+        fs::create_dir_all(&dir).ok();
-+        return dir;
-+    }
-+    let base = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-+    let dir = base.join(".fluxshare").join("manifests");
-+    fs::create_dir_all(&dir).ok();
-+    dir
-+}
-+
-+fn load_manifest(path: &Path) -> Option<TransferManifest> {
-+    let data = fs::read_to_string(path).ok()?;
-+    serde_json::from_str(&data).ok()
-+}
-+
-+fn save_manifest(path: &Path, manifest: &TransferManifest) -> anyhow::Result<()> {
-+    if let Some(dir) = path.parent() {
-+        fs::create_dir_all(dir)?;
-+    }
-+    let json = serde_json::to_string_pretty(manifest)?;
-+    fs::write(path, json)?;
-+    Ok(())
-+}
-+
-+#[tauri::command]
-+pub fn get_status(
-+    transfer_manager: tauri::State<'_, TransferManager>,
-+    session_id: String,
-+) -> Option<TransferStatus> {
-+    transfer_manager.get_status(&session_id)
-+}
-+
-+#[cfg(test)]
-+mod tests {
-+    use super::*;
-+    use std::io::{Seek, Write};
-+    use tempfile::NamedTempFile;
-+
-+    #[test]
-+    fn chunk_and_resume() {
-+        let mut tmp = NamedTempFile::new().unwrap();
-+        let data = vec![1u8; 2 * 1024 * 1024];
-+        tmp.write_all(&data).unwrap();
-+        tmp.rewind().unwrap();
-+
-+        let file_entry = FileEntry {
-+            path: tmp.path().to_string_lossy().to_string(),
-+            name: "tmp.bin".into(),
-+            size: data.len() as u64,
-+            is_dir: false,
-+            checksum: None,
-+        };
-+
-+        let manager = TransferManager::default();
-+        manager.set_status(
-+            "session".into(),
-+            TransferStatus::new("session".into(), &[file_entry.clone()]),
-+        );
-+
-+        let rt = tokio::runtime::Runtime::new().unwrap();
-+        rt.block_on(async {
-+            let temp_dir = tempfile::tempdir().unwrap();
-+            std::env::set_var("FLUXSHARE_DATA_DIR", temp_dir.path());
-+            execute_transfer(
-+                "session".into(),
-+                vec![file_entry.clone()],
-+                SendOptions {
-+                    encrypt: false,
-+                    password: None,
-+                },
-+                1024 * 512,
-+                manifest_dir(),
-+                manager.inner.clone(),
-+            )
-+            .unwrap();
-+        });
-+
-+        let status = manager.get_status("session").unwrap();
-+        assert_eq!(status.transferred_bytes, status.total_bytes);
-+        assert!(status.file_progress[0].done);
-+    }
-+}
-diff --git a/apps/client/src-tauri/src/commands/tunnel.rs b/apps/client/src-tauri/src/commands/tunnel.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..576dde9c5d0cd7cb7cda6d269aa142d10c2f7a1e
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/tunnel.rs
-@@ -0,0 +1,115 @@
-+use std::io::{BufRead, BufReader};
-+use std::process::{Child, Command, Stdio};
-+use std::sync::Arc;
-+use std::time::Duration;
-+
-+use parking_lot::Mutex;
-+use serde::Serialize;
-+
-+use super::settings::SettingsManager;
-+
-+#[derive(Default, Clone)]
-+pub struct TunnelManager {
-+    inner: Arc<Mutex<TunnelState>>,
-+}
-+
-+#[derive(Default)]
-+struct TunnelState {
-+    child: Option<Child>,
-+    url: Option<String>,
-+}
-+
-+#[derive(Serialize)]
-+pub struct TunnelInfo {
-+    pub public_url: String,
-+}
-+
-+#[tauri::command]
-+pub fn start_tunnel(
-+    manager: tauri::State<'_, TunnelManager>,
-+    settings: tauri::State<'_, SettingsManager>,
-+    local_port: u16,
-+) -> Result<TunnelInfo, String> {
-+    {
-+        let state = manager.inner.lock();
-+        if state.child.is_some() {
-+            if let Some(url) = state.url.clone() {
-+                return Ok(TunnelInfo { public_url: url });
-+            }
-+        }
-+    }
-+
-+    let settings = settings.get_settings().map_err(|e| e.to_string())?;
-+    let mut child = Command::new(&settings.cloudflared_path)
-+        .args(["tunnel", "--url", &format!("http://127.0.0.1:{local_port}")])
-+        .stdout(Stdio::piped())
-+        .stderr(Stdio::piped())
-+        .spawn()
-+        .map_err(|e| format!("falha ao iniciar cloudflared: {e}"))?;
-+
-+    let stdout = child.stdout.take().map(BufReader::new);
-+    let stderr = child.stderr.take().map(BufReader::new);
-+
-+    let (tx, rx) = std::sync::mpsc::channel();
-+    let state_arc = manager.inner.clone();
-+    std::thread::spawn(move || {
-+        let mut found_url: Option<String> = None;
-+        if let Some(reader) = stdout {
-+            if let Some(url) = read_for_url(reader) {
-+                let _ = tx.send(url.clone());
-+                found_url = Some(url);
-+            }
-+        }
-+        if found_url.is_none() {
-+            if let Some(reader) = stderr {
-+                if let Some(url) = read_for_url(reader) {
-+                    let _ = tx.send(url.clone());
-+                    found_url = Some(url);
-+                }
-+            }
-+        }
-+        if let Some(url) = found_url {
-+            let mut state = state_arc.lock();
-+            state.url = Some(url);
-+        }
-+    });
-+
-+    let url = rx
-+        .recv_timeout(Duration::from_secs(15))
-+        .map_err(|_| "não foi possível detectar URL do tunnel".to_string())?;
-+
-+    {
-+        let mut state = manager.inner.lock();
-+        state.child = Some(child);
-+        state.url = Some(url.clone());
-+    }
-+
-+    Ok(TunnelInfo { public_url: url })
-+}
-+
-+#[tauri::command]
-+pub fn stop_tunnel(manager: tauri::State<'_, TunnelManager>) -> Result<(), String> {
-+    let mut state = manager.inner.lock();
-+    if let Some(mut child) = state.child.take() {
-+        child.kill().ok();
-+        child.wait().ok();
-+    }
-+    state.url = None;
-+    Ok(())
-+}
-+
-+fn extract_url(line: &str) -> Option<String> {
-+    line.split_whitespace()
-+        .find(|segment| segment.contains("trycloudflare.com"))
-+        .map(|s| s.trim_matches(|c: char| c == '"'))
-+        .map(|s| s.to_string())
-+}
-+
-+fn read_for_url<R: BufRead>(reader: R) -> Option<String> {
-+    for line in reader.lines().flatten() {
-+        if let Some(url) = extract_url(&line) {
-+            return Some(url);
-+        }
-+    }
-+    None
-+}
-diff --git a/apps/client/src-tauri/src/commands/webrtc.rs b/apps/client/src-tauri/src/commands/webrtc.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..a3195b19d6e3ff83d5df8904770b8325c715a6bd
---- /dev/null
-+++ b/apps/client/src-tauri/src/commands/webrtc.rs
-@@ -0,0 +1,73 @@
-+use std::collections::HashMap;
-+use std::sync::Arc;
-+
-+use parking_lot::Mutex;
-+use serde::Serialize;
-+use webrtc::api::media_engine::MediaEngine;
-+use webrtc::api::APIBuilder;
-+use webrtc::data_channel::data_channel_init::RTCDataChannelInit;
-+use webrtc::peer_connection::configuration::RTCConfiguration;
-+use webrtc::peer_connection::RTCPeerConnection;
-+
-+#[derive(Default, Clone)]
-+pub struct WebRTCManager {
-+    connections: Arc<Mutex<HashMap<String, Arc<RTCPeerConnection>>>>,
-+}
-+
-+#[derive(Serialize)]
-+pub struct SignalingStatus {
-+    pub connected: bool,
-+}
-+
-+#[tauri::command]
-+pub async fn start_signaling(url: String, self_id: String) -> Result<SignalingStatus, String> {
-+    tracing::info!("start_signaling", url = %url, self_id = %self_id);
-+    Ok(SignalingStatus { connected: true })
-+}
-+
-+#[tauri::command]
-+pub async fn webrtc_start(
-+    webrtc_manager: tauri::State<'_, WebRTCManager>,
-+    mode: String,
-+    self_id: String,
-+    target_id: String,
-+    signaling_url: String,
-+) -> Result<(), String> {
-+    let mut media_engine = MediaEngine::default();
-+    media_engine
-+        .register_default_codecs()
-+        .map_err(|e| e.to_string())?;
-+
-+    let api = APIBuilder::new().with_media_engine(media_engine).build();
-+    let config = RTCConfiguration {
-+        ice_servers: vec![],
-+        ..Default::default()
-+    };
-+
-+    let pc = api
-+        .new_peer_connection(config)
-+        .await
-+        .map_err(|e| format!("erro ao criar peer connection: {e}"))?;
-+
-+    let data_channel = pc
-+        .create_data_channel("fluxshare", Some(RTCDataChannelInit::default()))
-+        .await
-+        .map_err(|e| e.to_string())?;
-+
-+    data_channel.on_open(Box::new(move || {
-+        tracing::info!("datachannel_open", mode = %mode, self_id = %self_id, target_id = %target_id, signaling_url = %signaling_url);
-+        Box::pin(async {})
-+    }));
-+
-+    data_channel.on_message(Box::new(move |msg| {
-+        tracing::debug!("datachannel_message", len = msg.data.len());
-+        Box::pin(async {})
-+    }));
-+
-+    webrtc_manager
-+        .connections
-+        .lock()
-+        .insert(format!("{}->{}", self_id, target_id), pc);
-+
-+    Ok(())
-+}
-diff --git a/apps/client/src-tauri/src/lib.rs b/apps/client/src-tauri/src/lib.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..4a219e6ffbd842b5de1d0c718bf47caf2732348f
---- /dev/null
-+++ b/apps/client/src-tauri/src/lib.rs
-@@ -0,0 +1 @@
-+pub use crate::commands::transfer::{FileEntry, TransferStatus};
-diff --git a/apps/client/src-tauri/src/main.rs b/apps/client/src-tauri/src/main.rs
-new file mode 100644
-index 0000000000000000000000000000000000000000..223fbcbf46f7a12ca2374de6984de9412e02536d
---- /dev/null
-+++ b/apps/client/src-tauri/src/main.rs
-@@ -0,0 +1,89 @@
-+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-+
-+mod commands {
-+    pub mod files;
-+    pub mod quic;
-+    pub mod settings;
-+    pub mod transfer;
-+    pub mod tunnel;
-+    pub mod webrtc;
-+}
-+
-+use commands::{
-+    files::list_files,
-+    quic::{quic_start, QuicManager},
-+    settings::{get_settings, set_settings, SettingsManager},
-+    transfer::{get_status, send_files, TransferManager},
-+    tunnel::{start_tunnel, stop_tunnel, TunnelManager},
-+    webrtc::{start_signaling, webrtc_start, WebRTCManager},
-+};
-+use tauri::Manager;
-+use tracing_subscriber::{fmt, EnvFilter};
-+
-+fn init_tracing() {
-+    let mut builder = fmt()
-+        .with_env_filter(
-+            EnvFilter::from_default_env().add_directive("fluxshare=info".parse().unwrap()),
-+        )
-+        .with_timer(tracing_subscriber::fmt::time::UtcTime::rfc_3339())
-+        .with_target(false)
-+        .json();
-+    if let Some(dir) = dirs::home_dir() {
-+        let log_dir = dir.join(".fluxshare").join("logs");
-+        std::fs::create_dir_all(&log_dir).ok();
-+        let file_appender = tracing_appender::rolling::daily(log_dir, "latest.log");
-+        builder = builder.with_writer(file_appender);
-+    }
-+    builder.init();
-+}
-+
-+#[tauri::command]
-+fn open_logs_folder(app: tauri::AppHandle) -> Result<(), String> {
-+    let path = dirs::home_dir()
-+        .ok_or_else(|| "home dir not found".to_string())?
-+        .join(".fluxshare")
-+        .join("logs");
-+    tauri::api::shell::open(&app.shell_scope(), path.to_string_lossy(), None)
-+        .map_err(|e| e.to_string())
-+}
-+
-+fn main() {
-+    init_tracing();
-+    let transfer_manager = TransferManager::default();
-+    let settings_manager = SettingsManager::default();
-+    let tunnel_manager = TunnelManager::default();
-+    let webrtc_manager = WebRTCManager::default();
-+    let quic_manager = QuicManager::default();
-+
-+    settings_manager
-+        .ensure_initialized()
-+        .expect("settings init");
-+
-+    tauri::Builder::default()
-+        .manage(transfer_manager.clone())
-+        .manage(settings_manager.clone())
-+        .manage(tunnel_manager.clone())
-+        .manage(webrtc_manager.clone())
-+        .manage(quic_manager.clone())
-+        .invoke_handler(tauri::generate_handler![
-+            list_files,
-+            start_signaling,
-+            webrtc_start,
-+            quic_start,
-+            send_files,
-+            get_status,
-+            start_tunnel,
-+            stop_tunnel,
-+            set_settings,
-+            get_settings,
-+            open_logs_folder
-+        ])
-+        .setup(move |app| {
-+            app.listen_global("tauri://close-requested", move |_event| {
-+                tracing::info!("shutdown requested");
-+            });
-+            Ok(())
-+        })
-+        .run(tauri::generate_context!())
-+        .expect("error while running FluxShare");
-+}
-diff --git a/apps/client/src-tauri/tauri.conf.json b/apps/client/src-tauri/tauri.conf.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..8d316263c9ad51d221456d9456549823c04db474
---- /dev/null
-+++ b/apps/client/src-tauri/tauri.conf.json
-@@ -0,0 +1,26 @@
-+{
-+  "$schema": "https://schema.tauri.app/config/2",
-+  "package": {
-+    "productName": "FluxShare",
-+    "version": "0.1.0"
-+  },
-+  "tauri": {
-+    "windows": [
-+      {
-+        "title": "FluxShare",
-+        "fullscreen": false,
-+        "width": 1280,
-+        "height": 720
-+      }
-+    ],
-+    "allowlist": {
-+      "all": true
-+    }
-+  },
-+  "build": {
-+    "beforeDevCommand": "pnpm dev",
-+    "beforeBuildCommand": "pnpm build",
-+    "devPath": "http://localhost:5173",
-+    "distDir": "../dist"
-+  }
-+}
-diff --git a/apps/client/src/App.tsx b/apps/client/src/App.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..9f613af64417b21d53976cae6886de666d982d95
---- /dev/null
-+++ b/apps/client/src/App.tsx
-@@ -0,0 +1,37 @@
-+import { NavLink, Outlet } from "react-router-dom";
-+
-+const links = [
-+  { to: "/", label: "Enviar" },
-+  { to: "/receive", label: "Receber" },
-+  { to: "/peers", label: "Peers" },
-+  { to: "/tunnel", label: "Tunnel" },
-+  { to: "/settings", label: "Configurações" },
-+  { to: "/logs", label: "Logs" },
-+];
-+
-+export default function App() {
-+  return (
-+    <div className="min-h-screen bg-bg text-white flex">
-+      <aside className="w-52 bg-surface/80 backdrop-blur border-r border-accent/30 p-4 space-y-4">
-+        <h1 className="text-xl font-semibold">FluxShare</h1>
-+        <nav className="flex flex-col space-y-2">
-+          {links.map((link) => (
-+            <NavLink
-+              key={link.to}
-+              to={link.to}
-+              className={({ isActive }) =>
-+                `px-3 py-2 rounded-md transition ${isActive ? "bg-accent" : "hover:bg-accent/20"}`
-+              }
-+              end
-+            >
-+              {link.label}
-+            </NavLink>
-+          ))}
-+        </nav>
-+      </aside>
-+      <main className="flex-1 p-8 overflow-y-auto">
-+        <Outlet />
-+      </main>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/components/FilePicker.tsx b/apps/client/src/app/components/FilePicker.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..b5cbac794ffa5b16509ebd245bcddf98bb03eef4
---- /dev/null
-+++ b/apps/client/src/app/components/FilePicker.tsx
-@@ -0,0 +1,41 @@
-+import { useState } from "react";
-+import { invoke } from "@tauri-apps/api/tauri";
-+import { open } from "@tauri-apps/api/dialog";
-+
-+export interface FileEntry {
-+  path: string;
-+  name: string;
-+  size: number;
-+  isDir: boolean;
-+  checksum?: string | null;
-+}
-+
-+interface Props {
-+  onFiles: (files: FileEntry[]) => void;
-+}
-+
-+export default function FilePicker({ onFiles }: Props) {
-+  const [loading, setLoading] = useState(false);
-+
-+  async function handlePick() {
-+    setLoading(true);
-+    try {
-+      const picked = await open({ multiple: true, directory: false });
-+      if (!picked) return;
-+      const paths = Array.isArray(picked) ? picked : [picked];
-+      const files = (await invoke<FileEntry[]>("list_files", { paths })).map((file) => ({
-+        ...file,
-+        checksum: file.checksum ?? null,
-+      }));
-+      onFiles(files);
-+    } finally {
-+      setLoading(false);
-+    }
-+  }
-+
-+  return (
-+    <button onClick={handlePick} disabled={loading}>
-+      {loading ? "Carregando..." : "Selecionar arquivos"}
-+    </button>
-+  );
-+}
-diff --git a/apps/client/src/app/components/PeerList.tsx b/apps/client/src/app/components/PeerList.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..301aff3ca426d0e35cec0808a82e3be929cc7465
---- /dev/null
-+++ b/apps/client/src/app/components/PeerList.tsx
-@@ -0,0 +1,32 @@
-+interface PeerInfo {
-+  id: string;
-+  status: "online" | "offline";
-+}
-+
-+interface Props {
-+  peers: PeerInfo[];
-+  onSelect?: (peer: PeerInfo) => void;
-+}
-+
-+export default function PeerList({ peers, onSelect }: Props) {
-+  return (
-+    <div className="space-y-2">
-+      {peers.map((peer) => (
-+        <button
-+          key={peer.id}
-+          className={`w-full flex items-center justify-between px-4 py-2 rounded-md bg-surface/70 border border-white/10 hover:border-accent/60`}
-+          onClick={() => onSelect?.(peer)}
-+        >
-+          <span>{peer.id}</span>
-+          <span
-+            className={`text-xs uppercase tracking-wide ${
-+              peer.status === "online" ? "text-green-400" : "text-white/40"
-+            }`}
-+          >
-+            {peer.status}
-+          </span>
-+        </button>
-+      ))}
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/components/ProgressBar.tsx b/apps/client/src/app/components/ProgressBar.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..dc896c9b5a512c8b93e34b85d0c28824342f8c37
---- /dev/null
-+++ b/apps/client/src/app/components/ProgressBar.tsx
-@@ -0,0 +1,18 @@
-+interface Props {
-+  value: number; // 0-1
-+  label?: string;
-+}
-+
-+export default function ProgressBar({ value, label }: Props) {
-+  return (
-+    <div className="space-y-1">
-+      {label && <div className="text-sm text-white/70">{label}</div>}
-+      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-+        <div
-+          className="h-full bg-accent transition-all"
-+          style={{ width: `${Math.min(1, Math.max(0, value)) * 100}%` }}
-+        />
-+      </div>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/components/SpeedMeter.tsx b/apps/client/src/app/components/SpeedMeter.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..2dbd8414b26f5aa96e6cef9e29fb97e6826f8123
---- /dev/null
-+++ b/apps/client/src/app/components/SpeedMeter.tsx
-@@ -0,0 +1,23 @@
-+interface Props {
-+  rate: number; // bytes/sec
-+  etaSeconds?: number | null;
-+}
-+
-+function formatBytes(bytes: number) {
-+  if (bytes <= 0) return "0 B";
-+  const units = ["B", "KiB", "MiB", "GiB"];
-+  const idx = Math.min(Math.floor(Math.log2(bytes) / 10), units.length - 1);
-+  const value = bytes / 2 ** (idx * 10);
-+  return `${value.toFixed(1)} ${units[idx]}`;
-+}
-+
-+export default function SpeedMeter({ rate, etaSeconds }: Props) {
-+  return (
-+    <div className="flex items-center gap-4 text-sm text-white/80">
-+      <span>Velocidade: {formatBytes(rate)}/s</span>
-+      {etaSeconds != null && Number.isFinite(etaSeconds) && (
-+        <span>ETA: {Math.max(0, etaSeconds).toFixed(0)}s</span>
-+      )}
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/lib/api.ts b/apps/client/src/app/lib/api.ts
-new file mode 100644
-index 0000000000000000000000000000000000000000..67f64a05709e5bd15b045a1f133a5c828bf2791c
---- /dev/null
-+++ b/apps/client/src/app/lib/api.ts
-@@ -0,0 +1,50 @@
-+import { invoke } from "@tauri-apps/api/tauri";
-+import type { FileEntry } from "../components/FilePicker";
-+
-+type SendOptions = {
-+  encrypt?: boolean;
-+  password?: string;
-+};
-+
-+export interface TransferStatus {
-+  sessionId: string;
-+  totalBytes: number;
-+  transferredBytes: number;
-+  fileProgress: Array<{
-+    path: string;
-+    transferred: number;
-+    total: number;
-+    done: boolean;
-+  }>;
-+  rate: number;
-+  etaSeconds: number | null;
-+  state: string;
-+}
-+
-+export async function sendFiles(
-+  sessionId: string,
-+  files: FileEntry[],
-+  options: SendOptions
-+) {
-+  return invoke("send_files", { sessionId, files, options });
-+}
-+
-+export async function getStatus(sessionId: string) {
-+  return invoke<TransferStatus>("get_status", { sessionId });
-+}
-+
-+export async function startTunnel(localPort: number) {
-+  return invoke<{ publicUrl: string }>("start_tunnel", { localPort });
-+}
-+
-+export async function stopTunnel() {
-+  return invoke("stop_tunnel");
-+}
-+
-+export async function getSettings() {
-+  return invoke<Record<string, unknown>>("get_settings");
-+}
-+
-+export async function setSettings(settings: Record<string, unknown>) {
-+  return invoke("set_settings", { settings });
-+}
-diff --git a/apps/client/src/app/lib/webrtcClient.ts b/apps/client/src/app/lib/webrtcClient.ts
-new file mode 100644
-index 0000000000000000000000000000000000000000..7970b8c089cac90508d63fab25dfabfceb8391b0
---- /dev/null
-+++ b/apps/client/src/app/lib/webrtcClient.ts
-@@ -0,0 +1,75 @@
-+export interface SignalingMessage {
-+  type: "register" | "offer" | "answer" | "ice" | "bye";
-+  id?: string;
-+  from?: string;
-+  to?: string;
-+  sdp?: string;
-+  candidate?: unknown;
-+}
-+
-+export class WebRTCClient {
-+  private ws?: WebSocket;
-+  private pc?: RTCPeerConnection;
-+  private dc?: RTCDataChannel;
-+  private remoteId?: string;
-+
-+  constructor(private signalingUrl: string, private selfId: string) {}
-+
-+  connect() {
-+    this.ws = new WebSocket(this.signalingUrl);
-+    this.ws.addEventListener("open", () => {
-+      this.send({ type: "register", id: this.selfId });
-+    });
-+  }
-+
-+  async createOffer(targetId: string) {
-+    this.remoteId = targetId;
-+    this.ensurePeerConnection();
-+    this.dc = this.pc!.createDataChannel("fluxshare", { ordered: true });
-+    const offer = await this.pc!.createOffer();
-+    await this.pc!.setLocalDescription(offer);
-+    this.send({ type: "offer", from: this.selfId, to: targetId, sdp: offer.sdp });
-+  }
-+
-+  async handleOffer(message: SignalingMessage) {
-+    this.remoteId = message.from;
-+    this.ensurePeerConnection();
-+    await this.pc!.setRemoteDescription({ type: "offer", sdp: message.sdp! });
-+    const answer = await this.pc!.createAnswer();
-+    await this.pc!.setLocalDescription(answer);
-+    this.send({ type: "answer", from: this.selfId, to: message.from, sdp: answer.sdp });
-+  }
-+
-+  async handleAnswer(message: SignalingMessage) {
-+    this.remoteId = message.from;
-+    await this.pc?.setRemoteDescription({ type: "answer", sdp: message.sdp! });
-+  }
-+
-+  async handleIce(message: SignalingMessage) {
-+    if (message.candidate) {
-+      await this.pc?.addIceCandidate(message.candidate as RTCIceCandidateInit);
-+    }
-+  }
-+
-+  private ensurePeerConnection() {
-+    if (this.pc) return;
-+    this.pc = new RTCPeerConnection({
-+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-+    });
-+
-+    this.pc.addEventListener("icecandidate", (ev) => {
-+      if (ev.candidate && this.remoteId) {
-+        this.send({
-+          type: "ice",
-+          from: this.selfId,
-+          to: this.remoteId,
-+          candidate: ev.candidate.toJSON(),
-+        });
-+      }
-+    });
-+  }
-+
-+  private send(msg: SignalingMessage) {
-+    this.ws?.send(JSON.stringify(msg));
-+  }
-+}
-diff --git a/apps/client/src/app/routes/Logs.tsx b/apps/client/src/app/routes/Logs.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..8e3156fd359b94c56b3bdd524dfc4fbe702984b5
---- /dev/null
-+++ b/apps/client/src/app/routes/Logs.tsx
-@@ -0,0 +1,36 @@
-+import { useEffect, useState } from "react";
-+import { readTextFile } from "@tauri-apps/api/fs";
-+import { homeDir } from "@tauri-apps/api/path";
-+import { invoke } from "@tauri-apps/api/tauri";
-+
-+export default function Logs() {
-+  const [content, setContent] = useState<string>("");
-+
-+  useEffect(() => {
-+    async function load() {
-+      const dir = await homeDir();
-+      const file = `${dir}.fluxshare/logs/latest.log`;
-+      try {
-+        const text = await readTextFile(file);
-+        setContent(text);
-+      } catch (err) {
-+        setContent(`Sem logs disponíveis ainda. (${String(err)})`);
-+      }
-+    }
-+    load();
-+  }, []);
-+
-+  async function handleOpenFolder() {
-+    await invoke("open_logs_folder");
-+  }
-+
-+  return (
-+    <div className="space-y-4">
-+      <h2 className="text-2xl font-semibold">Logs</h2>
-+      <pre className="bg-black/40 text-xs p-4 rounded-lg h-96 overflow-auto border border-white/10 whitespace-pre-wrap">
-+        {content}
-+      </pre>
-+      <button onClick={handleOpenFolder}>Abrir pasta de logs</button>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/routes/Peers.tsx b/apps/client/src/app/routes/Peers.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..ca4eaed97e28a18005c119c693e8129f98749ad3
---- /dev/null
-+++ b/apps/client/src/app/routes/Peers.tsx
-@@ -0,0 +1,40 @@
-+import { useState } from "react";
-+import PeerList from "../components/PeerList";
-+
-+const dummyPeers = [
-+  { id: "alice", status: "online" as const },
-+  { id: "bob", status: "offline" as const },
-+];
-+
-+export default function Peers() {
-+  const [selfId, setSelfId] = useState("peer-" + crypto.randomUUID().slice(0, 6));
-+  const [targetId, setTargetId] = useState("");
-+
-+  return (
-+    <div className="space-y-4">
-+      <h2 className="text-2xl font-semibold">Peers</h2>
-+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-+        <div className="space-y-2">
-+          <label className="text-sm text-white/70">Seu ID</label>
-+          <input
-+            className="bg-surface border border-white/10 rounded px-3 py-2 w-full"
-+            value={selfId}
-+            onChange={(e) => setSelfId(e.target.value)}
-+          />
-+          <p className="text-xs text-white/40">Compartilhe este ID com quem for enviar/receber arquivos.</p>
-+        </div>
-+        <div className="space-y-2">
-+          <label className="text-sm text-white/70">ID do destinatário</label>
-+          <input
-+            className="bg-surface border border-white/10 rounded px-3 py-2 w-full"
-+            value={targetId}
-+            onChange={(e) => setTargetId(e.target.value)}
-+          />
-+          <p className="text-xs text-white/40">Será usado ao iniciar uma sessão WebRTC ou QUIC.</p>
-+        </div>
-+      </div>
-+
-+      <PeerList peers={dummyPeers} onSelect={(peer) => setTargetId(peer.id)} />
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/routes/Receive.tsx b/apps/client/src/app/routes/Receive.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..bbe8bfdcdb3feea41978bcc643aa80e1b4b94122
---- /dev/null
-+++ b/apps/client/src/app/routes/Receive.tsx
-@@ -0,0 +1,10 @@
-+export default function Receive() {
-+  return (
-+    <div className="space-y-4">
-+      <h2 className="text-2xl font-semibold">Receber arquivos</h2>
-+      <p className="text-white/70 text-sm">
-+        Aguardando ofertas de peers. Configure seu ID na aba "Peers" e mantenha o aplicativo aberto.
-+      </p>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/routes/Send.tsx b/apps/client/src/app/routes/Send.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..d2815247d382460ebd1bf07fde45b6cd9cea51af
---- /dev/null
-+++ b/apps/client/src/app/routes/Send.tsx
-@@ -0,0 +1,83 @@
-+import { useEffect, useMemo, useState } from "react";
-+import FilePicker, { FileEntry } from "../components/FilePicker";
-+import ProgressBar from "../components/ProgressBar";
-+import SpeedMeter from "../components/SpeedMeter";
-+import { getStatus, sendFiles } from "../lib/api";
-+
-+export default function Send() {
-+  const [files, setFiles] = useState<FileEntry[]>([]);
-+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
-+  const [status, setStatus] = useState<any>(null);
-+  const [encrypt, setEncrypt] = useState(false);
-+  const [password, setPassword] = useState("");
-+
-+  useEffect(() => {
-+    if (!sessionId) return;
-+    const id = setInterval(async () => {
-+      const s = await getStatus(sessionId).catch(() => null);
-+      if (s) setStatus(s);
-+    }, 1000);
-+    return () => clearInterval(id);
-+  }, [sessionId]);
-+
-+  const totalSize = useMemo(() => files.reduce((sum, f) => sum + f.size, 0), [files]);
-+
-+  async function handleSend() {
-+    await sendFiles(sessionId, files, { encrypt, password: encrypt ? password : undefined });
-+  }
-+
-+  return (
-+    <div className="space-y-6">
-+      <div className="flex items-center gap-4">
-+        <FilePicker onFiles={setFiles} />
-+        <label className="flex items-center gap-2 text-sm">
-+          <input type="checkbox" checked={encrypt} onChange={(e) => setEncrypt(e.target.checked)} />
-+          Criptografia (ChaCha20-Poly1305)
-+        </label>
-+        {encrypt && (
-+          <input
-+            type="password"
-+            value={password}
-+            onChange={(e) => setPassword(e.target.value)}
-+            placeholder="Senha compartilhada"
-+            className="bg-surface border border-white/10 rounded px-3 py-2"
-+          />
-+        )}
-+        <button onClick={handleSend} disabled={files.length === 0}>
-+          Enviar
-+        </button>
-+      </div>
-+
-+      <div className="bg-surface/80 border border-white/10 rounded-lg p-4 space-y-4">
-+        <div className="flex items-center justify-between text-sm text-white/80">
-+          <span>Arquivos selecionados: {files.length}</span>
-+          <span>Total: {(totalSize / (1024 * 1024)).toFixed(2)} MiB</span>
-+        </div>
-+        {files.map((file) => (
-+          <div key={file.path} className="space-y-2 border-t border-white/5 pt-3">
-+            <div className="flex justify-between text-sm">
-+              <span>{file.name}</span>
-+              <span>{(file.size / (1024 * 1024)).toFixed(2)} MiB</span>
-+            </div>
-+            <ProgressBar
-+              value={
-+                status?.fileProgress?.find((f: any) => f.path === file.path)?.transferred / file.size || 0
-+              }
-+            />
-+          </div>
-+        ))}
-+
-+        {status && (
-+          <div className="space-y-2">
-+            <ProgressBar
-+              value={status.totalBytes ? status.transferredBytes / status.totalBytes : 0}
-+              label={`Progresso total (${status.transferredBytes}/${status.totalBytes} bytes)`}
-+            />
-+            <SpeedMeter rate={status.rate ?? 0} etaSeconds={status.etaSeconds ?? null} />
-+            <div className="text-xs text-white/50">Estado: {status.state}</div>
-+          </div>
-+        )}
-+      </div>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/routes/Settings.tsx b/apps/client/src/app/routes/Settings.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..a9606416d8d738d8da7eb6075b8061e9efaf6327
---- /dev/null
-+++ b/apps/client/src/app/routes/Settings.tsx
-@@ -0,0 +1,80 @@
-+import { useEffect, useState } from "react";
-+import { getSettings, setSettings } from "../lib/api";
-+
-+interface SettingsData {
-+  chunkSize: number;
-+  parallelChunks: number;
-+  iceTimeoutMs: number;
-+  cloudflaredPath: string;
-+}
-+
-+export default function Settings() {
-+  const [settings, setState] = useState<SettingsData | null>(null);
-+  const [saving, setSaving] = useState(false);
-+
-+  useEffect(() => {
-+    getSettings().then((s) => setState(s as SettingsData));
-+  }, []);
-+
-+  async function handleSave() {
-+    if (!settings) return;
-+    setSaving(true);
-+    try {
-+      await setSettings(settings as any);
-+    } finally {
-+      setSaving(false);
-+    }
-+  }
-+
-+  function update<K extends keyof SettingsData>(key: K, value: SettingsData[K]) {
-+    setState((prev) => (prev ? { ...prev, [key]: value } : prev));
-+  }
-+
-+  if (!settings) return <div>Carregando configurações...</div>;
-+
-+  return (
-+    <div className="space-y-4">
-+      <h2 className="text-2xl font-semibold">Configurações</h2>
-+      <div className="grid gap-4 max-w-xl">
-+        <label className="flex flex-col text-sm text-white/70">
-+          Tamanho do chunk (MiB)
-+          <input
-+            type="number"
-+            value={settings.chunkSize / (1024 * 1024)}
-+            onChange={(e) => update("chunkSize", Number(e.target.value) * 1024 * 1024)}
-+            className="bg-surface border border-white/10 rounded px-3 py-2"
-+          />
-+        </label>
-+        <label className="flex flex-col text-sm text-white/70">
-+          Conexões paralelas
-+          <input
-+            type="number"
-+            value={settings.parallelChunks}
-+            onChange={(e) => update("parallelChunks", Number(e.target.value))}
-+            className="bg-surface border border-white/10 rounded px-3 py-2"
-+          />
-+        </label>
-+        <label className="flex flex-col text-sm text-white/70">
-+          Timeout ICE (ms)
-+          <input
-+            type="number"
-+            value={settings.iceTimeoutMs}
-+            onChange={(e) => update("iceTimeoutMs", Number(e.target.value))}
-+            className="bg-surface border border-white/10 rounded px-3 py-2"
-+          />
-+        </label>
-+        <label className="flex flex-col text-sm text-white/70">
-+          Caminho cloudflared
-+          <input
-+            value={settings.cloudflaredPath}
-+            onChange={(e) => update("cloudflaredPath", e.target.value)}
-+            className="bg-surface border border-white/10 rounded px-3 py-2"
-+          />
-+        </label>
-+      </div>
-+      <button onClick={handleSave} disabled={saving}>
-+        {saving ? "Salvando..." : "Salvar"}
-+      </button>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/app/routes/Tunnel.tsx b/apps/client/src/app/routes/Tunnel.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..0ec897ea2c41ef4cae27ab24a1e81e3363d18869
---- /dev/null
-+++ b/apps/client/src/app/routes/Tunnel.tsx
-@@ -0,0 +1,71 @@
-+import { useState } from "react";
-+import { startTunnel, stopTunnel } from "../lib/api";
-+
-+export default function Tunnel() {
-+  const [url, setUrl] = useState<string | null>(null);
-+  const [port, setPort] = useState(8080);
-+  const [loading, setLoading] = useState(false);
-+
-+  async function handleStart() {
-+    setLoading(true);
-+    try {
-+      const { publicUrl } = await startTunnel(port);
-+      setUrl(publicUrl);
-+    } finally {
-+      setLoading(false);
-+    }
-+  }
-+
-+  async function handleStop() {
-+    setLoading(true);
-+    try {
-+      await stopTunnel();
-+      setUrl(null);
-+    } finally {
-+      setLoading(false);
-+    }
-+  }
-+
-+  return (
-+    <div className="space-y-6">
-+      <div className="space-y-2">
-+        <h2 className="text-2xl font-semibold">Cloudflare Tunnel</h2>
-+        <p className="text-sm text-white/70">
-+          Cria um túnel rápido usando o cloudflared. O link público serve os arquivos disponibilizados no servidor HTTP local.
-+        </p>
-+      </div>
-+
-+      <div className="space-y-4 bg-surface/80 border border-white/10 rounded-lg p-4">
-+        <div className="flex items-center gap-4">
-+          <label className="text-sm text-white/70">
-+            Porta local
-+            <input
-+              type="number"
-+              value={port}
-+              onChange={(e) => setPort(Number(e.target.value))}
-+              className="block bg-surface border border-white/10 rounded px-3 py-2 mt-1"
-+            />
-+          </label>
-+          <button onClick={handleStart} disabled={loading}>
-+            {loading ? "Iniciando..." : "Iniciar Tunnel"}
-+          </button>
-+          <button onClick={handleStop} disabled={loading}>
-+            Parar Tunnel
-+          </button>
-+        </div>
-+
-+        {url && (
-+          <div className="space-y-2">
-+            <div className="text-sm text-white/80">URL pública</div>
-+            <div className="bg-black/40 border border-accent/40 rounded px-3 py-2 font-mono text-sm break-all">{url}</div>
-+            <button onClick={() => navigator.clipboard.writeText(url)}>Copiar link</button>
-+          </div>
-+        )}
-+
-+        <p className="text-xs text-white/50">
-+          Aviso: o link é público. Apenas compartilhe com pessoas confiáveis.
-+        </p>
-+      </div>
-+    </div>
-+  );
-+}
-diff --git a/apps/client/src/index.tsx b/apps/client/src/index.tsx
-new file mode 100644
-index 0000000000000000000000000000000000000000..93d407cedaf6a6328877da9f005d9e4c0ac6094b
---- /dev/null
-+++ b/apps/client/src/index.tsx
-@@ -0,0 +1,32 @@
-+import React from "react";
-+import ReactDOM from "react-dom/client";
-+import { RouterProvider, createBrowserRouter } from "react-router-dom";
-+import App from "./App";
-+import Send from "./app/routes/Send";
-+import Receive from "./app/routes/Receive";
-+import Peers from "./app/routes/Peers";
-+import Tunnel from "./app/routes/Tunnel";
-+import Settings from "./app/routes/Settings";
-+import Logs from "./app/routes/Logs";
-+import "./styles.css";
-+
-+const router = createBrowserRouter([
-+  {
-+    path: "/",
-+    element: <App />,
-+    children: [
-+      { index: true, element: <Send /> },
-+      { path: "receive", element: <Receive /> },
-+      { path: "peers", element: <Peers /> },
-+      { path: "tunnel", element: <Tunnel /> },
-+      { path: "settings", element: <Settings /> },
-+      { path: "logs", element: <Logs /> },
-+    ],
-+  },
-+]);
-+
-+ReactDOM.createRoot(document.getElementById("root")!).render(
-+  <React.StrictMode>
-+    <RouterProvider router={router} />
-+  </React.StrictMode>
-+);
-diff --git a/apps/client/src/styles.css b/apps/client/src/styles.css
-new file mode 100644
-index 0000000000000000000000000000000000000000..9495caa9f1fb00a11de17ed4b76ab44b464bfbe5
---- /dev/null
-+++ b/apps/client/src/styles.css
-@@ -0,0 +1,19 @@
-+@tailwind base;
-+@tailwind components;
-+@tailwind utilities;
-+
-+:root {
-+  color-scheme: dark;
-+  background-color: #0f1016;
-+  color: #f0f3ff;
-+}
-+
-+body {
-+  margin: 0;
-+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-+  background-color: #0f1016;
-+}
-+
-+button {
-+  @apply bg-accent text-white px-4 py-2 rounded-md transition hover:bg-accent-soft;
-+}
-diff --git a/apps/client/tailwind.config.ts b/apps/client/tailwind.config.ts
-new file mode 100644
-index 0000000000000000000000000000000000000000..2393c45dab1be6218eb7bfd55846bca91046bfcd
---- /dev/null
-+++ b/apps/client/tailwind.config.ts
-@@ -0,0 +1,21 @@
-+import type { Config } from "tailwindcss";
-+
-+const config: Config = {
-+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
-+  darkMode: "class",
-+  theme: {
-+    extend: {
-+      colors: {
-+        bg: "#0f1016",
-+        surface: "#151826",
-+        accent: {
-+          DEFAULT: "#6c5ce7",
-+          soft: "#4a47a3",
-+        },
-+      },
-+    },
-+  },
-+  plugins: [],
-+};
-+
-+export default config;
-diff --git a/apps/client/tsconfig.json b/apps/client/tsconfig.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..6bfd4ebdf8a7a8cbf52529c94cb4347771227bac
---- /dev/null
-+++ b/apps/client/tsconfig.json
-@@ -0,0 +1,16 @@
-+{
-+  "compilerOptions": {
-+    "target": "ES2020",
-+    "useDefineForClassFields": true,
-+    "module": "ESNext",
-+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-+    "moduleResolution": "Node",
-+    "strict": true,
-+    "resolveJsonModule": true,
-+    "esModuleInterop": true,
-+    "jsx": "react-jsx",
-+    "types": ["vite/client"]
-+  },
-+  "include": ["src"],
-+  "references": [{ "path": "./tsconfig.node.json" }]
-+}
-diff --git a/apps/client/tsconfig.node.json b/apps/client/tsconfig.node.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..51e82838068716d695102726e1af3df4527662b9
---- /dev/null
-+++ b/apps/client/tsconfig.node.json
-@@ -0,0 +1,9 @@
-+{
-+  "compilerOptions": {
-+    "composite": true,
-+    "module": "ESNext",
-+    "moduleResolution": "Node",
-+    "allowSyntheticDefaultImports": true
-+  },
-+  "include": ["vite.config.ts", "src-tauri"]
-+}
-diff --git a/apps/client/vite.config.ts b/apps/client/vite.config.ts
-new file mode 100644
-index 0000000000000000000000000000000000000000..3849d370debbfdecb59f44b7d660ee3388773c41
---- /dev/null
-+++ b/apps/client/vite.config.ts
-@@ -0,0 +1,9 @@
-+import { defineConfig } from "vite";
-+import react from "@vitejs/plugin-react";
-+
-+export default defineConfig(() => ({
-+  plugins: [react()],
-+  server: {
-+    port: 5173,
-+  },
-+}));
 diff --git a/apps/signaling-server/package.json b/apps/signaling-server/package.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..be08eba83ca31aad8412f67924217fc4705902fb
---- /dev/null
+index be08eba83ca31aad8412f67924217fc4705902fb..bc29b3cc28f923f7ca7ce46ba42ff0e6f7e858d7 100644
+--- a/apps/signaling-server/package.json
 +++ b/apps/signaling-server/package.json
-@@ -0,0 +1,25 @@
-+{
-+  "name": "fluxshare-signaling-server",
-+  "version": "0.1.0",
-+  "private": true,
-+  "type": "module",
-+  "scripts": {
-+    "dev": "ts-node-dev --respawn src/index.ts",
-+    "build": "tsc -p tsconfig.json",
-+    "start": "node dist/index.js",
-+    "test": "vitest run"
+@@ -1,25 +1,29 @@
+ {
+   "name": "fluxshare-signaling-server",
+   "version": "0.1.0",
+   "private": true,
+   "type": "module",
+   "scripts": {
+-    "dev": "ts-node-dev --respawn src/index.ts",
++    "dev": "tsx watch src/index.ts",
+     "build": "tsc -p tsconfig.json",
+     "start": "node dist/index.js",
+     "test": "vitest run"
+   },
++  "engines": {
++    "node": ">=20",
++    "pnpm": ">=8"
 +  },
-+  "dependencies": {
-+    "express": "^4.19.2",
-+    "ws": "^8.15.1",
-+    "zod": "^3.23.8"
-+  },
-+  "devDependencies": {
-+    "@types/express": "^4.17.21",
-+    "@types/node": "^20.12.7",
-+    "@types/ws": "^8.5.9",
-+    "ts-node-dev": "^2.0.0",
-+    "typescript": "^5.4.5",
-+    "vitest": "^1.5.0"
-+  }
-+}
-diff --git a/apps/signaling-server/src/index.test.ts b/apps/signaling-server/src/index.test.ts
+   "dependencies": {
+     "express": "^4.19.2",
+     "ws": "^8.15.1",
+     "zod": "^3.23.8"
+   },
+   "devDependencies": {
+     "@types/express": "^4.17.21",
+     "@types/node": "^20.12.7",
+     "@types/ws": "^8.5.9",
+-    "ts-node-dev": "^2.0.0",
++    "tsx": "^4.16.2",
+     "typescript": "^5.4.5",
+     "vitest": "^1.5.0"
+   }
+ }
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
 new file mode 100644
-index 0000000000000000000000000000000000000000..ce08ce076e951f90aa22572844b8829642bebe7a
+index 0000000000000000000000000000000000000000..8d6e1a159d38fd857d965276e1be1794ba1ca755
 --- /dev/null
-+++ b/apps/signaling-server/src/index.test.ts
-@@ -0,0 +1,19 @@
-+import { describe, expect, it } from "vitest";
-+import { messageSchema } from "./index";
++++ b/pnpm-lock.yaml
+@@ -0,0 +1,2873 @@
++lockfileVersion: '6.0'
 +
-+describe("message schema", () => {
-+  it("accepts valid offer", () => {
-+    const msg = {
-+      type: "offer",
-+      from: "alice",
-+      to: "bob",
-+      sdp: "v=0...",
-+    };
-+    expect(() => messageSchema.parse(msg)).not.toThrow();
-+  });
++settings:
++  autoInstallPeers: true
++  excludeLinksFromLockfile: false
 +
-+  it("rejects invalid register", () => {
-+    const msg = { type: "register", id: "" };
-+    expect(() => messageSchema.parse(msg)).toThrow();
-+  });
-+});
-diff --git a/apps/signaling-server/src/index.ts b/apps/signaling-server/src/index.ts
-new file mode 100644
-index 0000000000000000000000000000000000000000..9f63646ed25f342b575a2b0bb765535ede39b62d
---- /dev/null
-+++ b/apps/signaling-server/src/index.ts
-@@ -0,0 +1,117 @@
-+import express from "express";
-+import http from "http";
-+import { WebSocketServer, WebSocket } from "ws";
-+import { z } from "zod";
++importers:
 +
-+const app = express();
-+app.use(express.json());
++  .: {}
 +
-+app.post("/health", (_req, res) => {
-+  res.status(200).json({ status: "ok" });
-+});
++  apps/client:
++    dependencies:
++      '@tanstack/react-query':
++        specifier: ^5.32.1
++        version: 5.90.2(react@18.3.1)
++      '@tauri-apps/api':
++        specifier: ^1.5.4
++        version: 1.6.0
++      classnames:
++        specifier: ^2.5.1
++        version: 2.5.1
++      react:
++        specifier: ^18.2.0
++        version: 18.3.1
++      react-dom:
++        specifier: ^18.2.0
++        version: 18.3.1(react@18.3.1)
++      react-router-dom:
++        specifier: ^6.23.1
++        version: 6.30.1(react-dom@18.3.1)(react@18.3.1)
++      tailwind-merge:
++        specifier: ^2.2.1
++        version: 2.6.0
++    devDependencies:
++      '@tauri-apps/cli':
++        specifier: ^1.5.9
++        version: 1.6.3
++      '@types/node':
++        specifier: ^20.12.7
++        version: 20.19.19
++      '@types/react':
++        specifier: ^18.2.79
++        version: 18.3.25
++      '@types/react-dom':
++        specifier: ^18.2.25
++        version: 18.3.7(@types/react@18.3.25)
++      autoprefixer:
++        specifier: ^10.4.19
++        version: 10.4.21(postcss@8.5.6)
++      postcss:
++        specifier: ^8.4.38
++        version: 8.5.6
++      tailwindcss:
++        specifier: ^3.4.3
++        version: 3.4.18
++      typescript:
++        specifier: ^5.4.5
++        version: 5.9.3
++      vite:
++        specifier: ^5.2.9
++        version: 5.4.20(@types/node@20.19.19)
 +
-+const server = http.createServer(app);
++  apps/signaling-server:
++    dependencies:
++      express:
++        specifier: ^4.19.2
++        version: 4.21.2
++      ws:
++        specifier: ^8.15.1
++        version: 8.18.3
++      zod:
++        specifier: ^3.23.8
++        version: 3.25.76
++    devDependencies:
++      '@types/express':
++        specifier: ^4.17.21
++        version: 4.17.23
++      '@types/node':
++        specifier: ^20.12.7
++        version: 20.19.19
++      '@types/ws':
++        specifier: ^8.5.9
++        version: 8.18.1
++      tsx:
++        specifier: ^4.16.2
++        version: 4.20.6
++      typescript:
++        specifier: ^5.4.5
++        version: 5.9.3
++      vitest:
++        specifier: ^1.5.0
++        version: 1.6.1(@types/node@20.19.19)
 +
-+const messageSchema = z.discriminatedUnion("type", [
-+  z.object({ type: z.literal("register"), id: z.string().min(1) }),
-+  z.object({
-+    type: z.literal("offer"),
-+    from: z.string().min(1),
-+    to: z.string().min(1),
-+    sdp: z.string().min(1),
-+  }),
-+  z.object({
-+    type: z.literal("answer"),
-+    from: z.string().min(1),
-+    to: z.string().min(1),
-+    sdp: z.string().min(1),
-+  }),
-+  z.object({
-+    type: z.literal("ice"),
-+    from: z.string().min(1),
-+    to: z.string().min(1),
-+    candidate: z.any(),
-+  }),
-+  z.object({
-+    type: z.literal("bye"),
-+    from: z.string().min(1),
-+    to: z.string().min(1),
-+  }),
-+]);
-+
-+type Message = z.infer<typeof messageSchema>;
-+
-+const clients = new Map<string, WebSocket>();
-+
-+const wss = new WebSocketServer({ server, path: "/ws" });
-+
-+wss.on("connection", (socket) => {
-+  let clientId: string | null = null;
-+  console.log("[ws] new connection");
-+
-+  socket.on("message", (data) => {
-+    try {
-+      const parsed = messageSchema.parse(JSON.parse(data.toString()));
-+      handleMessage(socket, parsed);
-+    } catch (err) {
-+      console.warn("[ws] invalid message", err);
-+      socket.send(JSON.stringify({ type: "error", message: "invalid payload" }));
-+    }
-+  });
-+
-+  socket.on("close", () => {
-+    if (clientId && clients.get(clientId) === socket) {
-+      clients.delete(clientId);
-+      broadcast({ type: "bye", from: clientId, to: "*" });
-+    }
-+    console.log("[ws] connection closed", clientId);
-+  });
-+
-+  function handleMessage(ws: WebSocket, msg: Message) {
-+    switch (msg.type) {
-+      case "register": {
-+        clientId = msg.id;
-+        clients.set(msg.id, ws);
-+        ws.send(JSON.stringify({ type: "ack", id: msg.id }));
-+        console.log(`[ws] registered ${msg.id}`);
-+        break;
-+      }
-+      case "offer":
-+      case "answer":
-+      case "ice":
-+      case "bye": {
-+        forward(msg.to, msg);
-+        break;
-+      }
-+      default:
-+        console.warn("[ws] unsupported message", msg);
-+    }
-+  }
-+});
-+
-+function forward(targetId: string, msg: Message) {
-+  const target = clients.get(targetId);
-+  if (!target || target.readyState !== WebSocket.OPEN) {
-+    console.warn(`[ws] target ${targetId} not available`);
-+    return;
-+  }
-+  target.send(JSON.stringify(msg));
-+}
-+
-+function broadcast(msg: Message) {
-+  const payload = JSON.stringify(msg);
-+  for (const ws of clients.values()) {
-+    if (ws.readyState === WebSocket.OPEN) {
-+      ws.send(payload);
-+    }
-+  }
-+}
-+
-+if (import.meta.url === `file://${process.argv[1]}`) {
-+  const port = Number(process.env.PORT ?? 4000);
-+  server.listen(port, () => {
-+    console.log(`FluxShare signaling server listening on :${port}`);
-+  });
-+}
-+
-+export { messageSchema };
-diff --git a/apps/signaling-server/tsconfig.json b/apps/signaling-server/tsconfig.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..653cd9b5b5e3fdb289e7880c4235d9bf3a2d1d2c
---- /dev/null
-+++ b/apps/signaling-server/tsconfig.json
-@@ -0,0 +1,15 @@
-+{
-+  "compilerOptions": {
-+    "target": "ES2020",
-+    "module": "ES2020",
-+    "moduleResolution": "node",
-+    "esModuleInterop": true,
-+    "strict": true,
-+    "outDir": "dist",
-+    "rootDir": "src",
-+    "types": ["node"],
-+    "resolveJsonModule": true,
-+    "skipLibCheck": true
-+  },
-+  "include": ["src/**/*"]
-+}
-diff --git a/package.json b/package.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..88962ebf7c8d16c33c39df0316bbc0420eeb2e9f
---- /dev/null
-+++ b/package.json
-@@ -0,0 +1,12 @@
-+{
-+  "name": "fluxshare-monorepo",
-+  "private": true,
-+  "version": "0.1.0",
-+  "license": "MIT",
-+  "scripts": {
-+    "dev": "pnpm -r --parallel --filter fluxshare-signaling-server --filter fluxshare-client dev",
-+    "build": "pnpm --filter fluxshare-signaling-server build && pnpm --filter fluxshare-client build",
-+    "test": "pnpm --filter fluxshare-signaling-server test && cargo test --manifest-path apps/client/src-tauri/Cargo.toml"
-+  },
-+  "packageManager": "pnpm@8.15.4"
-+}
-diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
-new file mode 100644
-index 0000000000000000000000000000000000000000..06b60519100cfd2fe2e9fde57d355c509c71eb3e
---- /dev/null
-+++ b/pnpm-workspace.yaml
-@@ -0,0 +1,2 @@
 +packages:
-+  - "apps/*"
++
++  /@alloc/quick-lru@5.2.0:
++    resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
++    engines: {node: '>=10'}
++    dev: true
++
++  /@esbuild/aix-ppc64@0.21.5:
++    resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
++    engines: {node: '>=12'}
++    cpu: [ppc64]
++    os: [aix]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/aix-ppc64@0.25.10:
++    resolution: {integrity: sha512-0NFWnA+7l41irNuaSVlLfgNT12caWJVLzp5eAVhZ0z1qpxbockccEt3s+149rE64VUI3Ml2zt8Nv5JVc4QXTsw==}
++    engines: {node: '>=18'}
++    cpu: [ppc64]
++    os: [aix]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-arm64@0.21.5:
++    resolution: {integrity: sha512-c0uX9VAUBQ7dTDCjq+wdyGLowMdtR/GoC2U5IYk/7D1H1JYC0qseD7+11iMP2mRLN9RcCMRcjC4YMclCzGwS/A==}
++    engines: {node: '>=12'}
++    cpu: [arm64]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-arm64@0.25.10:
++    resolution: {integrity: sha512-LSQa7eDahypv/VO6WKohZGPSJDq5OVOo3UoFR1E4t4Gj1W7zEQMUhI+lo81H+DtB+kP+tDgBp+M4oNCwp6kffg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-arm@0.21.5:
++    resolution: {integrity: sha512-vCPvzSjpPHEi1siZdlvAlsPxXl7WbOVUBBAowWug4rJHb68Ox8KualB+1ocNvT5fjv6wpkX6o/iEpbDrf68zcg==}
++    engines: {node: '>=12'}
++    cpu: [arm]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-arm@0.25.10:
++    resolution: {integrity: sha512-dQAxF1dW1C3zpeCDc5KqIYuZ1tgAdRXNoZP7vkBIRtKZPYe2xVr/d3SkirklCHudW1B45tGiUlz2pUWDfbDD4w==}
++    engines: {node: '>=18'}
++    cpu: [arm]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-x64@0.21.5:
++    resolution: {integrity: sha512-D7aPRUUNHRBwHxzxRvp856rjUHRFW1SdQATKXH2hqA0kAZb1hKmi02OpYRacl0TxIGz/ZmXWlbZgjwWYaCakTA==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/android-x64@0.25.10:
++    resolution: {integrity: sha512-MiC9CWdPrfhibcXwr39p9ha1x0lZJ9KaVfvzA0Wxwz9ETX4v5CHfF09bx935nHlhi+MxhA63dKRRQLiVgSUtEg==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/darwin-arm64@0.21.5:
++    resolution: {integrity: sha512-DwqXqZyuk5AiWWf3UfLiRDJ5EDd49zg6O9wclZ7kUMv2WRFr4HKjXp/5t8JZ11QbQfUS6/cRCKGwYhtNAY88kQ==}
++    engines: {node: '>=12'}
++    cpu: [arm64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/darwin-arm64@0.25.10:
++    resolution: {integrity: sha512-JC74bdXcQEpW9KkV326WpZZjLguSZ3DfS8wrrvPMHgQOIEIG/sPXEN/V8IssoJhbefLRcRqw6RQH2NnpdprtMA==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/darwin-x64@0.21.5:
++    resolution: {integrity: sha512-se/JjF8NlmKVG4kNIuyWMV/22ZaerB+qaSi5MdrXtd6R08kvs2qCN4C09miupktDitvh8jRFflwGFBQcxZRjbw==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/darwin-x64@0.25.10:
++    resolution: {integrity: sha512-tguWg1olF6DGqzws97pKZ8G2L7Ig1vjDmGTwcTuYHbuU6TTjJe5FXbgs5C1BBzHbJ2bo1m3WkQDbWO2PvamRcg==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/freebsd-arm64@0.21.5:
++    resolution: {integrity: sha512-5JcRxxRDUJLX8JXp/wcBCy3pENnCgBR9bN6JsY4OmhfUtIHe3ZW0mawA7+RDAcMLrMIZaf03NlQiX9DGyB8h4g==}
++    engines: {node: '>=12'}
++    cpu: [arm64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/freebsd-arm64@0.25.10:
++    resolution: {integrity: sha512-3ZioSQSg1HT2N05YxeJWYR+Libe3bREVSdWhEEgExWaDtyFbbXWb49QgPvFH8u03vUPX10JhJPcz7s9t9+boWg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/freebsd-x64@0.21.5:
++    resolution: {integrity: sha512-J95kNBj1zkbMXtHVH29bBriQygMXqoVQOQYA+ISs0/2l3T9/kj42ow2mpqerRBxDJnmkUDCaQT/dfNXWX/ZZCQ==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/freebsd-x64@0.25.10:
++    resolution: {integrity: sha512-LLgJfHJk014Aa4anGDbh8bmI5Lk+QidDmGzuC2D+vP7mv/GeSN+H39zOf7pN5N8p059FcOfs2bVlrRr4SK9WxA==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-arm64@0.21.5:
++    resolution: {integrity: sha512-ibKvmyYzKsBeX8d8I7MH/TMfWDXBF3db4qM6sy+7re0YXya+K1cem3on9XgdT2EQGMu4hQyZhan7TeQ8XkGp4Q==}
++    engines: {node: '>=12'}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-arm64@0.25.10:
++    resolution: {integrity: sha512-5luJWN6YKBsawd5f9i4+c+geYiVEw20FVW5x0v1kEMWNq8UctFjDiMATBxLvmmHA4bf7F6hTRaJgtghFr9iziQ==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-arm@0.21.5:
++    resolution: {integrity: sha512-bPb5AHZtbeNGjCKVZ9UGqGwo8EUu4cLq68E95A53KlxAPRmUyYv2D6F0uUI65XisGOL1hBP5mTronbgo+0bFcA==}
++    engines: {node: '>=12'}
++    cpu: [arm]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-arm@0.25.10:
++    resolution: {integrity: sha512-oR31GtBTFYCqEBALI9r6WxoU/ZofZl962pouZRTEYECvNF/dtXKku8YXcJkhgK/beU+zedXfIzHijSRapJY3vg==}
++    engines: {node: '>=18'}
++    cpu: [arm]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-ia32@0.21.5:
++    resolution: {integrity: sha512-YvjXDqLRqPDl2dvRODYmmhz4rPeVKYvppfGYKSNGdyZkA01046pLWyRKKI3ax8fbJoK5QbxblURkwK/MWY18Tg==}
++    engines: {node: '>=12'}
++    cpu: [ia32]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-ia32@0.25.10:
++    resolution: {integrity: sha512-NrSCx2Kim3EnnWgS4Txn0QGt0Xipoumb6z6sUtl5bOEZIVKhzfyp/Lyw4C1DIYvzeW/5mWYPBFJU3a/8Yr75DQ==}
++    engines: {node: '>=18'}
++    cpu: [ia32]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-loong64@0.21.5:
++    resolution: {integrity: sha512-uHf1BmMG8qEvzdrzAqg2SIG/02+4/DHB6a9Kbya0XDvwDEKCoC8ZRWI5JJvNdUjtciBGFQ5PuBlpEOXQj+JQSg==}
++    engines: {node: '>=12'}
++    cpu: [loong64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-loong64@0.25.10:
++    resolution: {integrity: sha512-xoSphrd4AZda8+rUDDfD9J6FUMjrkTz8itpTITM4/xgerAZZcFW7Dv+sun7333IfKxGG8gAq+3NbfEMJfiY+Eg==}
++    engines: {node: '>=18'}
++    cpu: [loong64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-mips64el@0.21.5:
++    resolution: {integrity: sha512-IajOmO+KJK23bj52dFSNCMsz1QP1DqM6cwLUv3W1QwyxkyIWecfafnI555fvSGqEKwjMXVLokcV5ygHW5b3Jbg==}
++    engines: {node: '>=12'}
++    cpu: [mips64el]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-mips64el@0.25.10:
++    resolution: {integrity: sha512-ab6eiuCwoMmYDyTnyptoKkVS3k8fy/1Uvq7Dj5czXI6DF2GqD2ToInBI0SHOp5/X1BdZ26RKc5+qjQNGRBelRA==}
++    engines: {node: '>=18'}
++    cpu: [mips64el]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-ppc64@0.21.5:
++    resolution: {integrity: sha512-1hHV/Z4OEfMwpLO8rp7CvlhBDnjsC3CttJXIhBi+5Aj5r+MBvy4egg7wCbe//hSsT+RvDAG7s81tAvpL2XAE4w==}
++    engines: {node: '>=12'}
++    cpu: [ppc64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-ppc64@0.25.10:
++    resolution: {integrity: sha512-NLinzzOgZQsGpsTkEbdJTCanwA5/wozN9dSgEl12haXJBzMTpssebuXR42bthOF3z7zXFWH1AmvWunUCkBE4EA==}
++    engines: {node: '>=18'}
++    cpu: [ppc64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-riscv64@0.21.5:
++    resolution: {integrity: sha512-2HdXDMd9GMgTGrPWnJzP2ALSokE/0O5HhTUvWIbD3YdjME8JwvSCnNGBnTThKGEB91OZhzrJ4qIIxk/SBmyDDA==}
++    engines: {node: '>=12'}
++    cpu: [riscv64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-riscv64@0.25.10:
++    resolution: {integrity: sha512-FE557XdZDrtX8NMIeA8LBJX3dC2M8VGXwfrQWU7LB5SLOajfJIxmSdyL/gU1m64Zs9CBKvm4UAuBp5aJ8OgnrA==}
++    engines: {node: '>=18'}
++    cpu: [riscv64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-s390x@0.21.5:
++    resolution: {integrity: sha512-zus5sxzqBJD3eXxwvjN1yQkRepANgxE9lgOW2qLnmr8ikMTphkjgXu1HR01K4FJg8h1kEEDAqDcZQtbrRnB41A==}
++    engines: {node: '>=12'}
++    cpu: [s390x]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-s390x@0.25.10:
++    resolution: {integrity: sha512-3BBSbgzuB9ajLoVZk0mGu+EHlBwkusRmeNYdqmznmMc9zGASFjSsxgkNsqmXugpPk00gJ0JNKh/97nxmjctdew==}
++    engines: {node: '>=18'}
++    cpu: [s390x]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-x64@0.21.5:
++    resolution: {integrity: sha512-1rYdTpyv03iycF1+BhzrzQJCdOuAOtaqHTWJZCWvijKD2N5Xu0TtVC8/+1faWqcP9iBCWOmjmhoH94dH82BxPQ==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/linux-x64@0.25.10:
++    resolution: {integrity: sha512-QSX81KhFoZGwenVyPoberggdW1nrQZSvfVDAIUXr3WqLRZGZqWk/P4T8p2SP+de2Sr5HPcvjhcJzEiulKgnxtA==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/netbsd-arm64@0.25.10:
++    resolution: {integrity: sha512-AKQM3gfYfSW8XRk8DdMCzaLUFB15dTrZfnX8WXQoOUpUBQ+NaAFCP1kPS/ykbbGYz7rxn0WS48/81l9hFl3u4A==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [netbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/netbsd-x64@0.21.5:
++    resolution: {integrity: sha512-Woi2MXzXjMULccIwMnLciyZH4nCIMpWQAs049KEeMvOcNADVxo0UBIQPfSmxB3CWKedngg7sWZdLvLczpe0tLg==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [netbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/netbsd-x64@0.25.10:
++    resolution: {integrity: sha512-7RTytDPGU6fek/hWuN9qQpeGPBZFfB4zZgcz2VK2Z5VpdUxEI8JKYsg3JfO0n/Z1E/6l05n0unDCNc4HnhQGig==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [netbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/openbsd-arm64@0.25.10:
++    resolution: {integrity: sha512-5Se0VM9Wtq797YFn+dLimf2Zx6McttsH2olUBsDml+lm0GOCRVebRWUvDtkY4BWYv/3NgzS8b/UM3jQNh5hYyw==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [openbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/openbsd-x64@0.21.5:
++    resolution: {integrity: sha512-HLNNw99xsvx12lFBUwoT8EVCsSvRNDVxNpjZ7bPn947b8gJPzeHWyNVhFsaerc0n3TsbOINvRP2byTZ5LKezow==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [openbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/openbsd-x64@0.25.10:
++    resolution: {integrity: sha512-XkA4frq1TLj4bEMB+2HnI0+4RnjbuGZfet2gs/LNs5Hc7D89ZQBHQ0gL2ND6Lzu1+QVkjp3x1gIcPKzRNP8bXw==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [openbsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/openharmony-arm64@0.25.10:
++    resolution: {integrity: sha512-AVTSBhTX8Y/Fz6OmIVBip9tJzZEUcY8WLh7I59+upa5/GPhh2/aM6bvOMQySspnCCHvFi79kMtdJS1w0DXAeag==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [openharmony]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/sunos-x64@0.21.5:
++    resolution: {integrity: sha512-6+gjmFpfy0BHU5Tpptkuh8+uw3mnrvgs+dSPQXQOv3ekbordwnzTVEb4qnIvQcYXq6gzkyTnoZ9dZG+D4garKg==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [sunos]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/sunos-x64@0.25.10:
++    resolution: {integrity: sha512-fswk3XT0Uf2pGJmOpDB7yknqhVkJQkAQOcW/ccVOtfx05LkbWOaRAtn5SaqXypeKQra1QaEa841PgrSL9ubSPQ==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [sunos]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-arm64@0.21.5:
++    resolution: {integrity: sha512-Z0gOTd75VvXqyq7nsl93zwahcTROgqvuAcYDUr+vOv8uHhNSKROyU961kgtCD1e95IqPKSQKH7tBTslnS3tA8A==}
++    engines: {node: '>=12'}
++    cpu: [arm64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-arm64@0.25.10:
++    resolution: {integrity: sha512-ah+9b59KDTSfpaCg6VdJoOQvKjI33nTaQr4UluQwW7aEwZQsbMCfTmfEO4VyewOxx4RaDT/xCy9ra2GPWmO7Kw==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-ia32@0.21.5:
++    resolution: {integrity: sha512-SWXFF1CL2RVNMaVs+BBClwtfZSvDgtL//G/smwAc5oVK/UPu2Gu9tIaRgFmYFFKrmg3SyAjSrElf0TiJ1v8fYA==}
++    engines: {node: '>=12'}
++    cpu: [ia32]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-ia32@0.25.10:
++    resolution: {integrity: sha512-QHPDbKkrGO8/cz9LKVnJU22HOi4pxZnZhhA2HYHez5Pz4JeffhDjf85E57Oyco163GnzNCVkZK0b/n4Y0UHcSw==}
++    engines: {node: '>=18'}
++    cpu: [ia32]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-x64@0.21.5:
++    resolution: {integrity: sha512-tQd/1efJuzPC6rCFwEvLtci/xNFcTZknmXs98FYDfGE4wP9ClFV98nyKrzJKVPMhdDnjzLhdUyMX4PsQAPjwIw==}
++    engines: {node: '>=12'}
++    cpu: [x64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@esbuild/win32-x64@0.25.10:
++    resolution: {integrity: sha512-9KpxSVFCu0iK1owoez6aC/s/EdUQLDN3adTxGCqxMVhrPDj6bt5dbrHDXUuq+Bs2vATFBBrQS5vdQ/Ed2P+nbw==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@isaacs/cliui@8.0.2:
++    resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
++    engines: {node: '>=12'}
++    dependencies:
++      string-width: 5.1.2
++      string-width-cjs: /string-width@4.2.3
++      strip-ansi: 7.1.2
++      strip-ansi-cjs: /strip-ansi@6.0.1
++      wrap-ansi: 8.1.0
++      wrap-ansi-cjs: /wrap-ansi@7.0.0
++    dev: true
++
++  /@jest/schemas@29.6.3:
++    resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
++    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
++    dependencies:
++      '@sinclair/typebox': 0.27.8
++    dev: true
++
++  /@jridgewell/gen-mapping@0.3.13:
++    resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
++    dependencies:
++      '@jridgewell/sourcemap-codec': 1.5.5
++      '@jridgewell/trace-mapping': 0.3.31
++    dev: true
++
++  /@jridgewell/resolve-uri@3.1.2:
++    resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
++    engines: {node: '>=6.0.0'}
++    dev: true
++
++  /@jridgewell/sourcemap-codec@1.5.5:
++    resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
++    dev: true
++
++  /@jridgewell/trace-mapping@0.3.31:
++    resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
++    dependencies:
++      '@jridgewell/resolve-uri': 3.1.2
++      '@jridgewell/sourcemap-codec': 1.5.5
++    dev: true
++
++  /@nodelib/fs.scandir@2.1.5:
++    resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
++    engines: {node: '>= 8'}
++    dependencies:
++      '@nodelib/fs.stat': 2.0.5
++      run-parallel: 1.2.0
++    dev: true
++
++  /@nodelib/fs.stat@2.0.5:
++    resolution: {integrity: sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A==}
++    engines: {node: '>= 8'}
++    dev: true
++
++  /@nodelib/fs.walk@1.2.8:
++    resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
++    engines: {node: '>= 8'}
++    dependencies:
++      '@nodelib/fs.scandir': 2.1.5
++      fastq: 1.19.1
++    dev: true
++
++  /@pkgjs/parseargs@0.11.0:
++    resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
++    engines: {node: '>=14'}
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@remix-run/router@1.23.0:
++    resolution: {integrity: sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==}
++    engines: {node: '>=14.0.0'}
++    dev: false
++
++  /@rollup/rollup-android-arm-eabi@4.52.4:
++    resolution: {integrity: sha512-BTm2qKNnWIQ5auf4deoetINJm2JzvihvGb9R6K/ETwKLql/Bb3Eg2H1FBp1gUb4YGbydMA3jcmQTR73q7J+GAA==}
++    cpu: [arm]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-android-arm64@4.52.4:
++    resolution: {integrity: sha512-P9LDQiC5vpgGFgz7GSM6dKPCiqR3XYN1WwJKA4/BUVDjHpYsf3iBEmVz62uyq20NGYbiGPR5cNHI7T1HqxNs2w==}
++    cpu: [arm64]
++    os: [android]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-darwin-arm64@4.52.4:
++    resolution: {integrity: sha512-QRWSW+bVccAvZF6cbNZBJwAehmvG9NwfWHwMy4GbWi/BQIA/laTIktebT2ipVjNncqE6GLPxOok5hsECgAxGZg==}
++    cpu: [arm64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-darwin-x64@4.52.4:
++    resolution: {integrity: sha512-hZgP05pResAkRJxL1b+7yxCnXPGsXU0fG9Yfd6dUaoGk+FhdPKCJ5L1Sumyxn8kvw8Qi5PvQ8ulenUbRjzeCTw==}
++    cpu: [x64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-freebsd-arm64@4.52.4:
++    resolution: {integrity: sha512-xmc30VshuBNUd58Xk4TKAEcRZHaXlV+tCxIXELiE9sQuK3kG8ZFgSPi57UBJt8/ogfhAF5Oz4ZSUBN77weM+mQ==}
++    cpu: [arm64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-freebsd-x64@4.52.4:
++    resolution: {integrity: sha512-WdSLpZFjOEqNZGmHflxyifolwAiZmDQzuOzIq9L27ButpCVpD7KzTRtEG1I0wMPFyiyUdOO+4t8GvrnBLQSwpw==}
++    cpu: [x64]
++    os: [freebsd]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-arm-gnueabihf@4.52.4:
++    resolution: {integrity: sha512-xRiOu9Of1FZ4SxVbB0iEDXc4ddIcjCv2aj03dmW8UrZIW7aIQ9jVJdLBIhxBI+MaTnGAKyvMwPwQnoOEvP7FgQ==}
++    cpu: [arm]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-arm-musleabihf@4.52.4:
++    resolution: {integrity: sha512-FbhM2p9TJAmEIEhIgzR4soUcsW49e9veAQCziwbR+XWB2zqJ12b4i/+hel9yLiD8pLncDH4fKIPIbt5238341Q==}
++    cpu: [arm]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-arm64-gnu@4.52.4:
++    resolution: {integrity: sha512-4n4gVwhPHR9q/g8lKCyz0yuaD0MvDf7dV4f9tHt0C73Mp8h38UCtSCSE6R9iBlTbXlmA8CjpsZoujhszefqueg==}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-arm64-musl@4.52.4:
++    resolution: {integrity: sha512-u0n17nGA0nvi/11gcZKsjkLj1QIpAuPFQbR48Subo7SmZJnGxDpspyw2kbpuoQnyK+9pwf3pAoEXerJs/8Mi9g==}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-loong64-gnu@4.52.4:
++    resolution: {integrity: sha512-0G2c2lpYtbTuXo8KEJkDkClE/+/2AFPdPAbmaHoE870foRFs4pBrDehilMcrSScrN/fB/1HTaWO4bqw+ewBzMQ==}
++    cpu: [loong64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-ppc64-gnu@4.52.4:
++    resolution: {integrity: sha512-teSACug1GyZHmPDv14VNbvZFX779UqWTsd7KtTM9JIZRDI5NUwYSIS30kzI8m06gOPB//jtpqlhmraQ68b5X2g==}
++    cpu: [ppc64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-riscv64-gnu@4.52.4:
++    resolution: {integrity: sha512-/MOEW3aHjjs1p4Pw1Xk4+3egRevx8Ji9N6HUIA1Ifh8Q+cg9dremvFCUbOX2Zebz80BwJIgCBUemjqhU5XI5Eg==}
++    cpu: [riscv64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-riscv64-musl@4.52.4:
++    resolution: {integrity: sha512-1HHmsRyh845QDpEWzOFtMCph5Ts+9+yllCrREuBR/vg2RogAQGGBRC8lDPrPOMnrdOJ+mt1WLMOC2Kao/UwcvA==}
++    cpu: [riscv64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-s390x-gnu@4.52.4:
++    resolution: {integrity: sha512-seoeZp4L/6D1MUyjWkOMRU6/iLmCU2EjbMTyAG4oIOs1/I82Y5lTeaxW0KBfkUdHAWN7j25bpkt0rjnOgAcQcA==}
++    cpu: [s390x]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-x64-gnu@4.52.4:
++    resolution: {integrity: sha512-Wi6AXf0k0L7E2gteNsNHUs7UMwCIhsCTs6+tqQ5GPwVRWMaflqGec4Sd8n6+FNFDw9vGcReqk2KzBDhCa1DLYg==}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-linux-x64-musl@4.52.4:
++    resolution: {integrity: sha512-dtBZYjDmCQ9hW+WgEkaffvRRCKm767wWhxsFW3Lw86VXz/uJRuD438/XvbZT//B96Vs8oTA8Q4A0AfHbrxP9zw==}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-openharmony-arm64@4.52.4:
++    resolution: {integrity: sha512-1ox+GqgRWqaB1RnyZXL8PD6E5f7YyRUJYnCqKpNzxzP0TkaUh112NDrR9Tt+C8rJ4x5G9Mk8PQR3o7Ku2RKqKA==}
++    cpu: [arm64]
++    os: [openharmony]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-win32-arm64-msvc@4.52.4:
++    resolution: {integrity: sha512-8GKr640PdFNXwzIE0IrkMWUNUomILLkfeHjXBi/nUvFlpZP+FA8BKGKpacjW6OUUHaNI6sUURxR2U2g78FOHWQ==}
++    cpu: [arm64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-win32-ia32-msvc@4.52.4:
++    resolution: {integrity: sha512-AIy/jdJ7WtJ/F6EcfOb2GjR9UweO0n43jNObQMb6oGxkYTfLcnN7vYYpG+CN3lLxrQkzWnMOoNSHTW54pgbVxw==}
++    cpu: [ia32]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-win32-x64-gnu@4.52.4:
++    resolution: {integrity: sha512-UF9KfsH9yEam0UjTwAgdK0anlQ7c8/pWPU2yVjyWcF1I1thABt6WXE47cI71pGiZ8wGvxohBoLnxM04L/wj8mQ==}
++    cpu: [x64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@rollup/rollup-win32-x64-msvc@4.52.4:
++    resolution: {integrity: sha512-bf9PtUa0u8IXDVxzRToFQKsNCRz9qLYfR/MpECxl4mRoWYjAeFjgxj1XdZr2M/GNVpT05p+LgQOHopYDlUu6/w==}
++    cpu: [x64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@sinclair/typebox@0.27.8:
++    resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
++    dev: true
++
++  /@tanstack/query-core@5.90.2:
++    resolution: {integrity: sha512-k/TcR3YalnzibscALLwxeiLUub6jN5EDLwKDiO7q5f4ICEoptJ+n9+7vcEFy5/x/i6Q+Lb/tXrsKCggf5uQJXQ==}
++    dev: false
++
++  /@tanstack/react-query@5.90.2(react@18.3.1):
++    resolution: {integrity: sha512-CLABiR+h5PYfOWr/z+vWFt5VsOA2ekQeRQBFSKlcoW6Ndx/f8rfyVmq4LbgOM4GG2qtxAxjLYLOpCNTYm4uKzw==}
++    peerDependencies:
++      react: ^18 || ^19
++    dependencies:
++      '@tanstack/query-core': 5.90.2
++      react: 18.3.1
++    dev: false
++
++  /@tauri-apps/api@1.6.0:
++    resolution: {integrity: sha512-rqI++FWClU5I2UBp4HXFvl+sBWkdigBkxnpJDQUWttNyG7IZP4FwQGhTNL5EOw0vI8i6eSAJ5frLqO7n7jbJdg==}
++    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
++    dev: false
++
++  /@tauri-apps/cli-darwin-arm64@1.6.3:
++    resolution: {integrity: sha512-fQN6IYSL8bG4NvkdKE4sAGF4dF/QqqQq4hOAU+t8ksOzHJr0hUlJYfncFeJYutr/MMkdF7hYKadSb0j5EE9r0A==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-darwin-x64@1.6.3:
++    resolution: {integrity: sha512-1yTXZzLajKAYINJOJhZfmMhCzweHSgKQ3bEgJSn6t+1vFkOgY8Yx4oFgWcybrrWI5J1ZLZAl47+LPOY81dLcyA==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-linux-arm-gnueabihf@1.6.3:
++    resolution: {integrity: sha512-CjTEr9r9xgjcvos09AQw8QMRPuH152B1jvlZt4PfAsyJNPFigzuwed5/SF7XAd8bFikA7zArP4UT12RdBxrx7w==}
++    engines: {node: '>= 10'}
++    cpu: [arm]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-linux-arm64-gnu@1.6.3:
++    resolution: {integrity: sha512-G9EUUS4M8M/Jz1UKZqvJmQQCKOzgTb8/0jZKvfBuGfh5AjFBu8LHvlFpwkKVm1l4951Xg4ulUp6P9Q7WRJ9XSA==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-linux-arm64-musl@1.6.3:
++    resolution: {integrity: sha512-MuBTHJyNpZRbPVG8IZBN8+Zs7aKqwD22tkWVBcL1yOGL4zNNTJlkfL+zs5qxRnHlUsn6YAlbW/5HKocfpxVwBw==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-linux-x64-gnu@1.6.3:
++    resolution: {integrity: sha512-Uvi7M+NK3tAjCZEY1WGel+dFlzJmqcvu3KND+nqa22762NFmOuBIZ4KJR/IQHfpEYqKFNUhJfCGnpUDfiC3Oxg==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-linux-x64-musl@1.6.3:
++    resolution: {integrity: sha512-rc6B342C0ra8VezB/OJom9j/N+9oW4VRA4qMxS2f4bHY2B/z3J9NPOe6GOILeg4v/CV62ojkLsC3/K/CeF3fqQ==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [linux]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-win32-arm64-msvc@1.6.3:
++    resolution: {integrity: sha512-cSH2qOBYuYC4UVIFtrc1YsGfc5tfYrotoHrpTvRjUGu0VywvmyNk82+ZsHEnWZ2UHmu3l3lXIGRqSWveLln0xg==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-win32-ia32-msvc@1.6.3:
++    resolution: {integrity: sha512-T8V6SJQqE4PSWmYBl0ChQVmS6AR2hXFHURH2DwAhgSGSQ6uBXgwlYFcfIeQpBQA727K2Eq8X2hGfvmoySyHMRw==}
++    engines: {node: '>= 10'}
++    cpu: [ia32]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli-win32-x64-msvc@1.6.3:
++    resolution: {integrity: sha512-HUkWZ+lYHI/Gjkh2QjHD/OBDpqLVmvjZGpLK9losur1Eg974Jip6k+vsoTUxQBCBDfj30eDBct9E1FvXOspWeg==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [win32]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /@tauri-apps/cli@1.6.3:
++    resolution: {integrity: sha512-q46umd6QLRKDd4Gg6WyZBGa2fWvk0pbeUA5vFomm4uOs1/17LIciHv2iQ4UD+2Yv5H7AO8YiE1t50V0POiEGEw==}
++    engines: {node: '>= 10'}
++    hasBin: true
++    dependencies:
++      semver: 7.7.2
++    optionalDependencies:
++      '@tauri-apps/cli-darwin-arm64': 1.6.3
++      '@tauri-apps/cli-darwin-x64': 1.6.3
++      '@tauri-apps/cli-linux-arm-gnueabihf': 1.6.3
++      '@tauri-apps/cli-linux-arm64-gnu': 1.6.3
++      '@tauri-apps/cli-linux-arm64-musl': 1.6.3
++      '@tauri-apps/cli-linux-x64-gnu': 1.6.3
++      '@tauri-apps/cli-linux-x64-musl': 1.6.3
++      '@tauri-apps/cli-win32-arm64-msvc': 1.6.3
++      '@tauri-apps/cli-win32-ia32-msvc': 1.6.3
++      '@tauri-apps/cli-win32-x64-msvc': 1.6.3
++    dev: true
++
++  /@types/body-parser@1.19.6:
++    resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
++    dependencies:
++      '@types/connect': 3.4.38
++      '@types/node': 20.19.19
++    dev: true
++
++  /@types/connect@3.4.38:
++    resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
++    dependencies:
++      '@types/node': 20.19.19
++    dev: true
++
++  /@types/estree@1.0.8:
++    resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
++    dev: true
++
++  /@types/express-serve-static-core@4.19.6:
++    resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
++    dependencies:
++      '@types/node': 20.19.19
++      '@types/qs': 6.14.0
++      '@types/range-parser': 1.2.7
++      '@types/send': 1.2.0
++    dev: true
++
++  /@types/express@4.17.23:
++    resolution: {integrity: sha512-Crp6WY9aTYP3qPi2wGDo9iUe/rceX01UMhnF1jmwDcKCFM6cx7YhGP/Mpr3y9AASpfHixIG0E6azCcL5OcDHsQ==}
++    dependencies:
++      '@types/body-parser': 1.19.6
++      '@types/express-serve-static-core': 4.19.6
++      '@types/qs': 6.14.0
++      '@types/serve-static': 1.15.9
++    dev: true
++
++  /@types/http-errors@2.0.5:
++    resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
++    dev: true
++
++  /@types/mime@1.3.5:
++    resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
++    dev: true
++
++  /@types/node@20.19.19:
++    resolution: {integrity: sha512-pb1Uqj5WJP7wrcbLU7Ru4QtA0+3kAXrkutGiD26wUKzSMgNNaPARTUDQmElUXp64kh3cWdou3Q0C7qwwxqSFmg==}
++    dependencies:
++      undici-types: 6.21.0
++    dev: true
++
++  /@types/prop-types@15.7.15:
++    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
++    dev: true
++
++  /@types/qs@6.14.0:
++    resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
++    dev: true
++
++  /@types/range-parser@1.2.7:
++    resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
++    dev: true
++
++  /@types/react-dom@18.3.7(@types/react@18.3.25):
++    resolution: {integrity: sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==}
++    peerDependencies:
++      '@types/react': ^18.0.0
++    dependencies:
++      '@types/react': 18.3.25
++    dev: true
++
++  /@types/react@18.3.25:
++    resolution: {integrity: sha512-oSVZmGtDPmRZtVDqvdKUi/qgCsWp5IDY29wp8na8Bj4B3cc99hfNzvNhlMkVVxctkAOGUA3Km7MMpBHAnWfcIA==}
++    dependencies:
++      '@types/prop-types': 15.7.15
++      csstype: 3.1.3
++    dev: true
++
++  /@types/send@0.17.5:
++    resolution: {integrity: sha512-z6F2D3cOStZvuk2SaP6YrwkNO65iTZcwA2ZkSABegdkAh/lf+Aa/YQndZVfmEXT5vgAp6zv06VQ3ejSVjAny4w==}
++    dependencies:
++      '@types/mime': 1.3.5
++      '@types/node': 20.19.19
++    dev: true
++
++  /@types/send@1.2.0:
++    resolution: {integrity: sha512-zBF6vZJn1IaMpg3xUF25VK3gd3l8zwE0ZLRX7dsQyQi+jp4E8mMDJNGDYnYse+bQhYwWERTxVwHpi3dMOq7RKQ==}
++    dependencies:
++      '@types/node': 20.19.19
++    dev: true
++
++  /@types/serve-static@1.15.9:
++    resolution: {integrity: sha512-dOTIuqpWLyl3BBXU3maNQsS4A3zuuoYRNIvYSxxhebPfXg2mzWQEPne/nlJ37yOse6uGgR386uTpdsx4D0QZWA==}
++    dependencies:
++      '@types/http-errors': 2.0.5
++      '@types/node': 20.19.19
++      '@types/send': 0.17.5
++    dev: true
++
++  /@types/ws@8.18.1:
++    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
++    dependencies:
++      '@types/node': 20.19.19
++    dev: true
++
++  /@vitest/expect@1.6.1:
++    resolution: {integrity: sha512-jXL+9+ZNIJKruofqXuuTClf44eSpcHlgj3CiuNihUF3Ioujtmc0zIa3UJOW5RjDK1YLBJZnWBlPuqhYycLioog==}
++    dependencies:
++      '@vitest/spy': 1.6.1
++      '@vitest/utils': 1.6.1
++      chai: 4.5.0
++    dev: true
++
++  /@vitest/runner@1.6.1:
++    resolution: {integrity: sha512-3nSnYXkVkf3mXFfE7vVyPmi3Sazhb/2cfZGGs0JRzFsPFvAMBEcrweV1V1GsrstdXeKCTXlJbvnQwGWgEIHmOA==}
++    dependencies:
++      '@vitest/utils': 1.6.1
++      p-limit: 5.0.0
++      pathe: 1.1.2
++    dev: true
++
++  /@vitest/snapshot@1.6.1:
++    resolution: {integrity: sha512-WvidQuWAzU2p95u8GAKlRMqMyN1yOJkGHnx3M1PL9Raf7AQ1kwLKg04ADlCa3+OXUZE7BceOhVZiuWAbzCKcUQ==}
++    dependencies:
++      magic-string: 0.30.19
++      pathe: 1.1.2
++      pretty-format: 29.7.0
++    dev: true
++
++  /@vitest/spy@1.6.1:
++    resolution: {integrity: sha512-MGcMmpGkZebsMZhbQKkAf9CX5zGvjkBTqf8Zx3ApYWXr3wG+QvEu2eXWfnIIWYSJExIp4V9FCKDEeygzkYrXMw==}
++    dependencies:
++      tinyspy: 2.2.1
++    dev: true
++
++  /@vitest/utils@1.6.1:
++    resolution: {integrity: sha512-jOrrUvXM4Av9ZWiG1EajNto0u96kWAhJ1LmPmJhXXQx/32MecEKd10pOLYgS2BQx1TgkGhloPU1ArDW2vvaY6g==}
++    dependencies:
++      diff-sequences: 29.6.3
++      estree-walker: 3.0.3
++      loupe: 2.3.7
++      pretty-format: 29.7.0
++    dev: true
++
++  /accepts@1.3.8:
++    resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
++    engines: {node: '>= 0.6'}
++    dependencies:
++      mime-types: 2.1.35
++      negotiator: 0.6.3
++    dev: false
++
++  /acorn-walk@8.3.4:
++    resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
++    engines: {node: '>=0.4.0'}
++    dependencies:
++      acorn: 8.15.0
++    dev: true
++
++  /acorn@8.15.0:
++    resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
++    engines: {node: '>=0.4.0'}
++    hasBin: true
++    dev: true
++
++  /ansi-regex@5.0.1:
++    resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /ansi-regex@6.2.2:
++    resolution: {integrity: sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg==}
++    engines: {node: '>=12'}
++    dev: true
++
++  /ansi-styles@4.3.0:
++    resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
++    engines: {node: '>=8'}
++    dependencies:
++      color-convert: 2.0.1
++    dev: true
++
++  /ansi-styles@5.2.0:
++    resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
++    engines: {node: '>=10'}
++    dev: true
++
++  /ansi-styles@6.2.3:
++    resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
++    engines: {node: '>=12'}
++    dev: true
++
++  /any-promise@1.3.0:
++    resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
++    dev: true
++
++  /anymatch@3.1.3:
++    resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
++    engines: {node: '>= 8'}
++    dependencies:
++      normalize-path: 3.0.0
++      picomatch: 2.3.1
++    dev: true
++
++  /arg@5.0.2:
++    resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
++    dev: true
++
++  /array-flatten@1.1.1:
++    resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
++    dev: false
++
++  /assertion-error@1.1.0:
++    resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
++    dev: true
++
++  /autoprefixer@10.4.21(postcss@8.5.6):
++    resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
++    engines: {node: ^10 || ^12 || >=14}
++    hasBin: true
++    peerDependencies:
++      postcss: ^8.1.0
++    dependencies:
++      browserslist: 4.26.3
++      caniuse-lite: 1.0.30001747
++      fraction.js: 4.3.7
++      normalize-range: 0.1.2
++      picocolors: 1.1.1
++      postcss: 8.5.6
++      postcss-value-parser: 4.2.0
++    dev: true
++
++  /balanced-match@1.0.2:
++    resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
++    dev: true
++
++  /baseline-browser-mapping@2.8.12:
++    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
++    hasBin: true
++    dev: true
++
++  /binary-extensions@2.3.0:
++    resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /body-parser@1.20.3:
++    resolution: {integrity: sha512-7rAxByjUMqQ3/bHJy7D6OGXvx/MMc4IqBn/X0fcM1QUcAItpZrBEYhWGem+tzXH90c+G01ypMcYJBO9Y30203g==}
++    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
++    dependencies:
++      bytes: 3.1.2
++      content-type: 1.0.5
++      debug: 2.6.9
++      depd: 2.0.0
++      destroy: 1.2.0
++      http-errors: 2.0.0
++      iconv-lite: 0.4.24
++      on-finished: 2.4.1
++      qs: 6.13.0
++      raw-body: 2.5.2
++      type-is: 1.6.18
++      unpipe: 1.0.0
++    transitivePeerDependencies:
++      - supports-color
++    dev: false
++
++  /brace-expansion@2.0.2:
++    resolution: {integrity: sha512-Jt0vHyM+jmUBqojB7E1NIYadt0vI0Qxjxd2TErW94wDz+E2LAm5vKMXXwg6ZZBTHPuUlDgQHKXvjGBdfcF1ZDQ==}
++    dependencies:
++      balanced-match: 1.0.2
++    dev: true
++
++  /braces@3.0.3:
++    resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
++    engines: {node: '>=8'}
++    dependencies:
++      fill-range: 7.1.1
++    dev: true
++
++  /browserslist@4.26.3:
++    resolution: {integrity: sha512-lAUU+02RFBuCKQPj/P6NgjlbCnLBMp4UtgTx7vNHd3XSIJF87s9a5rA3aH2yw3GS9DqZAUbOtZdCCiZeVRqt0w==}
++    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
++    hasBin: true
++    dependencies:
++      baseline-browser-mapping: 2.8.12
++      caniuse-lite: 1.0.30001747
++      electron-to-chromium: 1.5.230
++      node-releases: 2.0.23
++      update-browserslist-db: 1.1.3(browserslist@4.26.3)
++    dev: true
++
++  /bytes@3.1.2:
++    resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /cac@6.7.14:
++    resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /call-bind-apply-helpers@1.0.2:
++    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      es-errors: 1.3.0
++      function-bind: 1.1.2
++    dev: false
++
++  /call-bound@1.0.4:
++    resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      get-intrinsic: 1.3.0
++    dev: false
++
++  /camelcase-css@2.0.1:
++    resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
++    engines: {node: '>= 6'}
++    dev: true
++
++  /caniuse-lite@1.0.30001747:
++    resolution: {integrity: sha512-mzFa2DGIhuc5490Nd/G31xN1pnBnYMadtkyTjefPI7wzypqgCEpeWu9bJr0OnDsyKrW75zA9ZAt7pbQFmwLsQg==}
++    dev: true
++
++  /chai@4.5.0:
++    resolution: {integrity: sha512-RITGBfijLkBddZvnn8jdqoTypxvqbOLYQkGGxXzeFjVHvudaPw0HNFD9x928/eUwYWd2dPCugVqspGALTZZQKw==}
++    engines: {node: '>=4'}
++    dependencies:
++      assertion-error: 1.1.0
++      check-error: 1.0.3
++      deep-eql: 4.1.4
++      get-func-name: 2.0.2
++      loupe: 2.3.7
++      pathval: 1.1.1
++      type-detect: 4.1.0
++    dev: true
++
++  /check-error@1.0.3:
++    resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
++    dependencies:
++      get-func-name: 2.0.2
++    dev: true
++
++  /chokidar@3.6.0:
++    resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
++    engines: {node: '>= 8.10.0'}
++    dependencies:
++      anymatch: 3.1.3
++      braces: 3.0.3
++      glob-parent: 5.1.2
++      is-binary-path: 2.1.0
++      is-glob: 4.0.3
++      normalize-path: 3.0.0
++      readdirp: 3.6.0
++    optionalDependencies:
++      fsevents: 2.3.3
++    dev: true
++
++  /classnames@2.5.1:
++    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
++    dev: false
++
++  /color-convert@2.0.1:
++    resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
++    engines: {node: '>=7.0.0'}
++    dependencies:
++      color-name: 1.1.4
++    dev: true
++
++  /color-name@1.1.4:
++    resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
++    dev: true
++
++  /commander@4.1.1:
++    resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
++    engines: {node: '>= 6'}
++    dev: true
++
++  /confbox@0.1.8:
++    resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
++    dev: true
++
++  /content-disposition@0.5.4:
++    resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
++    engines: {node: '>= 0.6'}
++    dependencies:
++      safe-buffer: 5.2.1
++    dev: false
++
++  /content-type@1.0.5:
++    resolution: {integrity: sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /cookie-signature@1.0.6:
++    resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
++    dev: false
++
++  /cookie@0.7.1:
++    resolution: {integrity: sha512-6DnInpx7SJ2AK3+CTUE/ZM0vWTUboZCegxhC2xiIydHR9jNuTAASBrfEpHhiGOZw/nX51bHt6YQl8jsGo4y/0w==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /cross-spawn@7.0.6:
++    resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
++    engines: {node: '>= 8'}
++    dependencies:
++      path-key: 3.1.1
++      shebang-command: 2.0.0
++      which: 2.0.2
++    dev: true
++
++  /cssesc@3.0.0:
++    resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
++    engines: {node: '>=4'}
++    hasBin: true
++    dev: true
++
++  /csstype@3.1.3:
++    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
++    dev: true
++
++  /debug@2.6.9:
++    resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
++    peerDependencies:
++      supports-color: '*'
++    peerDependenciesMeta:
++      supports-color:
++        optional: true
++    dependencies:
++      ms: 2.0.0
++    dev: false
++
++  /debug@4.4.3:
++    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
++    engines: {node: '>=6.0'}
++    peerDependencies:
++      supports-color: '*'
++    peerDependenciesMeta:
++      supports-color:
++        optional: true
++    dependencies:
++      ms: 2.1.3
++    dev: true
++
++  /deep-eql@4.1.4:
++    resolution: {integrity: sha512-SUwdGfqdKOwxCPeVYjwSyRpJ7Z+fhpwIAtmCUdZIWZ/YP5R9WAsyuSgpLVDi9bjWoN2LXHNss/dk3urXtdQxGg==}
++    engines: {node: '>=6'}
++    dependencies:
++      type-detect: 4.1.0
++    dev: true
++
++  /depd@2.0.0:
++    resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /destroy@1.2.0:
++    resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
++    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
++    dev: false
++
++  /didyoumean@1.2.2:
++    resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
++    dev: true
++
++  /diff-sequences@29.6.3:
++    resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
++    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
++    dev: true
++
++  /dlv@1.1.3:
++    resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
++    dev: true
++
++  /dunder-proto@1.0.1:
++    resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      es-errors: 1.3.0
++      gopd: 1.2.0
++    dev: false
++
++  /eastasianwidth@0.2.0:
++    resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
++    dev: true
++
++  /ee-first@1.1.1:
++    resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
++    dev: false
++
++  /electron-to-chromium@1.5.230:
++    resolution: {integrity: sha512-A6A6Fd3+gMdaed9wX83CvHYJb4UuapPD5X5SLq72VZJzxHSY0/LUweGXRWmQlh2ln7KV7iw7jnwXK7dlPoOnHQ==}
++    dev: true
++
++  /emoji-regex@8.0.0:
++    resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
++    dev: true
++
++  /emoji-regex@9.2.2:
++    resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
++    dev: true
++
++  /encodeurl@1.0.2:
++    resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /encodeurl@2.0.0:
++    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /es-define-property@1.0.1:
++    resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /es-errors@1.3.0:
++    resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /es-object-atoms@1.1.1:
++    resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      es-errors: 1.3.0
++    dev: false
++
++  /esbuild@0.21.5:
++    resolution: {integrity: sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==}
++    engines: {node: '>=12'}
++    hasBin: true
++    requiresBuild: true
++    optionalDependencies:
++      '@esbuild/aix-ppc64': 0.21.5
++      '@esbuild/android-arm': 0.21.5
++      '@esbuild/android-arm64': 0.21.5
++      '@esbuild/android-x64': 0.21.5
++      '@esbuild/darwin-arm64': 0.21.5
++      '@esbuild/darwin-x64': 0.21.5
++      '@esbuild/freebsd-arm64': 0.21.5
++      '@esbuild/freebsd-x64': 0.21.5
++      '@esbuild/linux-arm': 0.21.5
++      '@esbuild/linux-arm64': 0.21.5
++      '@esbuild/linux-ia32': 0.21.5
++      '@esbuild/linux-loong64': 0.21.5
++      '@esbuild/linux-mips64el': 0.21.5
++      '@esbuild/linux-ppc64': 0.21.5
++      '@esbuild/linux-riscv64': 0.21.5
++      '@esbuild/linux-s390x': 0.21.5
++      '@esbuild/linux-x64': 0.21.5
++      '@esbuild/netbsd-x64': 0.21.5
++      '@esbuild/openbsd-x64': 0.21.5
++      '@esbuild/sunos-x64': 0.21.5
++      '@esbuild/win32-arm64': 0.21.5
++      '@esbuild/win32-ia32': 0.21.5
++      '@esbuild/win32-x64': 0.21.5
++    dev: true
++
++  /esbuild@0.25.10:
++    resolution: {integrity: sha512-9RiGKvCwaqxO2owP61uQ4BgNborAQskMR6QusfWzQqv7AZOg5oGehdY2pRJMTKuwxd1IDBP4rSbI5lHzU7SMsQ==}
++    engines: {node: '>=18'}
++    hasBin: true
++    requiresBuild: true
++    optionalDependencies:
++      '@esbuild/aix-ppc64': 0.25.10
++      '@esbuild/android-arm': 0.25.10
++      '@esbuild/android-arm64': 0.25.10
++      '@esbuild/android-x64': 0.25.10
++      '@esbuild/darwin-arm64': 0.25.10
++      '@esbuild/darwin-x64': 0.25.10
++      '@esbuild/freebsd-arm64': 0.25.10
++      '@esbuild/freebsd-x64': 0.25.10
++      '@esbuild/linux-arm': 0.25.10
++      '@esbuild/linux-arm64': 0.25.10
++      '@esbuild/linux-ia32': 0.25.10
++      '@esbuild/linux-loong64': 0.25.10
++      '@esbuild/linux-mips64el': 0.25.10
++      '@esbuild/linux-ppc64': 0.25.10
++      '@esbuild/linux-riscv64': 0.25.10
++      '@esbuild/linux-s390x': 0.25.10
++      '@esbuild/linux-x64': 0.25.10
++      '@esbuild/netbsd-arm64': 0.25.10
++      '@esbuild/netbsd-x64': 0.25.10
++      '@esbuild/openbsd-arm64': 0.25.10
++      '@esbuild/openbsd-x64': 0.25.10
++      '@esbuild/openharmony-arm64': 0.25.10
++      '@esbuild/sunos-x64': 0.25.10
++      '@esbuild/win32-arm64': 0.25.10
++      '@esbuild/win32-ia32': 0.25.10
++      '@esbuild/win32-x64': 0.25.10
++    dev: true
++
++  /escalade@3.2.0:
++    resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
++    engines: {node: '>=6'}
++    dev: true
++
++  /escape-html@1.0.3:
++    resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
++    dev: false
++
++  /estree-walker@3.0.3:
++    resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
++    dependencies:
++      '@types/estree': 1.0.8
++    dev: true
++
++  /etag@1.8.1:
++    resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /execa@8.0.1:
++    resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
++    engines: {node: '>=16.17'}
++    dependencies:
++      cross-spawn: 7.0.6
++      get-stream: 8.0.1
++      human-signals: 5.0.0
++      is-stream: 3.0.0
++      merge-stream: 2.0.0
++      npm-run-path: 5.3.0
++      onetime: 6.0.0
++      signal-exit: 4.1.0
++      strip-final-newline: 3.0.0
++    dev: true
++
++  /express@4.21.2:
++    resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
++    engines: {node: '>= 0.10.0'}
++    dependencies:
++      accepts: 1.3.8
++      array-flatten: 1.1.1
++      body-parser: 1.20.3
++      content-disposition: 0.5.4
++      content-type: 1.0.5
++      cookie: 0.7.1
++      cookie-signature: 1.0.6
++      debug: 2.6.9
++      depd: 2.0.0
++      encodeurl: 2.0.0
++      escape-html: 1.0.3
++      etag: 1.8.1
++      finalhandler: 1.3.1
++      fresh: 0.5.2
++      http-errors: 2.0.0
++      merge-descriptors: 1.0.3
++      methods: 1.1.2
++      on-finished: 2.4.1
++      parseurl: 1.3.3
++      path-to-regexp: 0.1.12
++      proxy-addr: 2.0.7
++      qs: 6.13.0
++      range-parser: 1.2.1
++      safe-buffer: 5.2.1
++      send: 0.19.0
++      serve-static: 1.16.2
++      setprototypeof: 1.2.0
++      statuses: 2.0.1
++      type-is: 1.6.18
++      utils-merge: 1.0.1
++      vary: 1.1.2
++    transitivePeerDependencies:
++      - supports-color
++    dev: false
++
++  /fast-glob@3.3.3:
++    resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
++    engines: {node: '>=8.6.0'}
++    dependencies:
++      '@nodelib/fs.stat': 2.0.5
++      '@nodelib/fs.walk': 1.2.8
++      glob-parent: 5.1.2
++      merge2: 1.4.1
++      micromatch: 4.0.8
++    dev: true
++
++  /fastq@1.19.1:
++    resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
++    dependencies:
++      reusify: 1.1.0
++    dev: true
++
++  /fill-range@7.1.1:
++    resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
++    engines: {node: '>=8'}
++    dependencies:
++      to-regex-range: 5.0.1
++    dev: true
++
++  /finalhandler@1.3.1:
++    resolution: {integrity: sha512-6BN9trH7bp3qvnrRyzsBz+g3lZxTNZTbVO2EV1CS0WIcDbawYVdYvGflME/9QP0h0pYlCDBCTjYa9nZzMDpyxQ==}
++    engines: {node: '>= 0.8'}
++    dependencies:
++      debug: 2.6.9
++      encodeurl: 2.0.0
++      escape-html: 1.0.3
++      on-finished: 2.4.1
++      parseurl: 1.3.3
++      statuses: 2.0.1
++      unpipe: 1.0.0
++    transitivePeerDependencies:
++      - supports-color
++    dev: false
++
++  /foreground-child@3.3.1:
++    resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
++    engines: {node: '>=14'}
++    dependencies:
++      cross-spawn: 7.0.6
++      signal-exit: 4.1.0
++    dev: true
++
++  /forwarded@0.2.0:
++    resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /fraction.js@4.3.7:
++    resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
++    dev: true
++
++  /fresh@0.5.2:
++    resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /fsevents@2.3.3:
++    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
++    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
++    os: [darwin]
++    requiresBuild: true
++    dev: true
++    optional: true
++
++  /function-bind@1.1.2:
++    resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
++
++  /get-func-name@2.0.2:
++    resolution: {integrity: sha512-8vXOvuE167CtIc3OyItco7N/dpRtBbYOsPsXCz7X/PMnlGjYjSGuZJgM1Y7mmew7BKf9BqvLX2tnOVy1BBUsxQ==}
++    dev: true
++
++  /get-intrinsic@1.3.0:
++    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.1
++      function-bind: 1.1.2
++      get-proto: 1.0.1
++      gopd: 1.2.0
++      has-symbols: 1.1.0
++      hasown: 2.0.2
++      math-intrinsics: 1.1.0
++    dev: false
++
++  /get-proto@1.0.1:
++    resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      dunder-proto: 1.0.1
++      es-object-atoms: 1.1.1
++    dev: false
++
++  /get-stream@8.0.1:
++    resolution: {integrity: sha512-VaUJspBffn/LMCJVoMvSAdmscJyS1auj5Zulnn5UoYcY531UWmdwhRWkcGKnGU93m5HSXP9LP2usOryrBtQowA==}
++    engines: {node: '>=16'}
++    dev: true
++
++  /get-tsconfig@4.10.1:
++    resolution: {integrity: sha512-auHyJ4AgMz7vgS8Hp3N6HXSmlMdUyhSUrfBF16w153rxtLIEOE+HGqaBppczZvnHLqQJfiHotCYpNhl0lUROFQ==}
++    dependencies:
++      resolve-pkg-maps: 1.0.0
++    dev: true
++
++  /glob-parent@5.1.2:
++    resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
++    engines: {node: '>= 6'}
++    dependencies:
++      is-glob: 4.0.3
++    dev: true
++
++  /glob-parent@6.0.2:
++    resolution: {integrity: sha512-XxwI8EOhVQgWp6iDL+3b0r86f4d6AX6zSU55HfB4ydCEuXLXc5FcYeOu+nnGftS4TEju/11rt4KJPTMgbfmv4A==}
++    engines: {node: '>=10.13.0'}
++    dependencies:
++      is-glob: 4.0.3
++    dev: true
++
++  /glob@10.4.5:
++    resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
++    hasBin: true
++    dependencies:
++      foreground-child: 3.3.1
++      jackspeak: 3.4.3
++      minimatch: 9.0.5
++      minipass: 7.1.2
++      package-json-from-dist: 1.0.1
++      path-scurry: 1.11.1
++    dev: true
++
++  /gopd@1.2.0:
++    resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /has-symbols@1.1.0:
++    resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /hasown@2.0.2:
++    resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      function-bind: 1.1.2
++
++  /http-errors@2.0.0:
++    resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
++    engines: {node: '>= 0.8'}
++    dependencies:
++      depd: 2.0.0
++      inherits: 2.0.4
++      setprototypeof: 1.2.0
++      statuses: 2.0.1
++      toidentifier: 1.0.1
++    dev: false
++
++  /human-signals@5.0.0:
++    resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
++    engines: {node: '>=16.17.0'}
++    dev: true
++
++  /iconv-lite@0.4.24:
++    resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
++    engines: {node: '>=0.10.0'}
++    dependencies:
++      safer-buffer: 2.1.2
++    dev: false
++
++  /inherits@2.0.4:
++    resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
++    dev: false
++
++  /ipaddr.js@1.9.1:
++    resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
++    engines: {node: '>= 0.10'}
++    dev: false
++
++  /is-binary-path@2.1.0:
++    resolution: {integrity: sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==}
++    engines: {node: '>=8'}
++    dependencies:
++      binary-extensions: 2.3.0
++    dev: true
++
++  /is-core-module@2.16.1:
++    resolution: {integrity: sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      hasown: 2.0.2
++    dev: true
++
++  /is-extglob@2.1.1:
++    resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /is-fullwidth-code-point@3.0.0:
++    resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /is-glob@4.0.3:
++    resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
++    engines: {node: '>=0.10.0'}
++    dependencies:
++      is-extglob: 2.1.1
++    dev: true
++
++  /is-number@7.0.0:
++    resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
++    engines: {node: '>=0.12.0'}
++    dev: true
++
++  /is-stream@3.0.0:
++    resolution: {integrity: sha512-LnQR4bZ9IADDRSkvpqMGvt/tEJWclzklNgSw48V5EAaAeDd6qGvN8ei6k5p0tvxSR171VmGyHuTiAOfxAbr8kA==}
++    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
++    dev: true
++
++  /isexe@2.0.0:
++    resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
++    dev: true
++
++  /jackspeak@3.4.3:
++    resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
++    dependencies:
++      '@isaacs/cliui': 8.0.2
++    optionalDependencies:
++      '@pkgjs/parseargs': 0.11.0
++    dev: true
++
++  /jiti@1.21.7:
++    resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
++    hasBin: true
++    dev: true
++
++  /js-tokens@4.0.0:
++    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
++    dev: false
++
++  /js-tokens@9.0.1:
++    resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
++    dev: true
++
++  /lilconfig@3.1.3:
++    resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
++    engines: {node: '>=14'}
++    dev: true
++
++  /lines-and-columns@1.2.4:
++    resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
++    dev: true
++
++  /local-pkg@0.5.1:
++    resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
++    engines: {node: '>=14'}
++    dependencies:
++      mlly: 1.8.0
++      pkg-types: 1.3.1
++    dev: true
++
++  /loose-envify@1.4.0:
++    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
++    hasBin: true
++    dependencies:
++      js-tokens: 4.0.0
++    dev: false
++
++  /loupe@2.3.7:
++    resolution: {integrity: sha512-zSMINGVYkdpYSOBmLi0D1Uo7JU9nVdQKrHxC8eYlV+9YKK9WePqAlL7lSlorG/U2Fw1w0hTBmaa/jrQ3UbPHtA==}
++    dependencies:
++      get-func-name: 2.0.2
++    dev: true
++
++  /lru-cache@10.4.3:
++    resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
++    dev: true
++
++  /magic-string@0.30.19:
++    resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
++    dependencies:
++      '@jridgewell/sourcemap-codec': 1.5.5
++    dev: true
++
++  /math-intrinsics@1.1.0:
++    resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /media-typer@0.3.0:
++    resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /merge-descriptors@1.0.3:
++    resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
++    dev: false
++
++  /merge-stream@2.0.0:
++    resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
++    dev: true
++
++  /merge2@1.4.1:
++    resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
++    engines: {node: '>= 8'}
++    dev: true
++
++  /methods@1.1.2:
++    resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /micromatch@4.0.8:
++    resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
++    engines: {node: '>=8.6'}
++    dependencies:
++      braces: 3.0.3
++      picomatch: 2.3.1
++    dev: true
++
++  /mime-db@1.52.0:
++    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /mime-types@2.1.35:
++    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
++    engines: {node: '>= 0.6'}
++    dependencies:
++      mime-db: 1.52.0
++    dev: false
++
++  /mime@1.6.0:
++    resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
++    engines: {node: '>=4'}
++    hasBin: true
++    dev: false
++
++  /mimic-fn@4.0.0:
++    resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
++    engines: {node: '>=12'}
++    dev: true
++
++  /minimatch@9.0.5:
++    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
++    engines: {node: '>=16 || 14 >=14.17'}
++    dependencies:
++      brace-expansion: 2.0.2
++    dev: true
++
++  /minipass@7.1.2:
++    resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
++    engines: {node: '>=16 || 14 >=14.17'}
++    dev: true
++
++  /mlly@1.8.0:
++    resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
++    dependencies:
++      acorn: 8.15.0
++      pathe: 2.0.3
++      pkg-types: 1.3.1
++      ufo: 1.6.1
++    dev: true
++
++  /ms@2.0.0:
++    resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
++    dev: false
++
++  /ms@2.1.3:
++    resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
++
++  /mz@2.7.0:
++    resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
++    dependencies:
++      any-promise: 1.3.0
++      object-assign: 4.1.1
++      thenify-all: 1.6.0
++    dev: true
++
++  /nanoid@3.3.11:
++    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
++    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
++    hasBin: true
++    dev: true
++
++  /negotiator@0.6.3:
++    resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /node-releases@2.0.23:
++    resolution: {integrity: sha512-cCmFDMSm26S6tQSDpBCg/NR8NENrVPhAJSf+XbxBG4rPFaaonlEoE9wHQmun+cls499TQGSb7ZyPBRlzgKfpeg==}
++    dev: true
++
++  /normalize-path@3.0.0:
++    resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /normalize-range@0.1.2:
++    resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /npm-run-path@5.3.0:
++    resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
++    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
++    dependencies:
++      path-key: 4.0.0
++    dev: true
++
++  /object-assign@4.1.1:
++    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /object-hash@3.0.0:
++    resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
++    engines: {node: '>= 6'}
++    dev: true
++
++  /object-inspect@1.13.4:
++    resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
++    engines: {node: '>= 0.4'}
++    dev: false
++
++  /on-finished@2.4.1:
++    resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
++    engines: {node: '>= 0.8'}
++    dependencies:
++      ee-first: 1.1.1
++    dev: false
++
++  /onetime@6.0.0:
++    resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
++    engines: {node: '>=12'}
++    dependencies:
++      mimic-fn: 4.0.0
++    dev: true
++
++  /p-limit@5.0.0:
++    resolution: {integrity: sha512-/Eaoq+QyLSiXQ4lyYV23f14mZRQcXnxfHrN0vCai+ak9G0pp9iEQukIIZq5NccEvwRB8PUnZT0KsOoDCINS1qQ==}
++    engines: {node: '>=18'}
++    dependencies:
++      yocto-queue: 1.2.1
++    dev: true
++
++  /package-json-from-dist@1.0.1:
++    resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
++    dev: true
++
++  /parseurl@1.3.3:
++    resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /path-key@3.1.1:
++    resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /path-key@4.0.0:
++    resolution: {integrity: sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==}
++    engines: {node: '>=12'}
++    dev: true
++
++  /path-parse@1.0.7:
++    resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
++    dev: true
++
++  /path-scurry@1.11.1:
++    resolution: {integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==}
++    engines: {node: '>=16 || 14 >=14.18'}
++    dependencies:
++      lru-cache: 10.4.3
++      minipass: 7.1.2
++    dev: true
++
++  /path-to-regexp@0.1.12:
++    resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
++    dev: false
++
++  /pathe@1.1.2:
++    resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
++    dev: true
++
++  /pathe@2.0.3:
++    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
++    dev: true
++
++  /pathval@1.1.1:
++    resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
++    dev: true
++
++  /picocolors@1.1.1:
++    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
++    dev: true
++
++  /picomatch@2.3.1:
++    resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
++    engines: {node: '>=8.6'}
++    dev: true
++
++  /pify@2.3.0:
++    resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /pirates@4.0.7:
++    resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
++    engines: {node: '>= 6'}
++    dev: true
++
++  /pkg-types@1.3.1:
++    resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
++    dependencies:
++      confbox: 0.1.8
++      mlly: 1.8.0
++      pathe: 2.0.3
++    dev: true
++
++  /postcss-import@15.1.0(postcss@8.5.6):
++    resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
++    engines: {node: '>=14.0.0'}
++    peerDependencies:
++      postcss: ^8.0.0
++    dependencies:
++      postcss: 8.5.6
++      postcss-value-parser: 4.2.0
++      read-cache: 1.0.0
++      resolve: 1.22.10
++    dev: true
++
++  /postcss-js@4.1.0(postcss@8.5.6):
++    resolution: {integrity: sha512-oIAOTqgIo7q2EOwbhb8UalYePMvYoIeRY2YKntdpFQXNosSu3vLrniGgmH9OKs/qAkfoj5oB3le/7mINW1LCfw==}
++    engines: {node: ^12 || ^14 || >= 16}
++    peerDependencies:
++      postcss: ^8.4.21
++    dependencies:
++      camelcase-css: 2.0.1
++      postcss: 8.5.6
++    dev: true
++
++  /postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.6):
++    resolution: {integrity: sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==}
++    engines: {node: '>= 18'}
++    peerDependencies:
++      jiti: '>=1.21.0'
++      postcss: '>=8.0.9'
++      tsx: ^4.8.1
++      yaml: ^2.4.2
++    peerDependenciesMeta:
++      jiti:
++        optional: true
++      postcss:
++        optional: true
++      tsx:
++        optional: true
++      yaml:
++        optional: true
++    dependencies:
++      jiti: 1.21.7
++      lilconfig: 3.1.3
++      postcss: 8.5.6
++    dev: true
++
++  /postcss-nested@6.2.0(postcss@8.5.6):
++    resolution: {integrity: sha512-HQbt28KulC5AJzG+cZtj9kvKB93CFCdLvog1WFLf1D+xmMvPGlBstkpTEZfK5+AN9hfJocyBFCNiqyS48bpgzQ==}
++    engines: {node: '>=12.0'}
++    peerDependencies:
++      postcss: ^8.2.14
++    dependencies:
++      postcss: 8.5.6
++      postcss-selector-parser: 6.1.2
++    dev: true
++
++  /postcss-selector-parser@6.1.2:
++    resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
++    engines: {node: '>=4'}
++    dependencies:
++      cssesc: 3.0.0
++      util-deprecate: 1.0.2
++    dev: true
++
++  /postcss-value-parser@4.2.0:
++    resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
++    dev: true
++
++  /postcss@8.5.6:
++    resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
++    engines: {node: ^10 || ^12 || >=14}
++    dependencies:
++      nanoid: 3.3.11
++      picocolors: 1.1.1
++      source-map-js: 1.2.1
++    dev: true
++
++  /pretty-format@29.7.0:
++    resolution: {integrity: sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==}
++    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
++    dependencies:
++      '@jest/schemas': 29.6.3
++      ansi-styles: 5.2.0
++      react-is: 18.3.1
++    dev: true
++
++  /proxy-addr@2.0.7:
++    resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
++    engines: {node: '>= 0.10'}
++    dependencies:
++      forwarded: 0.2.0
++      ipaddr.js: 1.9.1
++    dev: false
++
++  /qs@6.13.0:
++    resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
++    engines: {node: '>=0.6'}
++    dependencies:
++      side-channel: 1.1.0
++    dev: false
++
++  /queue-microtask@1.2.3:
++    resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
++    dev: true
++
++  /range-parser@1.2.1:
++    resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
++    engines: {node: '>= 0.6'}
++    dev: false
++
++  /raw-body@2.5.2:
++    resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
++    engines: {node: '>= 0.8'}
++    dependencies:
++      bytes: 3.1.2
++      http-errors: 2.0.0
++      iconv-lite: 0.4.24
++      unpipe: 1.0.0
++    dev: false
++
++  /react-dom@18.3.1(react@18.3.1):
++    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
++    peerDependencies:
++      react: ^18.3.1
++    dependencies:
++      loose-envify: 1.4.0
++      react: 18.3.1
++      scheduler: 0.23.2
++    dev: false
++
++  /react-is@18.3.1:
++    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
++    dev: true
++
++  /react-router-dom@6.30.1(react-dom@18.3.1)(react@18.3.1):
++    resolution: {integrity: sha512-llKsgOkZdbPU1Eg3zK8lCn+sjD9wMRZZPuzmdWWX5SUs8OFkN5HnFVC0u5KMeMaC9aoancFI/KoLuKPqN+hxHw==}
++    engines: {node: '>=14.0.0'}
++    peerDependencies:
++      react: '>=16.8'
++      react-dom: '>=16.8'
++    dependencies:
++      '@remix-run/router': 1.23.0
++      react: 18.3.1
++      react-dom: 18.3.1(react@18.3.1)
++      react-router: 6.30.1(react@18.3.1)
++    dev: false
++
++  /react-router@6.30.1(react@18.3.1):
++    resolution: {integrity: sha512-X1m21aEmxGXqENEPG3T6u0Th7g0aS4ZmoNynhbs+Cn+q+QGTLt+d5IQ2bHAXKzKcxGJjxACpVbnYQSCRcfxHlQ==}
++    engines: {node: '>=14.0.0'}
++    peerDependencies:
++      react: '>=16.8'
++    dependencies:
++      '@remix-run/router': 1.23.0
++      react: 18.3.1
++    dev: false
++
++  /react@18.3.1:
++    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
++    engines: {node: '>=0.10.0'}
++    dependencies:
++      loose-envify: 1.4.0
++    dev: false
++
++  /read-cache@1.0.0:
++    resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
++    dependencies:
++      pify: 2.3.0
++    dev: true
++
++  /readdirp@3.6.0:
++    resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
++    engines: {node: '>=8.10.0'}
++    dependencies:
++      picomatch: 2.3.1
++    dev: true
++
++  /resolve-pkg-maps@1.0.0:
++    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
++    dev: true
++
++  /resolve@1.22.10:
++    resolution: {integrity: sha512-NPRy+/ncIMeDlTAsuqwKIiferiawhefFJtkNSW0qZJEqMEb+qBt/77B/jGeeek+F0uOeN05CDa6HXbbIgtVX4w==}
++    engines: {node: '>= 0.4'}
++    hasBin: true
++    dependencies:
++      is-core-module: 2.16.1
++      path-parse: 1.0.7
++      supports-preserve-symlinks-flag: 1.0.0
++    dev: true
++
++  /reusify@1.1.0:
++    resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
++    engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
++    dev: true
++
++  /rollup@4.52.4:
++    resolution: {integrity: sha512-CLEVl+MnPAiKh5pl4dEWSyMTpuflgNQiLGhMv8ezD5W/qP8AKvmYpCOKRRNOh7oRKnauBZ4SyeYkMS+1VSyKwQ==}
++    engines: {node: '>=18.0.0', npm: '>=8.0.0'}
++    hasBin: true
++    dependencies:
++      '@types/estree': 1.0.8
++    optionalDependencies:
++      '@rollup/rollup-android-arm-eabi': 4.52.4
++      '@rollup/rollup-android-arm64': 4.52.4
++      '@rollup/rollup-darwin-arm64': 4.52.4
++      '@rollup/rollup-darwin-x64': 4.52.4
++      '@rollup/rollup-freebsd-arm64': 4.52.4
++      '@rollup/rollup-freebsd-x64': 4.52.4
++      '@rollup/rollup-linux-arm-gnueabihf': 4.52.4
++      '@rollup/rollup-linux-arm-musleabihf': 4.52.4
++      '@rollup/rollup-linux-arm64-gnu': 4.52.4
++      '@rollup/rollup-linux-arm64-musl': 4.52.4
++      '@rollup/rollup-linux-loong64-gnu': 4.52.4
++      '@rollup/rollup-linux-ppc64-gnu': 4.52.4
++      '@rollup/rollup-linux-riscv64-gnu': 4.52.4
++      '@rollup/rollup-linux-riscv64-musl': 4.52.4
++      '@rollup/rollup-linux-s390x-gnu': 4.52.4
++      '@rollup/rollup-linux-x64-gnu': 4.52.4
++      '@rollup/rollup-linux-x64-musl': 4.52.4
++      '@rollup/rollup-openharmony-arm64': 4.52.4
++      '@rollup/rollup-win32-arm64-msvc': 4.52.4
++      '@rollup/rollup-win32-ia32-msvc': 4.52.4
++      '@rollup/rollup-win32-x64-gnu': 4.52.4
++      '@rollup/rollup-win32-x64-msvc': 4.52.4
++      fsevents: 2.3.3
++    dev: true
++
++  /run-parallel@1.2.0:
++    resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
++    dependencies:
++      queue-microtask: 1.2.3
++    dev: true
++
++  /safe-buffer@5.2.1:
++    resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
++    dev: false
++
++  /safer-buffer@2.1.2:
++    resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
++    dev: false
++
++  /scheduler@0.23.2:
++    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
++    dependencies:
++      loose-envify: 1.4.0
++    dev: false
++
++  /semver@7.7.2:
++    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
++    engines: {node: '>=10'}
++    hasBin: true
++    dev: true
++
++  /send@0.19.0:
++    resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
++    engines: {node: '>= 0.8.0'}
++    dependencies:
++      debug: 2.6.9
++      depd: 2.0.0
++      destroy: 1.2.0
++      encodeurl: 1.0.2
++      escape-html: 1.0.3
++      etag: 1.8.1
++      fresh: 0.5.2
++      http-errors: 2.0.0
++      mime: 1.6.0
++      ms: 2.1.3
++      on-finished: 2.4.1
++      range-parser: 1.2.1
++      statuses: 2.0.1
++    transitivePeerDependencies:
++      - supports-color
++    dev: false
++
++  /serve-static@1.16.2:
++    resolution: {integrity: sha512-VqpjJZKadQB/PEbEwvFdO43Ax5dFBZ2UECszz8bQ7pi7wt//PWe1P6MN7eCnjsatYtBT6EuiClbjSWP2WrIoTw==}
++    engines: {node: '>= 0.8.0'}
++    dependencies:
++      encodeurl: 2.0.0
++      escape-html: 1.0.3
++      parseurl: 1.3.3
++      send: 0.19.0
++    transitivePeerDependencies:
++      - supports-color
++    dev: false
++
++  /setprototypeof@1.2.0:
++    resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
++    dev: false
++
++  /shebang-command@2.0.0:
++    resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
++    engines: {node: '>=8'}
++    dependencies:
++      shebang-regex: 3.0.0
++    dev: true
++
++  /shebang-regex@3.0.0:
++    resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
++    engines: {node: '>=8'}
++    dev: true
++
++  /side-channel-list@1.0.0:
++    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      es-errors: 1.3.0
++      object-inspect: 1.13.4
++    dev: false
++
++  /side-channel-map@1.0.1:
++    resolution: {integrity: sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      object-inspect: 1.13.4
++    dev: false
++
++  /side-channel-weakmap@1.0.2:
++    resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      object-inspect: 1.13.4
++      side-channel-map: 1.0.1
++    dev: false
++
++  /side-channel@1.1.0:
++    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
++    engines: {node: '>= 0.4'}
++    dependencies:
++      es-errors: 1.3.0
++      object-inspect: 1.13.4
++      side-channel-list: 1.0.0
++      side-channel-map: 1.0.1
++      side-channel-weakmap: 1.0.2
++    dev: false
++
++  /siginfo@2.0.0:
++    resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
++    dev: true
++
++  /signal-exit@4.1.0:
++    resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
++    engines: {node: '>=14'}
++    dev: true
++
++  /source-map-js@1.2.1:
++    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
++    engines: {node: '>=0.10.0'}
++    dev: true
++
++  /stackback@0.0.2:
++    resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
++    dev: true
++
++  /statuses@2.0.1:
++    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /std-env@3.9.0:
++    resolution: {integrity: sha512-UGvjygr6F6tpH7o2qyqR6QYpwraIjKSdtzyBdyytFOHmPZY917kwdwLG0RbOjWOnKmnm3PeHjaoLLMie7kPLQw==}
++    dev: true
++
++  /string-width@4.2.3:
++    resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
++    engines: {node: '>=8'}
++    dependencies:
++      emoji-regex: 8.0.0
++      is-fullwidth-code-point: 3.0.0
++      strip-ansi: 6.0.1
++    dev: true
++
++  /string-width@5.1.2:
++    resolution: {integrity: sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA==}
++    engines: {node: '>=12'}
++    dependencies:
++      eastasianwidth: 0.2.0
++      emoji-regex: 9.2.2
++      strip-ansi: 7.1.2
++    dev: true
++
++  /strip-ansi@6.0.1:
++    resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==}
++    engines: {node: '>=8'}
++    dependencies:
++      ansi-regex: 5.0.1
++    dev: true
++
++  /strip-ansi@7.1.2:
++    resolution: {integrity: sha512-gmBGslpoQJtgnMAvOVqGZpEz9dyoKTCzy2nfz/n8aIFhN/jCE/rCmcxabB6jOOHV+0WNnylOxaxBQPSvcWklhA==}
++    engines: {node: '>=12'}
++    dependencies:
++      ansi-regex: 6.2.2
++    dev: true
++
++  /strip-final-newline@3.0.0:
++    resolution: {integrity: sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==}
++    engines: {node: '>=12'}
++    dev: true
++
++  /strip-literal@2.1.1:
++    resolution: {integrity: sha512-631UJ6O00eNGfMiWG78ck80dfBab8X6IVFB51jZK5Icd7XAs60Z5y7QdSd/wGIklnWvRbUNloVzhOKKmutxQ6Q==}
++    dependencies:
++      js-tokens: 9.0.1
++    dev: true
++
++  /sucrase@3.35.0:
++    resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
++    engines: {node: '>=16 || 14 >=14.17'}
++    hasBin: true
++    dependencies:
++      '@jridgewell/gen-mapping': 0.3.13
++      commander: 4.1.1
++      glob: 10.4.5
++      lines-and-columns: 1.2.4
++      mz: 2.7.0
++      pirates: 4.0.7
++      ts-interface-checker: 0.1.13
++    dev: true
++
++  /supports-preserve-symlinks-flag@1.0.0:
++    resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
++    engines: {node: '>= 0.4'}
++    dev: true
++
++  /tailwind-merge@2.6.0:
++    resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
++    dev: false
++
++  /tailwindcss@3.4.18:
++    resolution: {integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==}
++    engines: {node: '>=14.0.0'}
++    hasBin: true
++    dependencies:
++      '@alloc/quick-lru': 5.2.0
++      arg: 5.0.2
++      chokidar: 3.6.0
++      didyoumean: 1.2.2
++      dlv: 1.1.3
++      fast-glob: 3.3.3
++      glob-parent: 6.0.2
++      is-glob: 4.0.3
++      jiti: 1.21.7
++      lilconfig: 3.1.3
++      micromatch: 4.0.8
++      normalize-path: 3.0.0
++      object-hash: 3.0.0
++      picocolors: 1.1.1
++      postcss: 8.5.6
++      postcss-import: 15.1.0(postcss@8.5.6)
++      postcss-js: 4.1.0(postcss@8.5.6)
++      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.6)
++      postcss-nested: 6.2.0(postcss@8.5.6)
++      postcss-selector-parser: 6.1.2
++      resolve: 1.22.10
++      sucrase: 3.35.0
++    transitivePeerDependencies:
++      - tsx
++      - yaml
++    dev: true
++
++  /thenify-all@1.6.0:
++    resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
++    engines: {node: '>=0.8'}
++    dependencies:
++      thenify: 3.3.1
++    dev: true
++
++  /thenify@3.3.1:
++    resolution: {integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==}
++    dependencies:
++      any-promise: 1.3.0
++    dev: true
++
++  /tinybench@2.9.0:
++    resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
++    dev: true
++
++  /tinypool@0.8.4:
++    resolution: {integrity: sha512-i11VH5gS6IFeLY3gMBQ00/MmLncVP7JLXOw1vlgkytLmJK7QnEr7NXf0LBdxfmNPAeyetukOk0bOYrJrFGjYJQ==}
++    engines: {node: '>=14.0.0'}
++    dev: true
++
++  /tinyspy@2.2.1:
++    resolution: {integrity: sha512-KYad6Vy5VDWV4GH3fjpseMQ/XU2BhIYP7Vzd0LG44qRWm/Yt2WCOTicFdvmgo6gWaqooMQCawTtILVQJupKu7A==}
++    engines: {node: '>=14.0.0'}
++    dev: true
++
++  /to-regex-range@5.0.1:
++    resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
++    engines: {node: '>=8.0'}
++    dependencies:
++      is-number: 7.0.0
++    dev: true
++
++  /toidentifier@1.0.1:
++    resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
++    engines: {node: '>=0.6'}
++    dev: false
++
++  /ts-interface-checker@0.1.13:
++    resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
++    dev: true
++
++  /tsx@4.20.6:
++    resolution: {integrity: sha512-ytQKuwgmrrkDTFP4LjR0ToE2nqgy886GpvRSpU0JAnrdBYppuY5rLkRUYPU1yCryb24SsKBTL/hlDQAEFVwtZg==}
++    engines: {node: '>=18.0.0'}
++    hasBin: true
++    dependencies:
++      esbuild: 0.25.10
++      get-tsconfig: 4.10.1
++    optionalDependencies:
++      fsevents: 2.3.3
++    dev: true
++
++  /type-detect@4.1.0:
++    resolution: {integrity: sha512-Acylog8/luQ8L7il+geoSxhEkazvkslg7PSNKOX59mbB9cOveP5aq9h74Y7YU8yDpJwetzQQrfIwtf4Wp4LKcw==}
++    engines: {node: '>=4'}
++    dev: true
++
++  /type-is@1.6.18:
++    resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
++    engines: {node: '>= 0.6'}
++    dependencies:
++      media-typer: 0.3.0
++      mime-types: 2.1.35
++    dev: false
++
++  /typescript@5.9.3:
++    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
++    engines: {node: '>=14.17'}
++    hasBin: true
++    dev: true
++
++  /ufo@1.6.1:
++    resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
++    dev: true
++
++  /undici-types@6.21.0:
++    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
++    dev: true
++
++  /unpipe@1.0.0:
++    resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /update-browserslist-db@1.1.3(browserslist@4.26.3):
++    resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
++    hasBin: true
++    peerDependencies:
++      browserslist: '>= 4.21.0'
++    dependencies:
++      browserslist: 4.26.3
++      escalade: 3.2.0
++      picocolors: 1.1.1
++    dev: true
++
++  /util-deprecate@1.0.2:
++    resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
++    dev: true
++
++  /utils-merge@1.0.1:
++    resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
++    engines: {node: '>= 0.4.0'}
++    dev: false
++
++  /vary@1.1.2:
++    resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
++    engines: {node: '>= 0.8'}
++    dev: false
++
++  /vite-node@1.6.1(@types/node@20.19.19):
++    resolution: {integrity: sha512-YAXkfvGtuTzwWbDSACdJSg4A4DZiAqckWe90Zapc/sEX3XvHcw1NdurM/6od8J207tSDqNbSsgdCacBgvJKFuA==}
++    engines: {node: ^18.0.0 || >=20.0.0}
++    hasBin: true
++    dependencies:
++      cac: 6.7.14
++      debug: 4.4.3
++      pathe: 1.1.2
++      picocolors: 1.1.1
++      vite: 5.4.20(@types/node@20.19.19)
++    transitivePeerDependencies:
++      - '@types/node'
++      - less
++      - lightningcss
++      - sass
++      - sass-embedded
++      - stylus
++      - sugarss
++      - supports-color
++      - terser
++    dev: true
++
++  /vite@5.4.20(@types/node@20.19.19):
++    resolution: {integrity: sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==}
++    engines: {node: ^18.0.0 || >=20.0.0}
++    hasBin: true
++    peerDependencies:
++      '@types/node': ^18.0.0 || >=20.0.0
++      less: '*'
++      lightningcss: ^1.21.0
++      sass: '*'
++      sass-embedded: '*'
++      stylus: '*'
++      sugarss: '*'
++      terser: ^5.4.0
++    peerDependenciesMeta:
++      '@types/node':
++        optional: true
++      less:
++        optional: true
++      lightningcss:
++        optional: true
++      sass:
++        optional: true
++      sass-embedded:
++        optional: true
++      stylus:
++        optional: true
++      sugarss:
++        optional: true
++      terser:
++        optional: true
++    dependencies:
++      '@types/node': 20.19.19
++      esbuild: 0.21.5
++      postcss: 8.5.6
++      rollup: 4.52.4
++    optionalDependencies:
++      fsevents: 2.3.3
++    dev: true
++
++  /vitest@1.6.1(@types/node@20.19.19):
++    resolution: {integrity: sha512-Ljb1cnSJSivGN0LqXd/zmDbWEM0RNNg2t1QW/XUhYl/qPqyu7CsqeWtqQXHVaJsecLPuDoak2oJcZN2QoRIOag==}
++    engines: {node: ^18.0.0 || >=20.0.0}
++    hasBin: true
++    peerDependencies:
++      '@edge-runtime/vm': '*'
++      '@types/node': ^18.0.0 || >=20.0.0
++      '@vitest/browser': 1.6.1
++      '@vitest/ui': 1.6.1
++      happy-dom: '*'
++      jsdom: '*'
++    peerDependenciesMeta:
++      '@edge-runtime/vm':
++        optional: true
++      '@types/node':
++        optional: true
++      '@vitest/browser':
++        optional: true
++      '@vitest/ui':
++        optional: true
++      happy-dom:
++        optional: true
++      jsdom:
++        optional: true
++    dependencies:
++      '@types/node': 20.19.19
++      '@vitest/expect': 1.6.1
++      '@vitest/runner': 1.6.1
++      '@vitest/snapshot': 1.6.1
++      '@vitest/spy': 1.6.1
++      '@vitest/utils': 1.6.1
++      acorn-walk: 8.3.4
++      chai: 4.5.0
++      debug: 4.4.3
++      execa: 8.0.1
++      local-pkg: 0.5.1
++      magic-string: 0.30.19
++      pathe: 1.1.2
++      picocolors: 1.1.1
++      std-env: 3.9.0
++      strip-literal: 2.1.1
++      tinybench: 2.9.0
++      tinypool: 0.8.4
++      vite: 5.4.20(@types/node@20.19.19)
++      vite-node: 1.6.1(@types/node@20.19.19)
++      why-is-node-running: 2.3.0
++    transitivePeerDependencies:
++      - less
++      - lightningcss
++      - sass
++      - sass-embedded
++      - stylus
++      - sugarss
++      - supports-color
++      - terser
++    dev: true
++
++  /which@2.0.2:
++    resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
++    engines: {node: '>= 8'}
++    hasBin: true
++    dependencies:
++      isexe: 2.0.0
++    dev: true
++
++  /why-is-node-running@2.3.0:
++    resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
++    engines: {node: '>=8'}
++    hasBin: true
++    dependencies:
++      siginfo: 2.0.0
++      stackback: 0.0.2
++    dev: true
++
++  /wrap-ansi@7.0.0:
++    resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
++    engines: {node: '>=10'}
++    dependencies:
++      ansi-styles: 4.3.0
++      string-width: 4.2.3
++      strip-ansi: 6.0.1
++    dev: true
++
++  /wrap-ansi@8.1.0:
++    resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
++    engines: {node: '>=12'}
++    dependencies:
++      ansi-styles: 6.2.3
++      string-width: 5.1.2
++      strip-ansi: 7.1.2
++    dev: true
++
++  /ws@8.18.3:
++    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
++    engines: {node: '>=10.0.0'}
++    peerDependencies:
++      bufferutil: ^4.0.1
++      utf-8-validate: '>=5.0.2'
++    peerDependenciesMeta:
++      bufferutil:
++        optional: true
++      utf-8-validate:
++        optional: true
++    dev: false
++
++  /yocto-queue@1.2.1:
++    resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
++    engines: {node: '>=12.20'}
++    dev: true
++
++  /zod@3.25.76:
++    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
++    dev: false
  
 EOF
 )
