@@ -1,0 +1,12 @@
+{
+  "name": "fluxshare-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter fluxshare-signaling-server --filter fluxshare-client dev",
+    "build": "pnpm --filter fluxshare-signaling-server build && pnpm --filter fluxshare-client build",
+    "test": "pnpm --filter fluxshare-signaling-server test && cargo test --manifest-path apps/client/src-tauri/Cargo.toml"
+  },
+  "packageManager": "pnpm@8.15.4"
+}
