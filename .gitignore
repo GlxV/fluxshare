@@ -1,0 +1,6 @@
+node_modules/
+dist/
+apps/client/src-tauri/target/
+.DS_Store
+.pnpm-store/
+.env
