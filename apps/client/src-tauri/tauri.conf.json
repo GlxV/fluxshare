@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "package": {
+    "productName": "FluxShare",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "FluxShare",
+        "fullscreen": false,
+        "width": 1280,
+        "height": 720
+      }
+    ],
+    "allowlist": {
+      "all": true
+    }
+  },
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  }
+}
