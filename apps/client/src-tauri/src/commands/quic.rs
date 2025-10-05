@@ -15,7 +15,7 @@ impl QuicManager {
             return Ok(ep.clone());
         }
         let client_cfg = ClientConfig::with_native_roots();
-        let (endpoint, _incoming) = Endpoint::client("0.0.0.0:0".parse::<SocketAddr>()?)?;
+        let mut endpoint = quinn::Endpoint::client("0.0.0.0:0".parse::<SocketAddr>()?)?;
         endpoint.set_default_client_config(client_cfg);
         *self.endpoint.lock() = Some(endpoint.clone());
         Ok(endpoint)
@@ -32,11 +32,11 @@ pub async fn quic_start(
         .ensure_endpoint()
         .await
         .map_err(|e| format!("erro ao criar endpoint QUIC: {e}"))?;
-    let addr: SocketAddr = remote_addr.parse().map_err(|e| e.to_string())?;
+    let addr: SocketAddr = remote_addr.parse::<SocketAddr>().map_err(|e| e.to_string())?;
     let connection = endpoint
         .connect(addr, "fluxshare")
         .map_err(|e| e.to_string())?;
     let _ = connection.await.map_err(|e| e.to_string())?;
-    tracing::info!("quic_connected", self_id = %self_id, remote = %remote_addr);
+    tracing::info!(self_id = %self_id, remote = %remote_addr, "quic_connected");
     Ok(())
 }
