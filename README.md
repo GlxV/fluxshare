@@ -30,6 +30,15 @@ Este comando inicia o servidor de sinalização (`apps/signaling-server`) e o cl
 - Configurações
 - Logs
 
+### Configuração do servidor de sinalização
+
+O servidor de sinalização lê a porta da variável de ambiente `PORT`, usando `4000` como padrão. Para ajustar a configuração localmente:
+
+1. Copie `apps/signaling-server/.env.example` para `apps/signaling-server/.env`.
+2. Edite o valor de `PORT` conforme necessário.
+
+Durante os testes e em desenvolvimento, o servidor continuará funcionando caso o arquivo `.env` não exista.
+
 ## Build de Release
 
 ```bash
