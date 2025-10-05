@@ -21,7 +21,7 @@ pub struct SignalingStatus {
 
 #[tauri::command]
 pub async fn start_signaling(url: String, self_id: String) -> Result<SignalingStatus, String> {
-    tracing::info!("start_signaling", url = %url, self_id = %self_id);
+    tracing::info!(url = %url, self_id = %self_id, "start_signaling");
     Ok(SignalingStatus { connected: true })
 }
 
@@ -54,20 +54,33 @@ pub async fn webrtc_start(
         .await
         .map_err(|e| e.to_string())?;
 
+    // 👇 clones para usar dentro do closure (que é 'static por causa do move)
+    let mode_open = mode.clone();
+    let self_id_open = self_id.clone();
+    let target_id_open = target_id.clone();
+    let signaling_open = signaling_url.clone();
+
     data_channel.on_open(Box::new(move || {
-        tracing::info!("datachannel_open", mode = %mode, self_id = %self_id, target_id = %target_id, signaling_url = %signaling_url);
+        tracing::info!(
+            mode = %mode_open,
+            self_id = %self_id_open,
+            target_id = %target_id_open,
+            signaling_url = %signaling_open,
+            "datachannel_open"
+        );
         Box::pin(async {})
     }));
 
     data_channel.on_message(Box::new(move |msg| {
-        tracing::debug!("datachannel_message", len = msg.data.len());
+        tracing::debug!(len = msg.data.len(), "datachannel_message");
         Box::pin(async {})
     }));
 
+    // aqui fora usamos os originais (não movidos)
     webrtc_manager
         .connections
         .lock()
-        .insert(format!("{}->{}", self_id, target_id), pc);
+        .insert(format!("{}->{}", self_id, target_id), pc.into());
 
     Ok(())
 }

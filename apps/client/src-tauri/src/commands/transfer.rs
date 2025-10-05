@@ -1,3 +1,4 @@
+use chacha20poly1305::KeyInit;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::Read;
@@ -204,14 +205,20 @@ async fn execute_transfer(
             File::open(&path).with_context(|| format!("abrir arquivo {}", path.display()))?;
         let mut file_hasher = Hasher::new();
         let mut chunk_index = 0u64;
-        let entry = manifest
+
+        // Garante que existe um entry no manifest sem manter &mut vivo
+        manifest.files.entry(file.path.clone()).or_insert_with(|| FileManifest {
+            path: file.path.clone(),
+            size: file.size,
+            ..Default::default()
+        });
+
+        // bytes já existentes (para "resumindo")
+        let reused_bytes: u64 = manifest
             .files
-            .entry(file.path.clone())
-            .or_insert_with(|| FileManifest {
-                path: file.path.clone(),
-                size: file.size,
-                ..Default::default()
-            });
+            .get(&file.path)
+            .map(|e| e.chunks.iter().map(|c| c.size).sum())
+            .unwrap_or(0);
 
         // Determine resume state
         update_status(
@@ -222,7 +229,6 @@ async fn execute_transfer(
                     .iter_mut()
                     .find(|p| p.path == file.path)
                 {
-                    let reused_bytes: u64 = entry.chunks.iter().map(|c| c.size).sum();
                     p.transferred = reused_bytes.min(p.total);
                 }
             },
@@ -239,22 +245,28 @@ async fn execute_transfer(
             buffer.truncate(read);
             let chunk_hash = blake3::hash(&buffer).to_hex().to_string();
 
-            if let Some(existing) = entry.chunks.iter().find(|c| c.index == chunk_index) {
-                if existing.hash == chunk_hash && existing.size == read as u64 {
-                    file_hasher.update(&buffer);
-                    total_transferred += read as u64;
-                    update_progress(
-                        &manager,
-                        &session_id,
-                        &file.path,
-                        read as u64,
-                        total_transferred,
-                        started,
-                    );
-                    chunk_index += 1;
-                    continue;
-                }
-            }
+            // Checa se já existe esse chunk igual (apenas leitura)
+            let exists_equal = manifest
+                .files
+                .get(&file.path)
+                .and_then(|e| e.chunks.iter().find(|c| c.index == chunk_index))
+                .map(|c| c.hash == chunk_hash && c.size == read as u64)
+                .unwrap_or(false);
+
+           if exists_equal {
+    file_hasher.update(&buffer);
+    total_transferred += read as u64;
+    update_progress(
+        &manager,
+        &session_id,
+        &file.path,
+        read as u64,
+        total_transferred,
+        started,
+    );
+    chunk_index += 1;
+    continue;
+}
 
             if let Some(key) = &key {
                 use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, Key, Nonce};
@@ -262,19 +274,22 @@ async fn execute_transfer(
                 let mut nonce_bytes = [0u8; 12];
                 nonce_bytes[..8].copy_from_slice(&chunk_index.to_be_bytes());
                 let nonce = Nonce::from_slice(&nonce_bytes);
-                let _encrypted = cipher
-                    .encrypt(nonce, buffer.as_ref())
-                    .context("encrypt chunk")?;
+                let _encrypted = cipher.encrypt(nonce, buffer.as_ref()).context("encrypt chunk")?;
             }
 
             file_hasher.update(&buffer);
 
-            entry.chunks.retain(|c| c.index != chunk_index);
-            entry.chunks.push(ChunkInfo {
-                index: chunk_index,
-                hash: chunk_hash,
-                size: read as u64,
-            });
+            // altera os chunks num bloco curto (&mut termina aqui)
+            {
+                let entry = manifest.files.get_mut(&file.path).expect("entry existente");
+                entry.chunks.retain(|c| c.index != chunk_index);
+                entry.chunks.push(ChunkInfo {
+                    index: chunk_index,
+                    hash: chunk_hash,
+                    size: read as u64,
+                });
+            }
+            // só agora salva
             save_manifest(&manifest_path, &manifest)?;
 
             total_transferred += read as u64;
@@ -310,8 +325,13 @@ async fn execute_transfer(
             chunk_index += 1;
         }
 
-        entry.final_hash = Some(file_hasher.finalize().to_hex().to_string());
+        // final_hash: altera e depois salva (sem &mut pendente)
+        {
+            let entry = manifest.files.get_mut(&file.path).expect("entry existente");
+            entry.final_hash = Some(file_hasher.finalize().to_hex().to_string());
+        }
         save_manifest(&manifest_path, &manifest)?;
+
         update_status(
             |status| {
                 if let Some(p) = status
@@ -384,10 +404,12 @@ fn derive_key(password: &str, session_id: &str) -> anyhow::Result<[u8; 32]> {
     let mut salt_bytes = [0u8; 16];
     let digest = blake3::hash(session_id.as_bytes());
     salt_bytes.copy_from_slice(&digest.as_bytes()[..16]);
+
     let mut output = [0u8; 32];
     Argon2::default()
         .hash_password_into(password.as_bytes(), &salt_bytes, &mut output)
-        .context("argon2 derivation")?;
+        .map_err(|e| anyhow::anyhow!("argon2 derivation: {}", e))?;
+
     Ok(output)
 }
 
@@ -475,3 +497,4 @@ mod tests {
         assert!(status.file_progress[0].done);
     }
 }
+
