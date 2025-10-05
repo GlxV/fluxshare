@@ -6,8 +6,8 @@ import { z } from "zod";
 const app = express();
 app.use(express.json());
 
-app.post("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/health", (_req, res) => {
+  res.status(200).json({ ok: true });
 });
 
 const server = http.createServer(app);
@@ -107,11 +107,4 @@ function broadcast(msg: Message) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const port = Number(process.env.PORT ?? 4000);
-  server.listen(port, () => {
-    console.log(`FluxShare signaling server listening on :${port}`);
-  });
-}
-
-export { messageSchema };
+export { app, server, wss, messageSchema };
