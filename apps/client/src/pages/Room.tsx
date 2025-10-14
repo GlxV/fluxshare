@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { nanoid } from "nanoid";
+import { nanoid } from "@/utils/nanoid";
 import PeersPanel from "../components/PeersPanel";
 import TransferBox from "../components/TransferBox";
 import { usePeersStore, PeerConnectionStatus } from "../store/usePeers";
@@ -9,11 +9,13 @@ import { SignalingClient } from "../lib/signaling";
 import { PeerManager } from "../lib/webrtc/PeerManager";
 import { FileReceiver, FileSender, TransferManifest, CHUNK_SIZE } from "../lib/webrtc/transfer";
 import { getFileHandle, saveFileHandle, saveCheckpoint, getCheckpoint, clearCheckpoint } from "../lib/persist/indexeddb";
+import { selectFile, getFallbackFile, computeFileId, clearFallbackFile } from "../lib/file/selectFile";
 import { isTauri, getFileInfo, readFileRange, writeFileRange } from "../lib/persist/tauri";
 import type { ChunkProvider } from "../lib/webrtc/transfer";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import type { AppOutletContext } from "../App";
+import { toast } from "../store/useToast";
 
 import FileReaderWorker from "../workers/fileReader.worker?worker";
 
@@ -40,23 +42,23 @@ function generateDisplayName() {
   return `Peer-${nanoid(6)}`;
 }
 
-async function computeFileId(name: string, size: number, lastModified: number) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(`${name}:${size}:${lastModified}`);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 function useRoomCode() {
   const params = useParams<{ code: string }>();
   return params.code ?? "";
 }
 
-function createWebChunkProvider(fileId: string, handle: FileSystemFileHandle, chunkSize: number) {
+type WorkerInitPayload = {
+  type: "init";
+  fileId: string;
+  chunkSize: number;
+  handle?: FileSystemFileHandle;
+  file?: File;
+};
+
+function createWorkerChunkProvider(payload: WorkerInitPayload) {
   const worker = new FileReaderWorker();
-  worker.postMessage({ type: "init", fileId, handle, chunkSize });
+  worker.postMessage(payload);
+  const fileId = payload.fileId;
   const pending = new Map<number, { resolve: (buffer: ArrayBuffer) => void; reject: (err: Error) => void }>();
 
   worker.addEventListener("message", (event: MessageEvent) => {
@@ -91,6 +93,14 @@ function createWebChunkProvider(fileId: string, handle: FileSystemFileHandle, ch
   };
 
   return provider;
+}
+
+function createWebChunkProvider(fileId: string, handle: FileSystemFileHandle, chunkSize: number) {
+  return createWorkerChunkProvider({ type: "init", fileId, handle, chunkSize });
+}
+
+function createFallbackChunkProvider(fileId: string, file: File, chunkSize: number) {
+  return createWorkerChunkProvider({ type: "init", fileId, file, chunkSize });
 }
 
 function createTauriChunkProvider(path: string, chunkSize: number) {
@@ -356,6 +366,7 @@ export function RoomPage() {
   }
 
   async function handlePickFile() {
+    const previousSelected = useTransfersStore.getState().selectedFile;
     if (isTauri()) {
       const { open } = await import("@tauri-apps/api/dialog");
       const selection = await open({ multiple: false });
@@ -364,58 +375,83 @@ export function RoomPage() {
       const name = path.split(/[\\/]/).pop() ?? "arquivo";
       const info = await getFileInfo(path);
       const fileId = await computeFileId(name, info.size, info.createdAt ?? Date.now());
-    useTransfersStore.getState().setSelectedFile({
-      fileId,
-      name,
-      size: info.size,
-      source: "tauri",
-      handleKey: path,
-    });
-    useTransfersStore.getState().upsertTransfer({
-      fileId,
-      peerId: "",
-      direction: "send",
-      bytesTransferred: 0,
-      totalBytes: info.size,
-      status: "idle",
-      startedAt: Date.now(),
-      updatedAt: Date.now(),
-      fileName: name,
-    });
+      useTransfersStore.getState().setSelectedFile({
+        fileId,
+        name,
+        size: info.size,
+        source: "tauri",
+        handleKey: path,
+      });
+      useTransfersStore.getState().upsertTransfer({
+        fileId,
+        peerId: "",
+        direction: "send",
+        bytesTransferred: 0,
+        totalBytes: info.size,
+        status: "idle",
+        startedAt: Date.now(),
+        updatedAt: Date.now(),
+        fileName: name,
+      });
+      if (previousSelected?.source === "web-fallback" && previousSelected.fileId !== fileId) {
+        clearFallbackFile(previousSelected.fileId);
+      }
       return;
     }
 
-    if (!("showOpenFilePicker" in window)) {
-      alert("Seu navegador não suporta File System Access API");
-      return;
+    const selection = await selectFile();
+    if (!selection) return;
+
+    if (selection.source === "web") {
+      const { handle, file, fileId } = selection;
+      handlesRef.current.set(fileId, handle);
+      useTransfersStore.getState().setSelectedFile({
+        fileId,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        lastModified: file.lastModified,
+        source: "web",
+        handleKey: fileId,
+      });
+      useTransfersStore.getState().upsertTransfer({
+        fileId,
+        peerId: "",
+        direction: "send",
+        bytesTransferred: 0,
+        totalBytes: file.size,
+        status: "idle",
+        startedAt: Date.now(),
+        updatedAt: Date.now(),
+        fileName: file.name,
+      });
+    } else {
+      const { file, fileId } = selection;
+      useTransfersStore.getState().setSelectedFile({
+        fileId,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        lastModified: file.lastModified,
+        source: "web-fallback",
+        handleKey: fileId,
+      });
+      useTransfersStore.getState().upsertTransfer({
+        fileId,
+        peerId: "",
+        direction: "send",
+        bytesTransferred: 0,
+        totalBytes: file.size,
+        status: "idle",
+        startedAt: Date.now(),
+        updatedAt: Date.now(),
+        fileName: file.name,
+      });
     }
 
-    const [handle] = await (window as any).showOpenFilePicker({ multiple: false });
-    if (!handle) return;
-    const file = await handle.getFile();
-    const fileId = await computeFileId(file.name, file.size, file.lastModified);
-    handlesRef.current.set(fileId, handle);
-    await saveFileHandle(fileId, handle);
-    useTransfersStore.getState().setSelectedFile({
-      fileId,
-      name: file.name,
-      size: file.size,
-      mime: file.type,
-      lastModified: file.lastModified,
-      source: "web",
-      handleKey: fileId,
-    });
-    useTransfersStore.getState().upsertTransfer({
-      fileId,
-      peerId: "",
-      direction: "send",
-      bytesTransferred: 0,
-      totalBytes: file.size,
-      status: "idle",
-      startedAt: Date.now(),
-      updatedAt: Date.now(),
-      fileName: file.name,
-    });
+    if (previousSelected?.source === "web-fallback" && previousSelected.fileId !== selection.fileId) {
+      clearFallbackFile(previousSelected.fileId);
+    }
   }
 
   async function handleConnect(peerId: string) {
@@ -471,6 +507,26 @@ export function RoomPage() {
         totalChunks: Math.ceil(file.size / CHUNK_SIZE),
       };
       provider = createWebChunkProvider(selected.fileId, handle, CHUNK_SIZE);
+    } else if (selected.source === "web-fallback") {
+      const file = getFallbackFile(selected.fileId);
+      if (!file) {
+        toast({
+          message: "Re-selecione o mesmo arquivo para retomar a transferência.",
+          variant: "warning",
+          duration: 6000,
+        });
+        return;
+      }
+      manifest = {
+        type: "MANIFEST",
+        fileId: selected.fileId,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        chunkSize: CHUNK_SIZE,
+        totalChunks: Math.ceil(file.size / CHUNK_SIZE),
+      };
+      provider = createFallbackChunkProvider(selected.fileId, file, CHUNK_SIZE);
     } else {
       const path = selected.handleKey;
       const name = selected.name;

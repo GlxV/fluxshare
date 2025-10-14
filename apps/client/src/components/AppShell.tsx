@@ -1,4 +1,5 @@
 import { useMemo, type ReactNode } from "react";
+import { NavLink } from "react-router-dom";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
@@ -45,6 +46,11 @@ function MoonIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const navItems = [
+  { to: "/", label: "Início" },
+  { to: "/tunnel", label: "Tunnel" },
+];
+
 export function AppShell({ children, headerInfo }: AppShellProps) {
   const { theme, toggleTheme } = useTheme();
 
@@ -70,9 +76,7 @@ export function AppShell({ children, headerInfo }: AppShellProps) {
         <div className="app-shell__mesh" />
         <div className="app-shell__grid" />
       </div>
-      <header
-        className="sticky top-0 z-40 border-b border-[var(--card-border)]/60 bg-[var(--card)]/80 backdrop-blur-2xl"
-      >
+      <header className="sticky top-0 z-40 border-b border-[var(--card-border)]/60 bg-[var(--card)]/70 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xl font-semibold tracking-tight text-[var(--text)]">
@@ -117,6 +121,25 @@ export function AppShell({ children, headerInfo }: AppShellProps) {
               )}
             </Button>
           </div>
+          <nav className="flex w-full items-center gap-2 sm:w-auto">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  cn(
+                    "rounded-full border border-transparent px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition", 
+                    "hover:text-[var(--text)]",
+                    isActive
+                      ? "border-[var(--card-border)]/80 bg-[var(--card)]/80 text-[var(--text)]"
+                      : "bg-transparent",
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
       </header>
       <main className={cn("mx-auto w-full max-w-6xl px-6 pb-16 pt-10", "text-[var(--text)]")}>{children}</main>

@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+import { nanoid } from "@/utils/nanoid";
 import {
   SignalingClientMessage,
   SignalingHeartbeat,

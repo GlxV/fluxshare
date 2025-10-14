@@ -4,6 +4,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import HomePage from "./pages/Home";
 import RoomPage from "./pages/Room";
+import TunnelPage from "./pages/Tunnel";
 import "./styles/base.css";
 import "./styles/theme.css";
 
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "room/:code", element: <RoomPage /> },
+      { path: "tunnel", element: <TunnelPage /> },
     ],
   },
 ]);
