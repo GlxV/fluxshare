@@ -18,26 +18,47 @@ pnpm install
 ## Desenvolvimento
 
 ```bash
-pnpm dev
+# terminal 1 – servidor de sinalização
+pnpm --filter signaling-server dev
+
+# terminal 2 – cliente web
+pnpm --filter fluxshare-client dev
+
+# opcional: cliente Tauri
+pnpm --filter fluxshare-client tauri dev
 ```
 
-Este comando inicia o servidor de sinalização (`apps/signaling-server`) e o cliente Tauri (`apps/client`). O cliente abre a interface React com as páginas:
+O cabeçalho do cliente exibe um botão para alternar entre os temas claro e escuro; a escolha é persistida automaticamente no
+`localStorage`.
 
-- Enviar
-- Receber
-- Peers
-- Tunnel
-- Configurações
-- Logs
+Defina um arquivo `.env` na raiz de `apps/client` com a URL do servidor de sinalização e ICE servers:
+
+```bash
+VITE_SIGNALING_URL=ws://localhost:5174/ws
+VITE_STUN_URL=stun:stun.l.google.com:19302
+# TURN opcional
+# VITE_TURN_URL=turn://example.com:3478
+# VITE_TURN_USER=user
+# VITE_TURN_PASS=pass
+```
 
 ### Configuração do servidor de sinalização
 
-O servidor de sinalização lê a porta da variável de ambiente `PORT`, usando `4000` como padrão. Para ajustar a configuração localmente:
+O servidor expõe um endpoint WebSocket em `/ws`. As mensagens são validadas com `zod` e seguem o protocolo:
 
-1. Copie `apps/signaling-server/.env.example` para `apps/signaling-server/.env`.
-2. Edite o valor de `PORT` conforme necessário.
+```json
+// client → server
+{"type":"join","room":"AB12CD","peerId":"p1","displayName":"Alice"}
+{"type":"signal","room":"AB12CD","from":"p1","to":"p2","data":{...}}
+{ "type":"leave","room":"AB12CD","peerId":"p1" }
+{ "type":"heartbeat","peerId":"p1" }
 
-Durante os testes e em desenvolvimento, o servidor continuará funcionando caso o arquivo `.env` não exista.
+// server → client
+{"type":"peers","room":"AB12CD","peers":[{"peerId":"p2","displayName":"Bob"}]}
+{"type":"peer-joined","peer":{"peerId":"p3","displayName":"Carol"}}
+{"type":"peer-left","peerId":"p2"}
+{"type":"signal","from":"p2","to":"p1","data":{...}}
+```
 
 ## Build de Release
 
@@ -63,63 +84,46 @@ Executa:
 
 ```
 fluxshare/
-  README.md
-  package.json
-  pnpm-workspace.yaml
   apps/
     client/
-      package.json
-      src-tauri/
-        Cargo.toml
-        src/
-          main.rs
-          commands/
-            files.rs
-            transfer.rs
-            webrtc.rs
-            quic.rs
-            tunnel.rs
-            settings.rs
       src/
-        app/
-          routes/
-            Send.tsx
-            Receive.tsx
-            Peers.tsx
-            Tunnel.tsx
-            Settings.tsx
-            Logs.tsx
-          components/
-            FilePicker.tsx
-            ProgressBar.tsx
-            PeerList.tsx
-            SpeedMeter.tsx
-          lib/
-            api.ts
-            webrtcClient.ts
         App.tsx
         index.tsx
-      vite.config.ts
-      tailwind.config.ts
-      postcss.config.cjs
-      tsconfig.json
-      tsconfig.node.json
+        pages/
+          Home.tsx
+          Room.tsx
+        components/
+          PeersPanel.tsx
+          TransferBox.tsx
+        lib/
+          signaling.ts
+          persist/
+            indexeddb.ts
+            tauri.ts
+          webrtc/
+            PeerManager.ts
+            transfer.ts
+        store/
+          usePeers.ts
+          useTransfers.ts
+        workers/
+          fileReader.worker.ts
+        utils/env.ts
+        types/protocol.ts
+      src-tauri/
+        src/commands/files.rs
+        src/main.rs
     signaling-server/
-      package.json
-      tsconfig.json
       src/index.ts
-```
-
-## Mensagens WS de Sinalização (exemplos)
-
-```json
-{ "type": "register", "id": "alice" }
-{ "type": "offer", "from": "alice", "to": "bob", "sdp": "..." }
-{ "type": "answer", "from": "bob", "to": "alice", "sdp": "..." }
-{ "type": "ice", "from": "alice", "to": "bob", "candidate": { "candidate": "candidate:0 ..." } }
-{ "type": "bye", "from": "alice", "to": "bob" }
 ```
 
 ## Licença
 
 MIT
+
+## Decisões principais
+
+- Protocolo WebSocket foi refeito para suportar salas, heartbeat e broadcast de peers reais.
+- O cliente React utiliza Zustand com persistência parcial (IndexedDB + BroadcastChannel) para manter seleção e progresso entre abas.
+- Transferências usam WebRTC DataChannel confiável com chunking de 16 KiB, controle de backpressure e protocolo de ACK/RESUME.
+- Leituras de arquivo foram delegadas para worker (web) e comando Tauri (`read_file_range`) para preservar memória.

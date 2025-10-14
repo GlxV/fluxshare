@@ -10,7 +10,7 @@ mod commands {
 }
 
 use commands::{
-    files::list_files,
+    files::{list_files, read_file_range, write_file_range},
     quic::{quic_start, QuicManager},
     settings::{get_settings, set_settings, SettingsManager},
     transfer::{get_status, send_files, TransferManager},
@@ -74,6 +74,8 @@ fn main() {
         .manage(quic_manager.clone())
         .invoke_handler(tauri::generate_handler![
             list_files,
+            read_file_range,
+            write_file_range,
             start_signaling,
             webrtc_start,
             quic_start,

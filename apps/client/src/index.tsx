@@ -2,25 +2,18 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import App from "./App";
-import Send from "./app/routes/Send";
-import Receive from "./app/routes/Receive";
-import Peers from "./app/routes/Peers";
-import Tunnel from "./app/routes/Tunnel";
-import Settings from "./app/routes/Settings";
-import Logs from "./app/routes/Logs";
-import "./styles.css";
+import HomePage from "./pages/Home";
+import RoomPage from "./pages/Room";
+import "./styles/base.css";
+import "./styles/theme.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <Send /> },
-      { path: "receive", element: <Receive /> },
-      { path: "peers", element: <Peers /> },
-      { path: "tunnel", element: <Tunnel /> },
-      { path: "settings", element: <Settings /> },
-      { path: "logs", element: <Logs /> },
+      { index: true, element: <HomePage /> },
+      { path: "room/:code", element: <RoomPage /> },
     ],
   },
 ]);
