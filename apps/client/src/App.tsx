@@ -2,6 +2,7 @@ import { type Dispatch, type SetStateAction, useState } from "react";
 import { Outlet } from "react-router-dom";
 import AppShell, { type AppHeaderInfo } from "./components/AppShell";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { ToastViewport } from "./components/ToastViewport";
 
 export interface AppOutletContext {
   setHeaderInfo: Dispatch<SetStateAction<AppHeaderInfo>>;
@@ -15,6 +16,7 @@ export default function App() {
       <AppShell headerInfo={headerInfo}>
         <Outlet context={{ setHeaderInfo }} />
       </AppShell>
+      <ToastViewport />
     </ThemeProvider>
   );
 }

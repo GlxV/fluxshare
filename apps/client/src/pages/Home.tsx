@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { nanoid } from "nanoid";
+import { nanoid } from "@/utils/nanoid";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import type { AppOutletContext } from "../App";

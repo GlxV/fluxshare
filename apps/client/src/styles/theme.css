@@ -1,26 +1,27 @@
-:root {
+:root,
+[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0b0d12;
-  --bg-grad-1: #0b0d12;
-  --bg-grad-2: #111428;
+  --bg: #0a0b10;
+  --bg-grad-1: #0a0b10;
+  --bg-grad-2: #111527;
   --card: rgba(255, 255, 255, 0.06);
-  --card-border: rgba(255, 255, 255, 0.18);
-  --text: #e7e9ee;
-  --text-muted: #b6bcc8;
+  --card-border: rgba(255, 255, 255, 0.14);
+  --text: #e6e9f2;
+  --text-muted: #b6bfd3;
   --accent: #7c3aed;
-  --accent-2: #3b82f6;
-  --ring: rgba(124, 58, 237, 0.5);
+  --accent-2: #1e3a8a;
+  --ring: rgba(124, 58, 237, 0.45);
 }
 
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f6f7fb;
-  --bg-grad-1: #f6f7fb;
-  --bg-grad-2: #eaeef7;
-  --card: rgba(255, 255, 255, 0.7);
+  --bg: #f7f8fc;
+  --bg-grad-1: #f7f8fc;
+  --bg-grad-2: #e9eef9;
+  --card: rgba(255, 255, 255, 0.8);
   --card-border: rgba(17, 17, 17, 0.08);
-  --text: #1c1f25;
-  --text-muted: #5b6473;
+  --text: #1b1f26;
+  --text-muted: #596173;
   --accent: #6d28d9;
   --accent-2: #2563eb;
   --ring: rgba(37, 99, 235, 0.35);
@@ -53,6 +54,13 @@ a:hover {
   text-decoration: underline;
 }
 
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 button,
 input,
 textarea {
@@ -82,11 +90,11 @@ textarea {
 .app-shell__gradient {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.25), transparent 55%),
-    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.22), transparent 60%),
-    radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.18), transparent 65%);
-  filter: blur(90px);
-  opacity: 0.9;
+  background: radial-gradient(circle at 18% 15%, rgba(124, 58, 237, 0.35), transparent 58%),
+    radial-gradient(circle at 78% 22%, rgba(30, 58, 138, 0.3), transparent 62%),
+    radial-gradient(circle at 50% 82%, rgba(15, 23, 42, 0.4), transparent 68%);
+  filter: blur(120px);
+  opacity: 0.85;
 }
 
 .app-shell__mesh {

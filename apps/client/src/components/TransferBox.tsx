@@ -1,4 +1,5 @@
 import { useTransfersStore } from "../store/useTransfers";
+import { hasFallbackFile } from "../lib/file/selectFile";
 import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
@@ -63,6 +64,11 @@ export function TransferBox({ onPickFile, onResume, onCancelFile }: TransferBoxP
     };
   });
 
+  const needsFallbackReselection =
+    selectedFile?.source === "web-fallback" && selectedFile.fileId
+      ? !hasFallbackFile(selectedFile.fileId)
+      : false;
+
   const totalBytes = transfer?.totalBytes ?? selectedFile?.size ?? 0;
   const transferBadge = transfer ? resolveTransferBadge(transfer.status) : null;
   const progressPercent = transfer
@@ -94,6 +100,11 @@ export function TransferBox({ onPickFile, onResume, onCancelFile }: TransferBoxP
           Selecionar arquivo
         </Button>
       </div>
+      {needsFallbackReselection && (
+        <div className="rounded-2xl border border-dashed border-[var(--accent-2)]/60 bg-[var(--card)]/50 px-4 py-3 text-xs text-[var(--text-muted)]">
+          Modo compatível ativo – re-selecione o mesmo arquivo para retomar.
+        </div>
+      )}
       <div className="space-y-4">
         {selectedFile ? (
           <>
