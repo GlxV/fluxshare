@@ -1,4 +1,5 @@
-use std::fs;
+use std::fs::{self, OpenOptions};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
 
 use super::transfer::FileEntry;
@@ -27,6 +28,28 @@ pub fn list_files(paths: Vec<String>) -> Result<Vec<FileEntry>, String> {
         });
     }
     Ok(entries)
+}
+
+#[tauri::command]
+pub fn read_file_range(path: String, start: u64, length: u64) -> Result<Vec<u8>, String> {
+    let mut file = fs::File::open(&path).map_err(|e| e.to_string())?;
+    file.seek(SeekFrom::Start(start)).map_err(|e| e.to_string())?;
+    let mut buffer = vec![0u8; length as usize];
+    let read = file.read(&mut buffer).map_err(|e| e.to_string())?;
+    buffer.truncate(read);
+    Ok(buffer)
+}
+
+#[tauri::command]
+pub fn write_file_range(path: String, start: u64, bytes: Vec<u8>) -> Result<(), String> {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(&path)
+        .map_err(|e| e.to_string())?;
+    file.seek(SeekFrom::Start(start)).map_err(|e| e.to_string())?;
+    file.write_all(&bytes).map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 fn calculate_checksum(path: &PathBuf) -> anyhow::Result<String> {
