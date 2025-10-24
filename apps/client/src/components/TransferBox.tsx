@@ -1,80 +1,114 @@
-import { useTransfersStore } from "../store/useTransfers";
 import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 
 interface TransferBoxProps {
+  file: {
+    id: string;
+    name: string;
+    size: number;
+    mime?: string;
+    targetLabel?: string;
+  } | null;
+  transfer: {
+    id: string;
+    status: "idle" | "transferring" | "paused" | "completed" | "error" | "cancelled";
+    direction: "send" | "receive";
+    bytesTransferred: number;
+    totalBytes: number;
+    startedAt: number;
+    updatedAt: number;
+    peerId: string;
+  } | null;
   onPickFile: () => Promise<void>;
-  onResume: (fileId: string) => void;
-  onCancelFile: (fileId: string) => void;
+  onCancel: (peerId: string, transferId: string) => void;
+  activeTransferId: string | null;
+  hasConnectedPeers: boolean;
 }
 
 function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const value = bytes / Math.pow(1024, i);
-  return `${value.toFixed(1)} ${units[i]}`;
+  const exponent = Math.floor(Math.log(bytes) / Math.log(1024));
+  const value = bytes / 1024 ** exponent;
+  return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[exponent]}`;
 }
 
-function formatEta(seconds: number | null) {
-  if (!seconds || seconds === Infinity) return "--";
-  if (seconds < 60) return `${seconds.toFixed(0)}s`;
+function statusBadge(transfer: TransferBoxProps["transfer"] | null): { variant: BadgeProps["variant"]; label: string } | null {
+  if (!transfer) return null;
+  switch (transfer.status) {
+    case "transferring":
+      return { variant: "accent", label: "TRANSFERINDO" };
+    case "completed":
+      return { variant: "success", label: "CONCLUÍDO" };
+    case "cancelled":
+      return { variant: "danger", label: "CANCELADO" };
+    case "error":
+      return { variant: "danger", label: "ERRO" };
+    case "paused":
+      return { variant: "accentSecondary", label: "PAUSADO" };
+    default:
+      return null;
+  }
+}
+
+function formatEta(bytesRemaining: number, speedBytes: number) {
+  if (speedBytes <= 0) return "--";
+  const seconds = Math.ceil(bytesRemaining / speedBytes);
+  if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);
-  const remaining = Math.floor(seconds % 60);
+  const remaining = seconds % 60;
   return `${minutes}m ${remaining}s`;
 }
 
-function formatSpeed(speedBytes: number | null) {
-  if (!speedBytes || !Number.isFinite(speedBytes) || speedBytes <= 0) return "--";
-  const units = ["B/s", "KB/s", "MB/s", "GB/s"];
-  let value = speedBytes;
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
+function computeStatusLabel({
+  file,
+  transfer,
+  hasConnectedPeers,
+}: {
+  file: TransferBoxProps["file"];
+  transfer: TransferBoxProps["transfer"];
+  hasConnectedPeers: boolean;
+}): string {
+  if (transfer) {
+    switch (transfer.status) {
+      case "transferring":
+        return transfer.direction === "receive" ? "Recebendo arquivo…" : "Transferindo…";
+      case "completed":
+        return transfer.direction === "receive" ? "Arquivo recebido" : "Transferência concluída";
+      case "cancelled":
+        return "Transferência cancelada";
+      case "error":
+        return "Falha na transferência";
+      case "paused":
+        return "Transferência pausada";
+      default:
+        return "Transferência";
+    }
   }
-  return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[unitIndex]}`;
+  if (file) {
+    return hasConnectedPeers ? "Arquivo pronto para enviar" : "Aguardando peer";
+  }
+  return "Nenhum arquivo selecionado";
 }
 
-function resolveTransferBadge(status: string): { variant: BadgeProps["variant"]; label: string } {
-  switch (status) {
-    case "completed":
-      return { variant: "success", label: "COMPLETED" };
-    case "transferring":
-      return { variant: "accent", label: "TRANSFERRING" };
-    case "paused":
-      return { variant: "accentSecondary", label: "PAUSED" };
-    case "cancelled":
-      return { variant: "danger", label: "CANCELLED" };
-    case "error":
-      return { variant: "danger", label: "ERROR" };
-    default:
-      return { variant: "neutral", label: status.toUpperCase() };
-  }
+function renderTargetLabel(label?: string) {
+  if (!label) return null;
+  return (
+    <div className="space-y-1">
+      <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Destino</span>
+      <p className="text-sm text-[var(--text)]">{label}</p>
+    </div>
+  );
 }
 
-export function TransferBox({ onPickFile, onResume, onCancelFile }: TransferBoxProps) {
-  const { selectedFile, transfer } = useTransfersStore((state) => {
-    const selected = state.selectedFile;
-    return {
-      selectedFile: selected,
-      transfer: selected ? state.transfers[selected.fileId] ?? null : null,
-    };
-  });
-
-  const totalBytes = transfer?.totalBytes ?? selectedFile?.size ?? 0;
-  const transferBadge = transfer ? resolveTransferBadge(transfer.status) : null;
-  const progressPercent = transfer
-    ? Math.min(100, (transfer.bytesTransferred / Math.max(totalBytes, 1)) * 100)
-    : 0;
-  const elapsedSeconds = transfer ? (Date.now() - transfer.startedAt) / 1000 : null;
-  const averageSpeed = transfer && elapsedSeconds && elapsedSeconds > 0
-    ? transfer.bytesTransferred / elapsedSeconds
-    : null;
-  const eta = transfer && averageSpeed && averageSpeed > 0
-    ? (transfer.totalBytes - transfer.bytesTransferred) / averageSpeed
-    : null;
+export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransferId, hasConnectedPeers }: TransferBoxProps) {
+  const badge = statusBadge(transfer);
+  const progress = transfer ? Math.min(100, (transfer.bytesTransferred / Math.max(transfer.totalBytes, 1)) * 100) : 0;
+  const elapsedSeconds = transfer ? Math.max(0, (transfer.updatedAt - transfer.startedAt) / 1000) : 0;
+  const speedBytes = transfer && elapsedSeconds > 0 ? transfer.bytesTransferred / elapsedSeconds : 0;
+  const eta = transfer ? formatEta(transfer.totalBytes - transfer.bytesTransferred, speedBytes) : "--";
+  const statusLabel = computeStatusLabel({ file, transfer, hasConnectedPeers });
 
   return (
     <Card className="flex h-full flex-col gap-6 p-6">
@@ -82,81 +116,60 @@ export function TransferBox({ onPickFile, onResume, onCancelFile }: TransferBoxP
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold text-[var(--text)]">Transferência</h2>
-            {transferBadge && (
-              <Badge variant={transferBadge.variant}>{transferBadge.label}</Badge>
-            )}
+            {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
           </div>
-          <p className="text-sm text-[var(--text-muted)]">
-            {selectedFile ? selectedFile.name : "Nenhum arquivo selecionado"}
-          </p>
+          <p className="text-sm text-[var(--muted)]">{statusLabel}</p>
         </div>
         <Button type="button" onClick={() => onPickFile()}>
           Selecionar arquivo
         </Button>
       </div>
       <div className="space-y-4">
-        {selectedFile ? (
+        {file ? (
           <>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                  Tamanho
-                </span>
-                <p className="text-sm text-[var(--text)]">{formatBytes(selectedFile.size)}</p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Nome</span>
+                <p className="text-sm text-[var(--text)]">{file.name}</p>
               </div>
               <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                  Progresso
-                </span>
-                <p className="text-sm text-[var(--text)]">{progressPercent.toFixed(1)}%</p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Tamanho</span>
+                <p className="text-sm text-[var(--text)]">{formatBytes(file.size)}</p>
               </div>
+              {renderTargetLabel(file.targetLabel)}
             </div>
-            <div className="space-y-2">
-              <div
-                role="progressbar"
-                aria-valuenow={Math.round(progressPercent)}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                className="h-3 w-full overflow-hidden rounded-full border border-[var(--card-border)]/60 bg-[var(--card)]/50"
-              >
-                <div
-                  className="h-full rounded-full bg-[var(--accent)] transition-[width] duration-300"
-                  style={{ width: `${progressPercent}%` }}
-                />
+            {transfer ? (
+              <div className="space-y-2">
+                <div className="h-3 w-full overflow-hidden rounded-full border border-[var(--border)]/60 bg-[var(--card)]/50">
+                  <div
+                    className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--muted)]">
+                  <span>Progresso: {progress.toFixed(1)}%</span>
+                  <span>Velocidade: {speedBytes > 0 ? formatBytes(speedBytes) + "/s" : "--"}</span>
+                  <span>ETA: {eta}</span>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)]">
-                <span>ETA: {formatEta(eta)}</span>
-                <span>Velocidade média: {formatSpeed(averageSpeed)}</span>
-                {transfer && (
-                  <span>
-                    Recebido: {formatBytes(transfer.bytesTransferred)} / {formatBytes(totalBytes)}
-                  </span>
-                )}
+            ) : null}
+            {transfer && transfer.status === "transferring" ? (
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="danger" onClick={() => onCancel(transfer.peerId, transfer.id)}>
+                  Cancelar transferência
+                </Button>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => selectedFile && onResume(selectedFile.fileId)}
-              >
-                Retomar
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                onClick={() => selectedFile && onCancelFile(selectedFile.fileId)}
-              >
-                Cancelar
-              </Button>
-            </div>
+            ) : null}
           </>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[var(--card-border)]/60 bg-[var(--card)]/40 px-6 py-10 text-center text-sm text-[var(--text-muted)]">
-            Escolha um arquivo para iniciar uma nova transferência.
+          <div className="rounded-2xl border border-dashed border-[var(--dashed)]/80 bg-[var(--card)]/40 px-6 py-10 text-center text-sm text-[var(--muted)]">
+            Selecione um arquivo para iniciar uma nova transferência.
           </div>
         )}
       </div>
+      {activeTransferId ? (
+        <p className="text-xs text-[var(--muted)]">Transferência em foco: {activeTransferId}</p>
+      ) : null}
     </Card>
   );
 }

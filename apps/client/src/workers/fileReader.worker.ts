@@ -1,8 +1,9 @@
 interface InitMessage {
   type: "init";
   fileId: string;
-  handle: FileSystemFileHandle;
   chunkSize: number;
+  handle?: FileSystemFileHandle;
+  file?: File;
 }
 
 interface ChunkRequest {
@@ -19,7 +20,8 @@ interface ReleaseMessage {
 type WorkerRequest = InitMessage | ChunkRequest | ReleaseMessage;
 
 type FileContext = {
-  handle: FileSystemFileHandle;
+  handle?: FileSystemFileHandle;
+  file?: File;
   chunkSize: number;
   size: number;
   totalChunks: number;
@@ -38,18 +40,30 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   const message = event.data;
   switch (message.type) {
     case "init": {
-      const file = await message.handle.getFile();
+      let sourceFile = message.file ?? null;
+      if (!sourceFile && message.handle) {
+        sourceFile = await message.handle.getFile();
+      }
+      if (!sourceFile) {
+        self.postMessage({
+          type: "error",
+          fileId: message.fileId,
+          error: "no-file-source",
+        });
+        return;
+      }
       files.set(message.fileId, {
         handle: message.handle,
+        file: message.file ?? sourceFile,
         chunkSize: message.chunkSize,
-        size: file.size,
-        totalChunks: Math.ceil(file.size / message.chunkSize),
+        size: sourceFile.size,
+        totalChunks: Math.ceil(sourceFile.size / message.chunkSize),
       });
       self.postMessage({
         type: "ready",
         fileId: message.fileId,
-        size: file.size,
-        totalChunks: Math.ceil(file.size / message.chunkSize),
+        size: sourceFile.size,
+        totalChunks: Math.ceil(sourceFile.size / message.chunkSize),
       });
       break;
     }
@@ -59,7 +73,11 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
         self.postMessage({ type: "error", fileId: message.fileId, error: "file not initialized" });
         return;
       }
-      const file = await ctx.handle.getFile();
+      const file = ctx.file ?? (ctx.handle ? await ctx.handle.getFile() : null);
+      if (!file) {
+        self.postMessage({ type: "error", fileId: message.fileId, error: "file not available" });
+        return;
+      }
       const start = message.index * ctx.chunkSize;
       const end = Math.min(start + ctx.chunkSize, ctx.size);
       const blob = file.slice(start, end);
