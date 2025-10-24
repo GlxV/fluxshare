@@ -1,19 +1,9 @@
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { cn } from "../utils/cn";
-
-export interface AppHeaderInfo {
-  roomCode?: string;
-  inviteUrl?: string;
-  onCopyInvite?: () => void;
-}
-
-interface AppShellProps {
-  children: ReactNode;
-  headerInfo?: AppHeaderInfo;
-}
+import { useRoom } from "../state/useRoomStore";
 
 function SunIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -45,23 +35,33 @@ function MoonIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function AppShell({ children, headerInfo }: AppShellProps) {
+export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
+  const { roomId, copyInviteLink } = useRoom();
+  const [lastInviteUrl, setLastInviteUrl] = useState<string | null>(null);
 
   const roomLabel = useMemo(() => {
-    if (!headerInfo?.roomCode) return "Nenhuma sala";
-    return headerInfo.roomCode;
-  }, [headerInfo?.roomCode]);
+    if (roomId) return roomId;
+    if (lastInviteUrl) {
+      const match = /\/room\/([A-Za-z0-9-]+)/.exec(lastInviteUrl);
+      if (match) return match[1];
+    }
+    return "Nenhuma sala";
+  }, [lastInviteUrl, roomId]);
 
-  const handleCopy = () => {
-    if (headerInfo?.onCopyInvite) {
-      headerInfo.onCopyInvite();
-      return;
+  const handleCopy = useCallback(async () => {
+    const result = await copyInviteLink();
+    if (result.url) {
+      setLastInviteUrl(result.url);
     }
-    if (headerInfo?.inviteUrl && typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(headerInfo.inviteUrl).catch(() => undefined);
+    if (!result.copied && result.url && typeof window !== "undefined") {
+      try {
+        await navigator.clipboard?.writeText?.(result.url);
+      } catch {
+        // ignore
+      }
     }
-  };
+  }, [copyInviteLink]);
 
   return (
     <div className="app-shell">
@@ -70,25 +70,23 @@ export function AppShell({ children, headerInfo }: AppShellProps) {
         <div className="app-shell__mesh" />
         <div className="app-shell__grid" />
       </div>
-      <header
-        className="sticky top-0 z-40 border-b border-[var(--card-border)]/60 bg-[var(--card)]/80 backdrop-blur-2xl"
-      >
+      <header className="sticky top-0 z-40 border-b border-[var(--border)]/60 bg-[var(--card)]/80 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xl font-semibold tracking-tight text-[var(--text)]">
               FluxShare
             </span>
-            <span className="text-sm text-[var(--text-muted)]">
+            <span className="text-sm text-[var(--muted)]">
               Compartilhamento P2P em tempo real
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Card
               noShadow
-              className="flex items-center gap-3 rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/90 px-4 py-2"
+              className="flex items-center gap-3 rounded-2xl border border-[var(--border)]/70 bg-[var(--card)]/90 px-4 py-2"
             >
               <div className="flex flex-col">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
                   Sala
                 </span>
                 <span className="font-mono text-sm text-[var(--text)]">{roomLabel}</span>
@@ -96,7 +94,7 @@ export function AppShell({ children, headerInfo }: AppShellProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={!headerInfo?.inviteUrl && !headerInfo?.onCopyInvite}
+                disabled={!roomId && !lastInviteUrl}
                 onClick={handleCopy}
                 className="min-w-[88px] justify-center"
               >
@@ -108,7 +106,7 @@ export function AppShell({ children, headerInfo }: AppShellProps) {
               size="sm"
               aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
               onClick={toggleTheme}
-              className="h-10 w-10 rounded-full border border-[var(--card-border)]/70 bg-[var(--card)]/80 p-0"
+              className="h-10 w-10 rounded-full border border-[var(--border)]/70 bg-[var(--card)]/80 p-0"
             >
               {theme === "dark" ? (
                 <SunIcon className="h-5 w-5" />

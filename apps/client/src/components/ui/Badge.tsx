@@ -7,9 +7,9 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  neutral: "bg-white/10 text-[var(--text-muted)]",
-  accent: "bg-[var(--accent)]/25 text-[var(--accent)]",
-  accentSecondary: "bg-[var(--accent-2)]/25 text-[var(--accent-2)]",
+  neutral: "bg-white/10 text-[var(--muted)]",
+  accent: "bg-[var(--primary)]/25 text-[var(--primary)]",
+  accentSecondary: "bg-[var(--accent)]/25 text-[var(--accent)]",
   success: "bg-emerald-500/20 text-emerald-300",
   danger: "bg-red-500/20 text-red-300",
 };

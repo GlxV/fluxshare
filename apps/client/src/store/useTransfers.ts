@@ -9,7 +9,7 @@ export interface SelectedFileMeta {
   size: number;
   mime?: string;
   lastModified?: number;
-  source: "web" | "tauri";
+  source: "web" | "web-fallback" | "tauri";
   handleKey: string;
 }
 
@@ -25,6 +25,9 @@ export interface TransferState {
   error?: string;
   targetHandleKey?: string;
   fileName?: string;
+  downloadUrl?: string;
+  savePath?: string;
+  mime?: string;
 }
 
 interface TransfersStore {

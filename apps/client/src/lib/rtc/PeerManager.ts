@@ -11,8 +11,9 @@ export type PeerConnectionState =
 
 export type PeerManagerEventMap = {
   "connection-state": { peerId: string; state: PeerConnectionState };
-  "data-channel": { peerId: string; channel: RTCDataChannel };
   "ice-connection-state": { peerId: string; state: RTCIceConnectionState };
+  "data-channel": { peerId: string; channel: RTCDataChannel };
+  "peer-removed": { peerId: string };
 };
 
 export type PeerManagerEvent = keyof PeerManagerEventMap;
@@ -21,6 +22,15 @@ export type PeerSignal =
   | { type: "offer"; sdp: RTCSessionDescriptionInit }
   | { type: "answer"; sdp: RTCSessionDescriptionInit }
   | { type: "candidate"; candidate: RTCIceCandidateInit };
+
+interface PeerConnectionEntry {
+  peerId: string;
+  connection: RTCPeerConnection;
+  channel: RTCDataChannel | null;
+  isOffering: boolean;
+  reconnectAttempts: number;
+  reconnectTimer: number | null;
+}
 
 class EventEmitter {
   private listeners = new Map<PeerManagerEvent, Set<(payload: any) => void>>();
@@ -48,21 +58,24 @@ class EventEmitter {
   }
 }
 
-interface PeerConnectionEntry {
-  peerId: string;
-  connection: RTCPeerConnection;
-  channel: RTCDataChannel | null;
-  isOffering: boolean;
+const RECONNECT_DELAY = 2_000;
+const MAX_RECONNECT_ATTEMPTS = 3;
+
+export interface PeerManagerOptions {
+  reconnect?: boolean;
 }
 
 export class PeerManager {
   private readonly signaling: SignalingClient;
   private readonly emitter = new EventEmitter();
   private readonly peers = new Map<string, PeerConnectionEntry>();
+  private readonly reconnectEnabled: boolean;
+  private unsubscribeSignal: (() => void) | null = null;
 
-  constructor(signaling: SignalingClient) {
+  constructor(signaling: SignalingClient, options: PeerManagerOptions = {}) {
     this.signaling = signaling;
-    this.signaling.on("signal", ({ from, data }) => {
+    this.reconnectEnabled = options.reconnect ?? true;
+    this.unsubscribeSignal = this.signaling.on("signal", ({ from, data }) => {
       this.handleSignal(from, data as PeerSignal);
     });
   }
@@ -73,9 +86,7 @@ export class PeerManager {
   async connectTo(peerId: string) {
     const entry = this.ensurePeer(peerId);
     entry.isOffering = true;
-    const channel = entry.connection.createDataChannel("fluxshare", {
-      ordered: true,
-    });
+    const channel = entry.connection.createDataChannel("fluxshare", { ordered: true });
     this.prepareDataChannel(peerId, channel);
     const offer = await entry.connection.createOffer();
     await entry.connection.setLocalDescription(offer);
@@ -83,7 +94,34 @@ export class PeerManager {
     return channel;
   }
 
-  async handleSignal(from: string, signal: PeerSignal) {
+  dispose() {
+    this.unsubscribeSignal?.();
+    this.unsubscribeSignal = null;
+    this.peers.forEach((entry) => {
+      entry.connection.onicecandidate = null;
+      entry.connection.onconnectionstatechange = null;
+      entry.connection.oniceconnectionstatechange = null;
+      entry.connection.ondatachannel = null;
+      entry.connection.close();
+      if (entry.reconnectTimer) {
+        clearTimeout(entry.reconnectTimer);
+      }
+    });
+    this.peers.clear();
+  }
+
+  disconnect(peerId: string) {
+    const entry = this.peers.get(peerId);
+    if (!entry) return;
+    entry.connection.close();
+    if (entry.reconnectTimer) {
+      clearTimeout(entry.reconnectTimer);
+    }
+    this.peers.delete(peerId);
+    this.emitter.emit("peer-removed", { peerId });
+  }
+
+  private async handleSignal(from: string, signal: PeerSignal) {
     const entry = this.ensurePeer(from);
     switch (signal.type) {
       case "offer": {
@@ -113,13 +151,6 @@ export class PeerManager {
     }
   }
 
-  disconnect(peerId: string) {
-    const entry = this.peers.get(peerId);
-    if (!entry) return;
-    entry.connection.close();
-    this.peers.delete(peerId);
-  }
-
   private ensurePeer(peerId: string): PeerConnectionEntry {
     const existing = this.peers.get(peerId);
     if (existing) {
@@ -133,6 +164,8 @@ export class PeerManager {
       connection,
       channel: null,
       isOffering: false,
+      reconnectAttempts: 0,
+      reconnectTimer: null,
     };
 
     connection.onicecandidate = (event) => {
@@ -144,8 +177,11 @@ export class PeerManager {
     connection.onconnectionstatechange = () => {
       const state = connection.connectionState as PeerConnectionState;
       this.emitter.emit("connection-state", { peerId, state });
-      if (state === "failed" || state === "closed" || state === "disconnected") {
-        // leave data channel cleanup to consumer
+      if (state === "failed" || state === "disconnected") {
+        this.scheduleReconnect(peerId);
+      }
+      if (state === "closed") {
+        this.disconnect(peerId);
       }
     };
 
@@ -166,20 +202,63 @@ export class PeerManager {
   }
 
   private prepareDataChannel(peerId: string, channel: RTCDataChannel) {
+    const entry = this.ensurePeer(peerId);
+    if (entry.channel && entry.channel !== channel) {
+      entry.channel.close();
+    }
+    entry.channel = channel;
+    channel.binaryType = "arraybuffer";
+    channel.onopen = () => {
+      entry.reconnectAttempts = 0;
+      this.emitter.emit("data-channel", { peerId, channel });
+    };
+    channel.onclose = () => {
+      if (this.reconnectEnabled) {
+        this.scheduleReconnect(peerId);
+      }
+    };
+    channel.onerror = (event) => {
+      console.error("fluxshare:peer-manager", "datachannel error", event);
+    };
+  }
+
+  private scheduleReconnect(peerId: string) {
+    if (!this.reconnectEnabled) return;
     const entry = this.peers.get(peerId);
     if (!entry) return;
-    channel.binaryType = "arraybuffer";
-    channel.bufferedAmountLowThreshold = 1_000_000;
-    entry.channel = channel;
-    channel.addEventListener("open", () => {
-      console.log("fluxshare:webrtc", `datachannel open with ${peerId}`);
+    if (entry.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      return;
+    }
+    if (entry.reconnectTimer) {
+      return;
+    }
+    entry.reconnectAttempts += 1;
+    entry.reconnectTimer = window.setTimeout(() => {
+      entry.reconnectTimer = null;
+      this.restartPeer(peerId).catch((error) => {
+        console.error("fluxshare:peer-manager", "reconnect failed", error);
+      });
+    }, RECONNECT_DELAY);
+  }
+
+  private async restartPeer(peerId: string) {
+    const entry = this.peers.get(peerId);
+    if (!entry) return;
+    try {
+      entry.connection.onicecandidate = null;
+      entry.connection.onconnectionstatechange = null;
+      entry.connection.oniceconnectionstatechange = null;
+      entry.connection.ondatachannel = null;
+      entry.connection.close();
+    } catch (error) {
+      console.warn("fluxshare:peer-manager", "error closing connection", error);
+    }
+    this.peers.delete(peerId);
+    const channel = await this.connectTo(peerId);
+    if (channel.readyState === "open") {
       this.emitter.emit("data-channel", { peerId, channel });
-    });
-    channel.addEventListener("close", () => {
-      console.log("fluxshare:webrtc", `datachannel closed with ${peerId}`);
-    });
-    channel.addEventListener("error", (event) => {
-      console.error("fluxshare:webrtc", "datachannel error", event);
-    });
+    }
   }
 }
+
+export default PeerManager;

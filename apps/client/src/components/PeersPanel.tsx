@@ -1,107 +1,156 @@
-import { usePeersStore } from "../store/usePeers";
-import { useTransfersStore } from "../store/useTransfers";
 import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 
+export interface PeerTransferInfo {
+  status: "idle" | "transferring" | "paused" | "completed" | "error" | "cancelled";
+  direction: "send" | "receive";
+  bytesTransferred: number;
+  totalBytes: number;
+  updatedAt: number;
+}
+
+export interface PeerViewModel {
+  peerId: string;
+  displayName: string;
+  connectionState: string;
+  badgeVariant: BadgeProps["variant"];
+  transfer?: PeerTransferInfo;
+}
+
 interface PeersPanelProps {
-  selfPeerId: string;
-  onConnect: (peerId: string) => void;
-  onDisconnect: (peerId: string) => void;
-  onSend: (peerId: string) => void;
-  onCancel: (peerId: string) => void;
+  selfPeerId: string | null;
+  peers: PeerViewModel[];
+  selectedPeerId: string | null;
+  onSelect(peerId: string): void;
+  onConnect(peerId: string): void;
+  onDisconnect(peerId: string): void;
+  onSend(peerId: string): void;
+  onCancel(peerId: string): void;
 }
 
-function resolvePeerStatus(
-  status: string,
-  transferStatus: string | null,
-): { label: string; variant: BadgeProps["variant"] } {
-  if (transferStatus === "transferring") {
-    return { label: "TRANSFERRING", variant: "accent" };
-  }
-  if (transferStatus === "completed") {
-    return { label: "DONE", variant: "success" };
-  }
-  if (transferStatus === "paused") {
-    return { label: "PAUSED", variant: "accentSecondary" };
-  }
-  if (transferStatus === "cancelled" || transferStatus === "error") {
-    return { label: "DISCONNECTED", variant: "danger" };
-  }
-  if (status === "connecting") {
-    return { label: "CONNECTING", variant: "accentSecondary" };
-  }
-  if (status === "connected") {
-    return { label: "CONNECTED", variant: "success" };
-  }
-  if (status === "failed") {
-    return { label: "DISCONNECTED", variant: "danger" };
-  }
-  return { label: "DISCONNECTED", variant: "neutral" };
+function formatProgress(info: PeerTransferInfo | undefined) {
+  if (!info || info.totalBytes === 0) return null;
+  const value = Math.min(100, (info.bytesTransferred / info.totalBytes) * 100);
+  return value;
 }
 
-export function PeersPanel({ selfPeerId, onConnect, onDisconnect, onSend, onCancel }: PeersPanelProps) {
-  const peers = usePeersStore((state) =>
-    Object.values(state.peers).filter((peer) => peer.peerId !== selfPeerId),
-  );
-  const transfers = useTransfersStore((state) => state.transfers);
-
+export function PeersPanel({
+  selfPeerId,
+  peers,
+  selectedPeerId,
+  onSelect,
+  onConnect,
+  onDisconnect,
+  onSend,
+  onCancel,
+}: PeersPanelProps) {
   return (
     <Card className="space-y-6 p-6">
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-semibold text-[var(--text)]">Peers na sala</h2>
-        <p className="text-sm text-[var(--text-muted)]">Você é {selfPeerId || "--"}</p>
+        <p className="text-sm text-[var(--muted)]">Você é {selfPeerId || "--"}</p>
       </div>
       {peers.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--card-border)]/60 bg-[var(--card)]/50 px-4 py-6 text-center text-sm text-[var(--text-muted)]">
+        <p className="rounded-2xl border border-dashed border-[var(--dashed)]/80 bg-[var(--card)]/40 px-4 py-6 text-center text-sm text-[var(--muted)]">
           Aguarde: nenhum peer apareceu na sala ainda.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {peers.map((peer) => {
-            const transfer = Object.values(transfers).find(
-              (entry) => entry.peerId === peer.peerId,
-            );
-            const badge = resolvePeerStatus(peer.status, transfer?.status ?? null);
+            const progress = formatProgress(peer.transfer);
+            const isSelected = selectedPeerId === peer.peerId;
             return (
               <div
                 key={peer.peerId}
-                className="card-shadow flex h-full flex-col justify-between gap-4 rounded-2xl border border-[var(--card-border)]/80 bg-[var(--card)]/80 p-5 backdrop-blur-2xl transition duration-200 hover:shadow-[0_28px_55px_-30px_rgba(15,23,42,0.6)]"
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                onClick={() => onSelect(peer.peerId)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelect(peer.peerId);
+                  }
+                }}
+                className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
               >
-                <div className="space-y-2">
+                <div
+                  className={[
+                    "card-shadow flex h-full flex-col gap-4 rounded-2xl border bg-[var(--card)]/80 p-5 backdrop-blur-2xl transition duration-200",
+                    isSelected
+                      ? "border-[var(--primary)]/70 shadow-[0_28px_55px_-30px_rgba(124,58,237,0.55)]"
+                      : "border-[var(--border)]/80 hover:shadow-[0_28px_55px_-30px_rgba(15,23,42,0.6)]",
+                  ].join(" ")}
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-base font-semibold text-[var(--text)]">
-                        {peer.displayName}
-                      </p>
-                      <p className="text-xs font-mono text-[var(--text-muted)]">
-                        {peer.peerId}
-                      </p>
+                      <p className="text-base font-semibold text-[var(--text)]">{peer.displayName}</p>
+                      <p className="text-xs font-mono text-[var(--muted)]">{peer.peerId}</p>
                     </div>
-                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                    <Badge variant={peer.badgeVariant}>{peer.connectionState}</Badge>
                   </div>
-                  {transfer && (
-                    <p className="text-xs text-[var(--text-muted)]">
-                      Transferência {transfer.status} • {Math.round(
-                        (transfer.bytesTransferred / Math.max(transfer.totalBytes, 1)) * 100,
-                      )}
-                      %
-                    </p>
+                  {peer.transfer ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                        <span>{peer.transfer.direction === "send" ? "Enviando" : "Recebendo"}</span>
+                        <span className="font-medium text-[var(--text)]">
+                          {progress !== null ? `${progress.toFixed(1)}%` : "--"}
+                        </span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full border border-[var(--border)]/60 bg-[var(--card)]/50">
+                        <div
+                          className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
+                          style={{ width: progress !== null ? `${progress}%` : "0%" }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[var(--muted)]">Nenhuma transferência em andamento.</p>
                   )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="secondary" onClick={() => onConnect(peer.peerId)}>
-                    Conectar
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => onDisconnect(peer.peerId)}>
-                    Desconectar
-                  </Button>
-                  <Button type="button" onClick={() => onSend(peer.peerId)}>
-                    Enviar arquivo
-                  </Button>
-                  <Button type="button" variant="danger" onClick={() => onCancel(peer.peerId)}>
-                    Cancelar
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onConnect(peer.peerId);
+                      }}
+                    >
+                      Conectar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDisconnect(peer.peerId);
+                      }}
+                    >
+                      Desconectar
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onSend(peer.peerId);
+                      }}
+                    >
+                      Enviar arquivo
+                    </Button>
+                    {peer.transfer && peer.transfer.status === "transferring" ? (
+                      <Button
+                        type="button"
+                        variant="danger"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onCancel(peer.peerId);
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             );

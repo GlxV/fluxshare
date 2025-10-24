@@ -1,43 +1,19 @@
-:root {
-  color-scheme: dark;
-  --bg: #0b0d12;
-  --bg-grad-1: #0b0d12;
-  --bg-grad-2: #111428;
-  --card: rgba(255, 255, 255, 0.06);
-  --card-border: rgba(255, 255, 255, 0.18);
-  --text: #e7e9ee;
-  --text-muted: #b6bcc8;
-  --accent: #7c3aed;
-  --accent-2: #3b82f6;
-  --ring: rgba(124, 58, 237, 0.5);
-}
-
-[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f6f7fb;
-  --bg-grad-1: #f6f7fb;
-  --bg-grad-2: #eaeef7;
-  --card: rgba(255, 255, 255, 0.7);
-  --card-border: rgba(17, 17, 17, 0.08);
-  --text: #1c1f25;
-  --text-muted: #5b6473;
-  --accent: #6d28d9;
-  --accent-2: #2563eb;
-  --ring: rgba(37, 99, 235, 0.35);
-}
+@import "./tokens.css";
 
 html {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at top, var(--bg-grad-1), var(--bg-grad-2));
+  background:
+    radial-gradient(circle at top, rgba(124, 58, 237, 0.24), transparent 55%),
+    linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
   color: var(--text);
-  transition: background-color 200ms ease, color 200ms ease;
 }
 
 * {
@@ -45,7 +21,7 @@ body {
 }
 
 a {
-  color: var(--accent-2);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -60,14 +36,18 @@ textarea {
 }
 
 ::selection {
-  background: rgba(124, 58, 237, 0.35);
+  background: color-mix(in srgb, var(--primary) 35%, transparent);
   color: inherit;
 }
 
 .app-shell {
   position: relative;
   min-height: 100vh;
-  background: radial-gradient(circle at top, var(--bg-grad-1), var(--bg-grad-2));
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.32), transparent 58%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.28), transparent 62%),
+    radial-gradient(circle at 50% 82%, rgba(124, 58, 237, 0.22), transparent 68%),
+    linear-gradient(155deg, var(--bg) 0%, var(--bg-soft) 100%);
   color: var(--text);
   isolation: isolate;
 }
@@ -82,8 +62,9 @@ textarea {
 .app-shell__gradient {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.25), transparent 55%),
-    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.22), transparent 60%),
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.22), transparent 55%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2), transparent 60%),
     radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.18), transparent 65%);
   filter: blur(90px);
   opacity: 0.9;
@@ -92,7 +73,7 @@ textarea {
 .app-shell__mesh {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 45%, rgba(255, 255, 255, 0.04) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 45%, rgba(255, 255, 255, 0.05) 100%);
   mix-blend-mode: screen;
   opacity: 0.35;
 }
@@ -103,7 +84,7 @@ textarea {
   background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 52px 52px;
-  opacity: 0.16;
+  opacity: 0.14;
 }
 
 .card-shadow {
