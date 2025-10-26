@@ -140,7 +140,7 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
             </div>
             {transfer ? (
               <div className="space-y-2">
-                <div className="h-3 w-full overflow-hidden rounded-full border border-[var(--border)]/60 bg-[var(--card)]/50">
+                <div className="h-3 w-full overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)]">
                   <div
                     className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
                     style={{ width: `${progress}%` }}
@@ -162,7 +162,7 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
             ) : null}
           </>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[var(--dashed)]/80 bg-[var(--card)]/40 px-6 py-10 text-center text-sm text-[var(--muted)]">
+          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-6 py-10 text-center text-sm text-[var(--muted)]">
             Selecione um arquivo para iniciar uma nova transferência.
           </div>
         )}

@@ -18,8 +18,8 @@
     }
   },
   "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": "pnpm -C .. web:dev",
+    "beforeBuildCommand": "pnpm -C .. web:build",
     "devPath": "http://localhost:5173",
     "distDir": "../dist"
   }

@@ -9,6 +9,21 @@ FluxShare é um cliente desktop multiplataforma (Windows/Linux/macOS) para trans
 - Dependências do Tauri (ver [documentação oficial](https://tauri.app/v1/guides/getting-started/prerequisites))
 - `cloudflared` disponível no `PATH`
 
+### Linux/WSL build deps
+
+Para compilar o cliente Tauri em distribuições Linux (incluindo WSL), instale os pacotes abaixo:
+
+```bash
+# Ubuntu / Debian
+sudo apt update && sudo apt install -y build-essential pkg-config libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+
+# Arch Linux
+sudo pacman -S --needed base-devel pkgconf glib2 gtk3 webkit2gtk-4.1 libsoup
+
+# Fedora
+sudo dnf install -y gcc-c++ make pkgconfig glib2-devel gtk3-devel webkit2gtk4.1-devel libsoup3-devel
+```
+
 ## Instalação
 
 ```bash

@@ -33,7 +33,7 @@ export function HomePage() {
               Código da sala
             </label>
             <input
-              className="w-full rounded-2xl border border-[var(--border)]/70 bg-[var(--card)]/60 px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)]/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--primary)] focus-visible:outline-offset-2"
+              className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
               value={code}
               onChange={(event) => setCode(event.target.value.toUpperCase())}
               placeholder="Ex: AB12CD"

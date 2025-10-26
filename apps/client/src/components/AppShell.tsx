@@ -1,5 +1,6 @@
 import { useCallback, useMemo, type ReactNode, useState } from "react";
 import { useTheme } from "./ThemeProvider";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { cn } from "../utils/cn";
@@ -39,6 +40,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const { roomId, copyInviteLink } = useRoom();
   const [lastInviteUrl, setLastInviteUrl] = useState<string | null>(null);
+  const location = useLocation();
+
+  const links = useMemo(() => {
+    const roomPath = roomId ? `/room/${roomId}` : "/room";
+    return [
+      { to: "/", label: "Início" },
+      { to: roomPath, label: "Sala" },
+      { to: "/tunnel", label: "Tunnel" },
+      { to: "/admin", label: "Admin" },
+    ];
+  }, [roomId]);
 
   const roomLabel = useMemo(() => {
     if (roomId) return roomId;
@@ -65,12 +77,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <div className="app-shell__background">
-        <div className="app-shell__gradient" />
-        <div className="app-shell__mesh" />
-        <div className="app-shell__grid" />
-      </div>
-      <header className="sticky top-0 z-40 border-b border-[var(--border)]/60 bg-[var(--card)]/80 backdrop-blur-2xl">
+      <div className="app-shell__background" />
+      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 90%,var(--bg) 10%)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xl font-semibold tracking-tight text-[var(--text)]">
@@ -80,10 +88,29 @@ export function AppShell({ children }: { children: ReactNode }) {
               Compartilhamento P2P em tempo real
             </span>
           </div>
+          <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
+            {links.map((link) => {
+              const isActive = location.pathname === link.to || (link.to.startsWith("/room/") && location.pathname.startsWith("/room"));
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={cn(
+                    "rounded-lg px-3 py-2 transition",
+                    isActive
+                      ? "bg-[var(--surface-2)] text-[var(--text)]"
+                      : "hover:bg-[color-mix(in srgb,var(--surface) 80%,transparent)]",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
           <div className="flex flex-wrap items-center gap-3">
             <Card
               noShadow
-              className="flex items-center gap-3 rounded-2xl border border-[var(--border)]/70 bg-[var(--card)]/90 px-4 py-2"
+              className="flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2"
             >
               <div className="flex flex-col">
                 <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
@@ -106,7 +133,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               size="sm"
               aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
               onClick={toggleTheme}
-              className="h-10 w-10 rounded-full border border-[var(--border)]/70 bg-[var(--card)]/80 p-0"
+              className="h-10 w-10 rounded-full border border-[var(--border)] bg-[var(--surface-2)] p-0"
             >
               {theme === "dark" ? (
                 <SunIcon className="h-5 w-5" />
@@ -117,7 +144,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className={cn("mx-auto w-full max-w-6xl px-6 pb-16 pt-10", "text-[var(--text)]")}>{children}</main>
+      <main className={cn("mx-auto w-full max-w-6xl px-6 pb-16 pt-10", "text-[var(--text)] bg-[var(--bg)]")}>{children}</main>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import { cn } from "../utils/cn";
 
 export interface PeerTransferInfo {
   status: "idle" | "transferring" | "paused" | "completed" | "error" | "cancelled";
@@ -52,7 +53,7 @@ export function PeersPanel({
         <p className="text-sm text-[var(--muted)]">Você é {selfPeerId || "--"}</p>
       </div>
       {peers.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--dashed)]/80 bg-[var(--card)]/40 px-4 py-6 text-center text-sm text-[var(--muted)]">
+        <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-4 py-6 text-center text-sm text-[var(--muted)]">
           Aguarde: nenhum peer apareceu na sala ainda.
         </p>
       ) : (
@@ -73,15 +74,15 @@ export function PeersPanel({
                     onSelect(peer.peerId);
                   }
                 }}
-                className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
+                className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
               >
                 <div
-                  className={[
-                    "card-shadow flex h-full flex-col gap-4 rounded-2xl border bg-[var(--card)]/80 p-5 backdrop-blur-2xl transition duration-200",
+                  className={cn(
+                    "card-shadow flex h-full flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-5 backdrop-blur-2xl transition duration-200",
                     isSelected
-                      ? "border-[var(--primary)]/70 shadow-[0_28px_55px_-30px_rgba(124,58,237,0.55)]"
-                      : "border-[var(--border)]/80 hover:shadow-[0_28px_55px_-30px_rgba(15,23,42,0.6)]",
-                  ].join(" ")}
+                      ? "border-[color-mix(in srgb,var(--primary) 65%,var(--border) 35%)] shadow-[0_28px_55px_-30px_var(--ring)]"
+                      : "hover:border-[color-mix(in srgb,var(--primary) 35%,var(--border) 65%)]",
+                  )}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -98,7 +99,7 @@ export function PeersPanel({
                           {progress !== null ? `${progress.toFixed(1)}%` : "--"}
                         </span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full border border-[var(--border)]/60 bg-[var(--card)]/50">
+                      <div className="h-2 w-full overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)]">
                         <div
                           className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
                           style={{ width: progress !== null ? `${progress}%` : "0%" }}

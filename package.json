@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "pnpm -r --parallel --filter fluxshare-signaling-server --filter fluxshare-client dev",
     "build": "pnpm --filter fluxshare-signaling-server build && pnpm --filter fluxshare-client build",
-    "test": "pnpm --filter fluxshare-signaling-server test && cargo test --manifest-path apps/client/src-tauri/Cargo.toml"
+    "test": "pnpm --filter fluxshare-signaling-server test && cargo test --manifest-path apps/client/src-tauri/Cargo.toml",
+    "tauri:dev": "pnpm -C apps/client tauri dev",
+    "tauri:build": "pnpm -C apps/client tauri build"
   },
   "packageManager": "pnpm@8.15.4"
 }
