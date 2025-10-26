@@ -68,14 +68,7 @@ const storage = createJSONStorage<Pick<RoomStoreState, "roomId" | "selfPeerId" |
   }
 });
 
-const defaultTheme: ThemeMode = (() => {
-  if (typeof window === "undefined") return "dark";
-  try {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  } catch {
-    return "dark";
-  }
-})();
+const defaultTheme: ThemeMode = "dark"; // LLM-LOCK: default theme must remain dark to comply with official palette
 
 export const useRoomStore = create<RoomStoreState>()(
   persist(

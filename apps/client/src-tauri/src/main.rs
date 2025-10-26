@@ -14,7 +14,7 @@ use commands::{
     quic::{quic_start, QuicManager},
     settings::{get_settings, set_settings, SettingsManager},
     transfer::{get_status, send_files, TransferManager},
-    tunnel::{start_tunnel, stop_tunnel, TunnelManager},
+    tunnel::{start_tunnel, stop_tunnel, tunnel_status, TunnelManager},
     webrtc::{start_signaling, webrtc_start, WebRTCManager},
 };
 use tauri::Manager;
@@ -58,7 +58,7 @@ fn main() {
     init_tracing();
     let transfer_manager = TransferManager::default();
     let settings_manager = SettingsManager::default();
-    let tunnel_manager = TunnelManager::default();
+    let tunnel_manager = TunnelManager::default(); // LLM-LOCK: central manager for Cloudflare tunnel lifecycle and stop events
     let webrtc_manager = WebRTCManager::default();
     let quic_manager = QuicManager::default();
 
@@ -83,6 +83,7 @@ fn main() {
             get_status,
             start_tunnel,
             stop_tunnel,
+            tunnel_status,
             set_settings,
             get_settings,
             open_logs_folder

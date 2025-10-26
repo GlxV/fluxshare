@@ -36,11 +36,11 @@ export function ToastViewport() {
         <div
           key={toast.id}
           className={cn(
-            "pointer-events-auto rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/95 px-4 py-3 text-sm text-[var(--text)] shadow-lg backdrop-blur",
-            toast.variant === "info" && "border-[var(--accent-2)]/60",
-            toast.variant === "success" && "border-green-500/60",
-            toast.variant === "warning" && "border-amber-500/60",
-            toast.variant === "error" && "border-red-500/60",
+            "pointer-events-auto rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--text)] shadow-lg backdrop-blur",
+            toast.variant === "info" && "border-[color-mix(in srgb,var(--primary) 60%,var(--border) 40%)]",
+            toast.variant === "success" && "border-[color-mix(in srgb,var(--primary) 45%,var(--text) 55%)]",
+            toast.variant === "warning" && "border-[color-mix(in srgb,var(--primary) 35%,var(--muted) 65%)]",
+            toast.variant === "error" && "border-[color-mix(in srgb,var(--primary) 50%,var(--surface-2) 50%)]",
           )}
         >
           <div className="flex items-start gap-3">
@@ -50,7 +50,7 @@ export function ToastViewport() {
             <button
               type="button"
               onClick={() => dismiss(toast.id)}
-              className="rounded-full p-1 text-[var(--text-muted)] transition hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ring)] focus-visible:outline-offset-2"
+              className="rounded-full p-1 text-[var(--muted)] transition hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
               aria-label="Fechar notificação"
             >
               <CloseIcon />

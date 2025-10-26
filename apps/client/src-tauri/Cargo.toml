@@ -32,6 +32,7 @@ tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
 url = "2"
 webrtc = "0.10"
+which = "4"
 # opcional: só se realmente usar
 chrono = { version = "0.4", features = ["serde"] }
 

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build && tauri build",
+    "build": "pnpm run web:build",
+    "web:dev": "vite",
+    "web:build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
   },

@@ -5,6 +5,7 @@ import App from "./App";
 import HomePage from "./pages/Home";
 import RoomPage from "./pages/Room";
 import TunnelPage from "./pages/Tunnel";
+import AdminPage from "./pages/Admin";
 import "./styles/base.css";
 import "./styles/theme.css";
 
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "room/:code", element: <RoomPage /> },
       { path: "tunnel", element: <TunnelPage /> },
+      { path: "admin", element: <AdminPage /> },
     ],
   },
 ]);

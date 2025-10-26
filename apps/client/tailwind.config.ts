@@ -6,24 +6,26 @@ const config: Config = {
     extend: {
       colors: {
         bg: "var(--bg)",
-        "bg-soft": "var(--bg-soft)",
-        card: "var(--card)",
+        surface: "var(--surface)",
+        "surface-2": "var(--surface-2)",
         border: "var(--border)",
         primary: {
           DEFAULT: "var(--primary)",
-          600: "var(--primary-600)",
+          foreground: "var(--primary-foreground)",
         },
-        accent: "var(--accent)",
+        ring: "var(--ring)",
         text: "var(--text)",
         muted: "var(--muted)",
-        dashed: "var(--dashed)",
+      },
+      borderColor: {
+        DEFAULT: "var(--border)",
       },
       borderRadius: {
         "2xl": "1.25rem",
         "3xl": "1.75rem",
       },
       boxShadow: {
-        glass: "0 25px 45px -25px rgba(15, 23, 42, 0.55)",
+        glass: "0 25px 45px -25px var(--ring)",
       },
     },
   },

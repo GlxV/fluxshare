@@ -1,156 +1,151 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
+import { AppOutletContext } from "../App";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
-import type { AppOutletContext } from "../App";
+import { useTunnelStore } from "../state/useTunnelStore";
 
-function buildPreviewUrl(port: number) {
-  const normalized = Number.isFinite(port) && port > 0 ? port : 8080;
-  return `https://example-${normalized}.trycloudflare.com`;
-}
+const STATUS_LABEL: Record<"RUNNING" | "STOPPED", string> = {
+  RUNNING: "Ativo",
+  STOPPED: "Parado",
+};
 
 export default function TunnelPage() {
   const { setHeaderInfo } = useOutletContext<AppOutletContext>();
-  const [port, setPort] = useState(8080);
-  const [cloudflaredPath, setCloudflaredPath] = useState("cloudflared");
-  const [publicUrl, setPublicUrl] = useState<string | null>(null);
-  const [loadingAction, setLoadingAction] = useState<"start" | "stop" | null>(null);
-  const [hasStarted, setHasStarted] = useState(false);
+  const logContainerRef = useRef<HTMLDivElement | null>(null);
+  const { status, url, logs, loading, error, missingBinary, start, stop, refresh, clear } = useTunnelStore(
+    (state) => ({
+      status: state.status,
+      url: state.url,
+      logs: state.logs,
+      loading: state.loading,
+      error: state.error,
+      missingBinary: state.missingBinary,
+      start: state.start,
+      stop: state.stop,
+      refresh: state.refresh,
+      clear: state.clear,
+    }),
+  );
 
   useEffect(() => {
     setHeaderInfo({});
-  }, [setHeaderInfo]);
+    void refresh();
+  }, [refresh, setHeaderInfo]);
 
-  const statusLabel = useMemo(() => {
-    if (loadingAction === "start") {
-      return "Iniciando túnel de exemplo...";
+  useEffect(() => {
+    const element = logContainerRef.current;
+    if (element) {
+      element.scrollTop = element.scrollHeight;
     }
-    if (loadingAction === "stop") {
-      return "Encerrando túnel...";
+  }, [logs]);
+
+  const canCopy = useMemo(() => Boolean(url), [url]);
+
+  async function handleStart() {
+    try {
+      await start();
+    } catch (err) {
+      console.error("fluxshare:tunnel", err);
     }
-    if (publicUrl) {
-      return "Tunnel ativo (modo demonstração)";
+  }
+
+  async function handleStop() {
+    try {
+      await stop();
+    } catch (err) {
+      console.error("fluxshare:tunnel", err);
     }
-    if (hasStarted) {
-      return "Tunnel parado";
+  }
+
+  async function handleCopy() {
+    if (!url) return;
+    try {
+      await navigator.clipboard?.writeText?.(url);
+    } catch (err) {
+      console.error("fluxshare:tunnel:copy", err);
     }
-    return "Nenhum tunnel iniciado";
-  }, [hasStarted, loadingAction, publicUrl]);
-
-  const handleStart = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoadingAction("start");
-
-    window.setTimeout(() => {
-      setPublicUrl(buildPreviewUrl(port));
-      setHasStarted(true);
-      setLoadingAction(null);
-    }, 400);
-  };
-
-  const handleStop = () => {
-    setLoadingAction("stop");
-
-    window.setTimeout(() => {
-      setPublicUrl(null);
-      setLoadingAction(null);
-    }, 300);
-  };
-
-  const handleCopy = () => {
-    if (publicUrl && typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(publicUrl).catch(() => undefined);
-    }
-  };
+  }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-3xl font-semibold text-[var(--text)]">Cloudflare Tunnel</h1>
-        <p className="text-sm text-[var(--text-muted)]">
-          Esta tela recria o formulário clássico do tunnel como uma prévia visual. A integração com o
-          Cloudflare Tunnel será reativada em uma etapa futura.
+    <div className="mx-auto max-w-5xl space-y-6 text-[var(--text)]">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold">Cloudflare Tunnel</h1>
+        <p className="text-sm text-[var(--muted)]">
+          Exponha sua instância local do FluxShare com um túnel seguro. O processo utiliza o binário oficial do Cloudflare e
+          transmite os logs em tempo real.
         </p>
       </div>
 
-      <Card className="space-y-6 p-6">
-        <form className="space-y-6" onSubmit={handleStart}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-2 text-sm text-[var(--text-muted)]">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                Porta local
-              </span>
-              <input
-                type="number"
-                min={1}
-                className="w-full rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/60 px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)]/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ring)] focus-visible:outline-offset-2"
-                value={port}
-                onChange={(event) => setPort(Number(event.target.value))}
-                placeholder="8080"
-              />
-            </label>
-            <label className="space-y-2 text-sm text-[var(--text-muted)]">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                Caminho do cloudflared
-              </span>
-              <input
-                className="w-full rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/60 px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)]/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ring)] focus-visible:outline-offset-2"
-                value={cloudflaredPath}
-                onChange={(event) => setCloudflaredPath(event.target.value)}
-                placeholder="Ex: /usr/local/bin/cloudflared"
-              />
-            </label>
-          </div>
+      {missingBinary ? (
+        <Card className="border border-[color-mix(in srgb,var(--primary) 35%,var(--border) 65%)] bg-[color-mix(in srgb,var(--surface) 85%,transparent)] p-4">
+          <p className="text-sm text-[var(--text)]">
+            <strong>cloudflared</strong> não foi encontrado no PATH. Instale o utilitário e tente novamente.
+          </p>
+        </Card>
+      ) : null}
 
-          <div className="flex flex-wrap gap-3">
-            <Button type="submit" disabled={loadingAction !== null}>
-              {loadingAction === "start" ? "Iniciando..." : "Iniciar Tunnel"}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={loadingAction !== null || !publicUrl}
-              onClick={handleStop}
-            >
-              {loadingAction === "stop" ? "Parando..." : "Parar Tunnel"}
-            </Button>
-          </div>
-        </form>
+      {error ? (
+        <Card className="border border-[color-mix(in srgb,var(--primary) 45%,var(--border) 55%)] bg-[color-mix(in srgb,var(--surface-2) 80%,transparent)] p-4">
+          <p className="text-sm text-[var(--text)]">{error}</p>
+        </Card>
+      ) : null}
 
-        <div className="space-y-4">
+      <Card className="space-y-4 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-              Status
-            </span>
-            <div className="mt-2 rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/60 px-4 py-3 text-sm text-[var(--text)]">
-              {statusLabel}
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Status</p>
+            <p className="text-lg font-medium text-[var(--text)]">{STATUS_LABEL[status]}</p>
           </div>
-
-          {publicUrl ? (
-            <div className="space-y-2">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                URL pública (demonstração)
-              </span>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex-1 rounded-2xl border border-[var(--card-border)]/70 bg-[var(--card)]/60 px-4 py-2 font-mono text-sm text-[var(--text)] break-all">
-                  {publicUrl}
-                </div>
-                <Button type="button" variant="secondary" size="sm" onClick={handleCopy}>
-                  Copiar link
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-[var(--card-border)]/50 bg-[var(--card)]/40 px-4 py-3 text-sm text-[var(--text-muted)]">
-              Inicie o tunnel para gerar um link de visualização.
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={handleStart} disabled={loading || status === "RUNNING"}>
+              {loading && status !== "RUNNING" ? "Iniciando..." : "Iniciar Tunnel"}
+            </Button>
+            <Button variant="secondary" onClick={handleStop} disabled={loading || status === "STOPPED"}>
+              {loading && status === "RUNNING" ? "Parando..." : "Parar Tunnel"}
+            </Button>
+            <Button variant="ghost" onClick={handleCopy} disabled={!canCopy}>
+              Copiar URL
+            </Button>
+          </div>
         </div>
 
-        <p className="text-xs text-[var(--text-muted)]">
-          Este modo é apenas uma representação visual. Nenhum comando real é executado e nenhum túnel é criado.
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">URL pública</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
+              {url ?? "--"}
+            </div>
+            <Button variant="outline" onClick={clear} disabled={logs.length === 0}>
+              Limpar logs
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="space-y-3 p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Logs em tempo real</h2>
+          <Button variant="ghost" size="sm" onClick={() => void refresh()} disabled={loading}>
+            Atualizar status
+          </Button>
+        </div>
+        <div
+          ref={logContainerRef}
+          className="max-h-80 overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 font-mono text-xs"
+        >
+          {logs.length === 0 ? (
+            <p className="text-[var(--muted)]">Nenhum log registrado ainda.</p>
+          ) : (
+            <ul className="space-y-1">
+              {logs.map((line, index) => (
+                <li key={`${line}-${index}`} className="whitespace-pre-wrap break-words text-[var(--text)]">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </Card>
     </div>
   );

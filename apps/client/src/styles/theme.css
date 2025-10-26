@@ -10,9 +10,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(124, 58, 237, 0.24), transparent 55%),
-    linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 100%);
+  background-color: var(--bg);
   color: var(--text);
 }
 
@@ -21,7 +19,7 @@ body {
 }
 
 a {
-  color: var(--accent);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -43,11 +41,7 @@ textarea {
 .app-shell {
   position: relative;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.32), transparent 58%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.28), transparent 62%),
-    radial-gradient(circle at 50% 82%, rgba(124, 58, 237, 0.22), transparent 68%),
-    linear-gradient(155deg, var(--bg) 0%, var(--bg-soft) 100%);
+  background-color: var(--bg);
   color: var(--text);
   isolation: isolate;
 }
@@ -59,34 +53,6 @@ textarea {
   pointer-events: none;
 }
 
-.app-shell__gradient {
-  position: absolute;
-  inset: -20%;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.22), transparent 55%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2), transparent 60%),
-    radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.18), transparent 65%);
-  filter: blur(90px);
-  opacity: 0.9;
-}
-
-.app-shell__mesh {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 45%, rgba(255, 255, 255, 0.05) 100%);
-  mix-blend-mode: screen;
-  opacity: 0.35;
-}
-
-.app-shell__grid {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 52px 52px;
-  opacity: 0.14;
-}
-
 .card-shadow {
-  box-shadow: 0 25px 45px -25px rgba(15, 23, 42, 0.55);
+  box-shadow: 0 25px 45px -25px var(--ring);
 }

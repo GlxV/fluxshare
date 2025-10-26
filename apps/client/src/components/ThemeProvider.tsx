@@ -18,7 +18,8 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function applyTheme(theme: "light" | "dark") {
   if (typeof document === "undefined") return;
-  document.documentElement.classList.toggle("theme-light", theme === "light");
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.dataset.theme = theme;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
