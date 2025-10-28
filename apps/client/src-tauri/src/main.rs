@@ -14,7 +14,7 @@ use commands::{
     quic::{quic_start, QuicManager},
     settings::{get_settings, set_settings, SettingsManager},
     transfer::{get_status, send_files, TransferManager},
-    tunnel::{start_tunnel, stop_tunnel, tunnel_status, TunnelManager},
+    tunnel::{start_host, start_tunnel, stop_host, stop_tunnel, tunnel_status, TunnelManager},
     webrtc::{start_signaling, webrtc_start, WebRTCManager},
 };
 use tauri::Manager;
@@ -23,8 +23,7 @@ use tracing_subscriber::{fmt, EnvFilter};
 fn init_tracing() {
     let base = fmt()
         .with_env_filter(
-            EnvFilter::from_default_env()
-                .add_directive("fluxshare=info".parse().unwrap()),
+            EnvFilter::from_default_env().add_directive("fluxshare=info".parse().unwrap()),
         )
         .with_target(false)
         .json();
@@ -81,7 +80,9 @@ fn main() {
             quic_start,
             send_files,
             get_status,
+            start_host,
             start_tunnel,
+            stop_host,
             stop_tunnel,
             tunnel_status,
             set_settings,

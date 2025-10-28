@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AppOutletContext } from "../App";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { useTunnelStore } from "../state/useTunnelStore";
+import { isTauri } from "../lib/persist/tauri";
 
 const STATUS_LABEL: Record<"RUNNING" | "STOPPED", string> = {
   RUNNING: "Ativo",
@@ -13,20 +14,25 @@ const STATUS_LABEL: Record<"RUNNING" | "STOPPED", string> = {
 export default function TunnelPage() {
   const { setHeaderInfo } = useOutletContext<AppOutletContext>();
   const logContainerRef = useRef<HTMLDivElement | null>(null);
-  const { status, url, logs, loading, error, missingBinary, start, stop, refresh, clear } = useTunnelStore(
-    (state) => ({
-      status: state.status,
-      url: state.url,
-      logs: state.logs,
-      loading: state.loading,
-      error: state.error,
-      missingBinary: state.missingBinary,
-      start: state.start,
-      stop: state.stop,
-      refresh: state.refresh,
-      clear: state.clear,
-    }),
-  );
+  const [hostError, setHostError] = useState<string | null>(null);
+  const { status, url, localUrl, hostedFiles, logs, loading, error, missingBinary, start, host, stop, refresh, clear } =
+    useTunnelStore(
+      (state) => ({
+        status: state.status,
+        url: state.url,
+        localUrl: state.localUrl,
+        hostedFiles: state.hostedFiles,
+        logs: state.logs,
+        loading: state.loading,
+        error: state.error,
+        missingBinary: state.missingBinary,
+        start: state.start,
+        host: state.host,
+        stop: state.stop,
+        refresh: state.refresh,
+        clear: state.clear,
+      }),
+    );
 
   useEffect(() => {
     setHeaderInfo({});
@@ -40,13 +46,42 @@ export default function TunnelPage() {
     }
   }, [logs]);
 
-  const canCopy = useMemo(() => Boolean(url), [url]);
+  const canCopyPublic = useMemo(() => Boolean(url), [url]);
+  const canOpenLocal = useMemo(() => Boolean(localUrl), [localUrl]);
+  const canCopyLocal = canOpenLocal;
+  const hostedCount = useMemo(() => hostedFiles.length, [hostedFiles]);
 
   async function handleStart() {
     try {
       await start();
     } catch (err) {
       console.error("fluxshare:tunnel", err);
+    }
+  }
+
+  async function handleSelectAndHost() {
+    if (!isTauri()) {
+      setHostError("Disponível apenas no aplicativo desktop.");
+      return;
+    }
+    try {
+      const { open } = await import("@tauri-apps/api/dialog");
+      const selection = await open({ multiple: true, directory: false });
+      const normalized = Array.isArray(selection)
+        ? selection.filter((value): value is string => typeof value === "string" && value.length > 0)
+        : typeof selection === "string" && selection.length > 0
+          ? [selection]
+          : [];
+      if (normalized.length === 0) {
+        setHostError("Nenhum arquivo selecionado.");
+        return;
+      }
+      setHostError(null);
+      await host(normalized, "cloudflared");
+    } catch (err) {
+      const message = typeof err === "string" ? err : (err as Error).message;
+      setHostError(message);
+      console.error("fluxshare:tunnel:host", err);
     }
   }
 
@@ -58,12 +93,21 @@ export default function TunnelPage() {
     }
   }
 
-  async function handleCopy() {
-    if (!url) return;
+  async function handleCopy(target?: string | null) {
+    if (!target) return;
     try {
-      await navigator.clipboard?.writeText?.(url);
+      await navigator.clipboard?.writeText?.(target);
     } catch (err) {
       console.error("fluxshare:tunnel:copy", err);
+    }
+  }
+
+  function handleOpen(target?: string | null) {
+    if (!target) return;
+    try {
+      window.open(target, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      console.error("fluxshare:tunnel:open", err);
     }
   }
 
@@ -91,6 +135,12 @@ export default function TunnelPage() {
         </Card>
       ) : null}
 
+      {hostError ? (
+        <Card className="border border-[color-mix(in srgb,var(--danger) 35%,var(--border) 65%)] bg-[color-mix(in srgb,var(--surface-2) 75%,transparent)] p-4">
+          <p className="text-sm text-[var(--text)]">{hostError}</p>
+        </Card>
+      ) : null}
+
       <Card className="space-y-4 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -98,28 +148,61 @@ export default function TunnelPage() {
             <p className="text-lg font-medium text-[var(--text)]">{STATUS_LABEL[status]}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button onClick={handleSelectAndHost} disabled={loading}>
+              {loading ? "Processando..." : "Selecionar arquivo(s) e gerar link"}
+            </Button>
             <Button onClick={handleStart} disabled={loading || status === "RUNNING"}>
               {loading && status !== "RUNNING" ? "Iniciando..." : "Iniciar Tunnel"}
             </Button>
             <Button variant="secondary" onClick={handleStop} disabled={loading || status === "STOPPED"}>
               {loading && status === "RUNNING" ? "Parando..." : "Parar Tunnel"}
             </Button>
-            <Button variant="ghost" onClick={handleCopy} disabled={!canCopy}>
-              Copiar URL
+            <Button variant="ghost" onClick={() => handleCopy(url)} disabled={!canCopyPublic}>
+              Copiar URL pública
             </Button>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">URL pública</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
-              {url ?? "--"}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Link local</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
+                {localUrl ?? "--"}
+              </div>
             </div>
-            <Button variant="outline" onClick={clear} disabled={logs.length === 0}>
-              Limpar logs
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => handleOpen(localUrl)} disabled={!canOpenLocal}>
+                Abrir
+              </Button>
+              <Button variant="ghost" onClick={() => handleCopy(localUrl)} disabled={!canCopyLocal}>
+                Copiar
+              </Button>
+            </div>
           </div>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Link público</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
+                {url ?? "--"}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => handleOpen(url)} disabled={!canCopyPublic}>
+                Abrir
+              </Button>
+              <Button variant="ghost" onClick={() => handleCopy(url)} disabled={!canCopyPublic}>
+                Copiar
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-[var(--muted)]">Arquivos hospedados: {hostedCount}</p>
+          <Button variant="outline" onClick={clear} disabled={logs.length === 0}>
+            Limpar logs
+          </Button>
         </div>
       </Card>
 
