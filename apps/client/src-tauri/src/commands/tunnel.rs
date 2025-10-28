@@ -1,3 +1,4 @@
+use axum::body::Body;
 use std::fmt::Write as FmtWrite;
 use std::fs;
 use std::io::{BufRead, BufReader, SeekFrom};
@@ -8,7 +9,6 @@ use std::thread::JoinHandle as ThreadJoinHandle;
 use std::time::Duration;
 
 use axum::{
-    body::StreamBody,
     extract::{Path, State},
     http::{header, HeaderMap, HeaderValue, StatusCode},
     response::{Html, IntoResponse, Response},
@@ -422,7 +422,7 @@ async fn download_handler(
     }
 
     let stream = ReaderStream::new(handle.take(bytes_to_read));
-    let mut response = StreamBody::new(stream).into_response();
+    let mut response = Response::new(Body::from_stream(stream));
     *response.status_mut() = status;
 
     if let Ok(value) = HeaderValue::from_str(&bytes_to_read.to_string()) {
