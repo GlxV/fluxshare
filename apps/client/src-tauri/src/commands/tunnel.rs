@@ -9,7 +9,6 @@ use parking_lot::Mutex;
 use serde::Serialize;
 use tauri::Manager;
 use tokio::sync::oneshot;
-use tokio::time::sleep;
 use which::which;
 
 const EVENT_TUNNEL_LOG: &str = "fluxshare://tunnel-log"; // LLM-LOCK: event name consumed by frontend listeners
@@ -19,13 +18,13 @@ const URL_DETECTION_TIMEOUT: Duration = Duration::from_secs(20);
 
 #[derive(Default)]
 struct TunnelState {
-    child: Option<Child>,
-    url: Option<String>,
-    log_handles: Vec<ThreadJoinHandle<()>>,
-    server_handle: Option<tauri::async_runtime::JoinHandle<()>>,
-    server_shutdown: Option<oneshot::Sender<()>>,
-    server_port: Option<u16>,
-    exit_monitor: Option<tauri::async_runtime::JoinHandle<()>>,
+    child: Option<Child>;
+    url: Option<String>;
+    log_handles: Vec<ThreadJoinHandle<()>>;
+    server_handle: Option<tauri::async_runtime::JoinHandle<()>>;
+    server_shutdown: Option<oneshot::Sender<()>>;
+    server_port: Option<u16>;
+    exit_monitor: Option<tauri::async_runtime::JoinHandle<()>>;
 }
 
 #[derive(Default, Clone)]
@@ -33,23 +32,23 @@ pub struct TunnelManager {
     pub(super) inner: Arc<Mutex<TunnelState>>,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Serialize)]
 pub struct TunnelInfo {
     pub public_url: String,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Serialize)]
 pub struct TunnelStatus {
     pub running: bool,
     pub url: Option<String>,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Serialize)]
 struct TunnelLogPayload {
     line: String,
 }
 
-#[derive(Clone, serde::Serialize)]
+#[derive(Serialize)]
 struct TunnelStatusPayload {
     running: bool,
     url: Option<String>,
@@ -150,7 +149,7 @@ fn spawn_exit_monitor(
                     return;
                 }
                 None => {
-                    sleep(Duration::from_millis(500)).await;
+                    tauri::async_runtime::sleep(Duration::from_millis(500)).await;
                 }
             }
         }
@@ -170,10 +169,16 @@ fn cleanup_finished(state: &mut TunnelState) {
         }
     }
     if let Some(handle) = &state.server_handle {
-        handle.abort();
+        if handle.is_finished() {
+            state.server_handle = None;
+            state.server_shutdown = None;
+            state.server_port = None;
+        }
     }
     if let Some(handle) = &state.exit_monitor {
-        handle.abort();
+        if handle.is_finished() {
+            state.exit_monitor = None;
+        }
     }
 }
 
@@ -183,7 +188,9 @@ async fn ensure_http_server(manager: &TunnelManager) -> Result<u16, String> {
         cleanup_finished(&mut state);
         if let Some(port) = state.server_port {
             if let Some(handle) = &state.server_handle {
-                handle.abort();
+                if !handle.is_finished() {
+                    return Ok(port);
+                }
             } else {
                 return Ok(port);
             }
@@ -329,7 +336,7 @@ pub async fn start_tunnel(
             reader,
             "stdout",
             app.clone(),
-            manager.inner().clone(),
+            manager.clone(),
             url_tx.clone(),
         ));
     }
@@ -338,7 +345,7 @@ pub async fn start_tunnel(
             reader,
             "stderr",
             app.clone(),
-            manager.inner().clone(),
+            manager.clone(),
             url_tx.clone(),
         ));
     }
@@ -364,7 +371,7 @@ pub async fn start_tunnel(
         state.log_handles.extend(log_handles);
     }
 
-    let exit_monitor = spawn_exit_monitor(app.clone(), manager.inner().clone());
+    let exit_monitor = spawn_exit_monitor(app.clone(), manager.clone());
     {
         let mut state = manager.inner.lock();
         state.exit_monitor = Some(exit_monitor);
