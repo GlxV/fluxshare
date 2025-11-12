@@ -48,3 +48,6 @@ tauri-build = { version = "1", features = [] }
 rand = "0.8"
 tempfile = "3"
 
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

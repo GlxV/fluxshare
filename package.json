@@ -10,5 +10,8 @@
     "tauri:dev": "pnpm -C apps/client tauri dev",
     "tauri:build": "pnpm -C apps/client tauri build"
   },
-  "packageManager": "pnpm@8.15.4"
+  "packageManager": "pnpm@8.15.4",
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.6.3"
+  }
 }
