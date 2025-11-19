@@ -2,7 +2,7 @@
 
 FluxShare é um cliente desktop multiplataforma (Windows/Linux/macOS) para transferência de arquivos **via Cloudflare Tunnel (HTTP/3/QUIC) como caminho principal**, eliminando problemas de NAT/CGNAT.  
 Quando os peers estão na **mesma rede**, o app usa **WebRTC P2P** como otimização de latência. Se P2P não for possível, o **túnel** assume automaticamente.  
-Licença **MIT**. Monorepo com **pnpm**.
+Licenciado sob GNU GPLv3 (GPL-3.0-or-later). Veja o arquivo `LICENSE` para detalhes. Monorepo com **pnpm**.
 
 ## Pré-requisitos
 
