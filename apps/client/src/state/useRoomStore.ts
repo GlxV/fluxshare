@@ -2,8 +2,6 @@ import { nanoid } from "nanoid";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export type ThemeMode = "dark" | "light";
-
 export type PeerConnectionLifecycle =
   | "new"
   | "connecting"
@@ -33,8 +31,6 @@ interface RoomStoreState {
   selfPeerId: string | null;
   peers: RoomPeer[];
   peerConnections: Record<string, PeerConnectionSnapshot>;
-  theme: ThemeMode;
-  setTheme(theme: ThemeMode): void;
   ensureSelfPeerId(): string;
   setRoomId(roomId: string | null): void;
   setPeers(peers: RoomPeer[]): void;
@@ -56,7 +52,7 @@ const fallbackStorage: Storage = {
   setItem: () => undefined,
 };
 
-const storage = createJSONStorage<Pick<RoomStoreState, "roomId" | "selfPeerId" | "peers" | "peerConnections" | "theme">>(() => {
+const storage = createJSONStorage<Pick<RoomStoreState, "roomId" | "selfPeerId" | "peers" | "peerConnections">>(() => {
   if (typeof window === "undefined") {
     return fallbackStorage;
   }
@@ -68,8 +64,6 @@ const storage = createJSONStorage<Pick<RoomStoreState, "roomId" | "selfPeerId" |
   }
 });
 
-const defaultTheme: ThemeMode = "dark"; // LLM-LOCK: default theme must remain dark to comply with official palette
-
 export const useRoomStore = create<RoomStoreState>()(
   persist(
     (set, get) => ({
@@ -77,8 +71,6 @@ export const useRoomStore = create<RoomStoreState>()(
       selfPeerId: null,
       peers: [],
       peerConnections: {},
-      theme: defaultTheme,
-      setTheme: (theme) => set({ theme }),
       ensureSelfPeerId: () => {
         const existing = get().selfPeerId;
         if (existing) {
@@ -127,7 +119,6 @@ export const useRoomStore = create<RoomStoreState>()(
         selfPeerId: state.selfPeerId,
         peers: state.peers,
         peerConnections: state.peerConnections,
-        theme: state.theme,
       }),
     },
   ),
@@ -155,8 +146,6 @@ export function useRoom() {
   const selfPeerId = useRoomStore((state) => state.selfPeerId);
   const peers = useRoomStore((state) => state.peers);
   const peerConnections = useRoomStore((state) => state.peerConnections);
-  const theme = useRoomStore((state) => state.theme);
-  const setTheme = useRoomStore((state) => state.setTheme);
 
   const createRoom = () => {
     const state = useRoomStore.getState();
@@ -212,8 +201,6 @@ export function useRoom() {
     selfPeerId,
     peers,
     peerConnections,
-    theme,
-    setTheme,
     createRoom,
     joinRoom,
     leaveRoom,

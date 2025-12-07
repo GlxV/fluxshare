@@ -9,9 +9,11 @@ export interface ToastItem {
   duration: number;
 }
 
+export type ToastInput = Omit<ToastItem, "id" | "duration"> & { id?: string; duration?: number };
+
 interface ToastStore {
   toasts: ToastItem[];
-  showToast: (toast: Omit<ToastItem, "id"> & { id?: string }) => string;
+  showToast: (toast: ToastInput) => string;
   dismiss: (id: string) => void;
 }
 
@@ -25,16 +27,16 @@ export const useToastStore = create<ToastStore>((set, get) => ({
   toasts: [],
   showToast: (toast) => {
     const id = toast.id ?? createId();
+    const duration = toast.duration ?? DEFAULT_DURATION;
     const item: ToastItem = {
       id,
       message: toast.message,
       variant: toast.variant ?? "default",
-      duration: toast.duration ?? DEFAULT_DURATION,
+      duration,
     };
     set((state) => ({
       toasts: [...state.toasts.filter((existing) => existing.id !== id), item],
     }));
-    const duration = toast.duration ?? DEFAULT_DURATION;
     if (duration !== Infinity && typeof window !== "undefined") {
       window.setTimeout(() => {
         get().dismiss(id);
@@ -48,6 +50,6 @@ export const useToastStore = create<ToastStore>((set, get) => ({
     })),
 }));
 
-export function toast(options: Omit<ToastItem, "id"> & { id?: string }) {
+export function toast(options: ToastInput) {
   return useToastStore.getState().showToast(options);
 }
