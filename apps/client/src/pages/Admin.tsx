@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { open } from "@tauri-apps/api/shell";
 import { nanoid } from "nanoid";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -8,6 +9,7 @@ import { SignalingClient } from "../lib/signaling";
 import PeerManager from "../lib/rtc/PeerManager";
 import TransferService, { type TransferSource } from "../lib/transfer/TransferService";
 import { useTunnelStore } from "../state/useTunnelStore";
+import { useUpdateStore } from "../state/useUpdateStore";
 
 interface TestContext {
   log(message: string): void;
@@ -340,6 +342,10 @@ export default function AdminPage() {
     });
     return initial;
   });
+  const updateInfo = useUpdateStore((state) => state.updateInfo);
+  const isCheckingUpdate = useUpdateStore((state) => state.isChecking);
+  const updateError = useUpdateStore((state) => state.error);
+  const checkForUpdates = useUpdateStore((state) => state.checkForUpdates);
 
   const runTests = useCallback(async () => {
     if (running) return;
@@ -383,6 +389,17 @@ export default function AdminPage() {
 
   const allSuccess = useMemo(() => TEST_DEFINITIONS.every((test) => results[test.id]?.status === "success"), [results]);
 
+  const handleOpenRelease = useCallback(async () => {
+    if (!updateInfo?.releaseUrl) return;
+    try {
+      await open(updateInfo.releaseUrl);
+    } catch {
+      if (typeof window !== "undefined") {
+        window.open(updateInfo.releaseUrl, "_blank", "noopener,noreferrer");
+      }
+    }
+  }, [updateInfo?.releaseUrl]);
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 text-[var(--text)]">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -396,6 +413,43 @@ export default function AdminPage() {
           {running ? "Executando..." : "Rodar testes"}
         </Button>
       </div>
+
+      <Card className="flex flex-wrap items-center justify-between gap-3 p-5">
+        <div className="space-y-1">
+          <p className="text-lg font-semibold text-[var(--text)]">Atualizações</p>
+          <p className="text-sm text-[var(--muted)]">
+            {isCheckingUpdate
+              ? "Verificando atualizações..."
+              : updateInfo?.hasUpdate
+                ? `Nova versão disponível: v${updateInfo.latestVersion}`
+                : updateInfo
+                  ? `FluxShare está atualizado (v${updateInfo.latestVersion})`
+                  : "Verifique se há uma nova versão no GitHub."}
+          </p>
+          {updateError ? (
+            <p className="text-xs text-[color-mix(in srgb,var(--primary) 65%,var(--muted) 35%)]">
+              Erro: {updateError}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              void checkForUpdates();
+            }}
+            disabled={isCheckingUpdate}
+          >
+            {isCheckingUpdate ? "Verificando..." : "Verificar atualizações"}
+          </Button>
+          {updateInfo?.hasUpdate ? (
+            <Button size="sm" onClick={handleOpenRelease}>
+              Ver no GitHub
+            </Button>
+          ) : null}
+        </div>
+      </Card>
 
       {allSuccess ? (
         <Card className="border border-[color-mix(in srgb,var(--primary) 35%,var(--border) 65%)] bg-[color-mix(in srgb,var(--surface) 80%,transparent)] p-4">
