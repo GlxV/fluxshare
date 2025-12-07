@@ -1,9 +1,30 @@
 import { nanoid } from "nanoid";
 import { isTauri } from "../persist/tauri";
+import { extractArchiveToFolder } from "./folder";
 
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const BUFFERED_AMOUNT_LOW = DEFAULT_CHUNK_SIZE * 8;
 const BUFFERED_AMOUNT_HIGH = DEFAULT_CHUNK_SIZE * 32;
+
+async function writeArchiveToCache(meta: TransferMeta, blob: Blob): Promise<string | null> {
+  try {
+    const [{ appCacheDir, join }, { writeBinaryFile, createDir }] = await Promise.all([
+      import("@tauri-apps/api/path"),
+      import("@tauri-apps/api/fs"),
+    ]);
+    const cacheDir = await appCacheDir();
+    const folder = await join(cacheDir, "fluxshare-archives");
+    await createDir(folder, { recursive: true });
+    const name = meta.name.endsWith(".zip") ? meta.name : `${meta.name}.zip`;
+    const target = await join(folder, `recv-${Date.now()}-${name}`);
+    const buffer = new Uint8Array(await blob.arrayBuffer());
+    await writeBinaryFile({ path: target, contents: buffer });
+    return target;
+  } catch (error) {
+    console.warn("fluxshare:transfer", "failed to write archive", error);
+    return null;
+  }
+}
 
 export type TransferDirection = "send" | "receive";
 
@@ -14,6 +35,8 @@ export interface TransferMeta {
   mime?: string;
   chunkSize: number;
   totalChunks: number;
+  isArchive?: boolean;
+  archiveRoot?: string;
 }
 
 export interface TransferSource {
@@ -24,6 +47,8 @@ export interface TransferSource {
   file?: File;
   createChunk?: (start: number, length: number) => Promise<ArrayBuffer>;
   onDispose?: () => void;
+  isArchive?: boolean;
+  archiveRoot?: string;
 }
 
 interface ControlMetaMessage extends TransferMeta {
@@ -219,6 +244,8 @@ class PeerChannelController {
       mime: source.mime,
       chunkSize,
       totalChunks,
+      isArchive: source.isArchive,
+      archiveRoot: source.archiveRoot,
     };
   }
 
@@ -379,7 +406,15 @@ class PeerChannelController {
       const blob = new Blob(merged, { type: session.meta.mime ?? "application/octet-stream" });
       let savePath: string | null = null;
       if (isTauri()) {
-        savePath = await this.saveWithTauri(session.meta, blob);
+        if (session.meta.isArchive) {
+          const archivePath = await writeArchiveToCache(session.meta, blob);
+          if (archivePath) {
+            const extracted = await extractArchiveToFolder(archivePath, session.meta.archiveRoot);
+            savePath = extracted ?? archivePath;
+          }
+        } else {
+          savePath = await this.saveWithTauri(session.meta, blob);
+        }
       }
       if (savePath) {
         this.emitter.emit("transfer-completed", {

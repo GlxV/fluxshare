@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { nanoid } from "nanoid";
 import PeersPanel, { type PeerViewModel } from "../components/PeersPanel";
 import TransferBox from "../components/TransferBox";
+import SessionPanel from "../components/SessionPanel";
 import { useRoom, useRoomStore, type RoomPeer } from "../state/useRoomStore";
 import { useTransfersStore, type TransferState } from "../store/useTransfers";
 import { SignalingClient } from "../lib/signaling";
@@ -11,15 +12,21 @@ import TransferService, { type TransferSource } from "../lib/transfer/TransferSe
 import { isTauri, getFileInfo, readFileRange } from "../lib/persist/tauri";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { notify } from "../lib/notify";
+import { prepareFolderTransfer } from "../lib/transfer/folder";
+import { toast } from "../store/useToast";
 
 interface SelectedFile {
   id: string;
   name: string;
   size: number;
   mime?: string;
-  source: "web" | "tauri";
+  kind: "file" | "folder";
+  source: "web" | "tauri" | "tauri-folder";
   file?: File;
   path?: string;
+  archiveRoot?: string;
+  cleanup?: () => Promise<void>;
 }
 
 interface PeerTargetsOptions {
@@ -76,11 +83,16 @@ function buildTransferSource(file: SelectedFile, peerId: string): TransferSource
     name: file.name,
     size: file.size,
     mime: file.mime,
+    isArchive: file.kind === "folder",
+    archiveRoot: file.archiveRoot,
   };
   if (file.source === "web" && file.file) {
     source.file = file.file;
-  } else if (file.source === "tauri" && file.path) {
+  } else if ((file.source === "tauri" || file.source === "tauri-folder") && file.path) {
     source.createChunk = (start, length) => readFileRange(file.path!, start, length);
+  }
+  if (file.cleanup) {
+    source.onDispose = () => void file.cleanup?.();
   }
   return source;
 }
@@ -111,6 +123,7 @@ export function RoomPage() {
   const transferServiceRef = useRef<TransferService | null>(null);
   const registeredPeersRef = useRef(new Set<string>());
   const pendingSendsRef = useRef(new Map<string, TransferSource[]>());
+  const connectionStateRef = useRef(new Map<string, PeerConnectionState>());
 
   useEffect(() => {
     if (selectedPeerId && !peers.some((peer) => peer.peerId === selectedPeerId)) {
@@ -180,6 +193,8 @@ export function RoomPage() {
 
     peerUnsubs.push(
       peerManager.on("connection-state", ({ peerId, state }) => {
+        const previous = connectionStateRef.current.get(peerId);
+        connectionStateRef.current.set(peerId, state);
         const store = useRoomStore.getState();
         const existing = store.peers.find((peer) => peer.peerId === peerId);
         store.upsertPeer({
@@ -221,6 +236,18 @@ export function RoomPage() {
         }
         if (state === "failed" || state === "disconnected" || state === "closed") {
           registeredPeersRef.current.delete(peerId);
+        }
+        if (state === "connected" && previous && previous !== "connected") {
+          void notify({
+            title: "Peer conectado",
+            body: `Conexão restabelecida com ${existing?.displayName ?? peerId}.`,
+          });
+        }
+        if ((state === "failed" || state === "disconnected" || state === "closed") && previous === "connected") {
+          void notify({
+            title: "Peer desconectado",
+            body: existing?.displayName ?? peerId,
+          });
         }
       }),
     );
@@ -321,6 +348,10 @@ export function RoomPage() {
           downloadUrl: event.fileUrl,
           savePath: event.savePath,
         });
+        void notify({
+          title: event.direction === "receive" ? "Arquivo recebido" : "Envio concluído",
+          body: event.meta.name,
+        });
       }),
     );
 
@@ -338,6 +369,10 @@ export function RoomPage() {
         useTransfersStore.getState().updateTransfer(event.transferId, {
           status: "error",
           error: event.error.message,
+        });
+        void notify({
+          title: "Erro na transferência",
+          body: event.error.message,
         });
       }),
     );
@@ -435,6 +470,7 @@ export function RoomPage() {
             name: file.name,
             size: file.size,
             mime: file.type || undefined,
+            kind: "file",
             source: "web",
             file,
           });
@@ -461,11 +497,48 @@ export function RoomPage() {
         name,
         size,
         mime: undefined,
+        kind: "file",
         source: "tauri",
         path,
       } satisfies SelectedFile;
     } catch (error) {
       console.error("fluxshare:file", "tauri picker failed", error);
+      return null;
+    }
+  }, []);
+
+  const pickTauriFolder = useCallback(async () => {
+    if (!isTauri()) {
+      toast({ message: "Envio de pastas requer o aplicativo desktop.", variant: "info" });
+      return null;
+    }
+    try {
+      const { open } = await import("@tauri-apps/api/dialog");
+      const selection = await open({ multiple: false, directory: true });
+      if (!selection || Array.isArray(selection)) {
+        return null;
+      }
+      const path = selection;
+      const name = path.split(/[\\/]/).pop() ?? "pasta";
+      const plan = await prepareFolderTransfer({ path, name });
+      if (!plan) return null;
+      const info = await getFileInfo(plan.archivePath);
+      const size = info.size ?? plan.size ?? 0;
+      const id = await computeFileId(plan.displayName, size || 1, Date.now());
+      return {
+        id,
+        name: plan.displayName.endsWith(".zip") ? plan.displayName : `${plan.displayName}.zip`,
+        size,
+        mime: "application/zip",
+        kind: "folder",
+        source: "tauri-folder",
+        path: plan.archivePath,
+        archiveRoot: plan.archiveRoot,
+        cleanup: plan.cleanup,
+      } satisfies SelectedFile;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({ message: `Falha ao selecionar pasta: ${message}`, variant: "error" });
       return null;
     }
   }, []);
@@ -478,6 +551,16 @@ export function RoomPage() {
       sendFileToTargets(file, { overridePeerId });
     },
     [pickTauriFile, pickWebFile, sendFileToTargets],
+  );
+
+  const handlePickFolder = useCallback(
+    async (overridePeerId?: string) => {
+      const folder = await pickTauriFolder();
+      if (!folder) return;
+      setSelectedFile(folder);
+      sendFileToTargets(folder, { overridePeerId });
+    },
+    [pickTauriFolder, sendFileToTargets],
   );
 
   const latestTransfersByPeer = useMemo(() => getLatestTransferByPeer(transfers), [transfers]);
@@ -626,11 +709,14 @@ export function RoomPage() {
         </div>
       </Card>
 
+      <SessionPanel transfers={transfers} />
+
       <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
         <TransferBox
           file={transferBoxFile}
           transfer={transferBoxTransfer}
           onPickFile={() => handlePickFile()}
+          onPickFolder={() => handlePickFolder()}
           onCancel={handleCancelTransfer}
           activeTransferId={activeTransferId}
           hasConnectedPeers={hasConnectedPeers}

@@ -7,7 +7,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { useRoom } from "../state/useRoomStore";
+import { usePreferencesStore } from "../state/usePreferencesStore";
 
 interface ThemeContextValue {
   theme: "light" | "dark";
@@ -23,7 +23,8 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const { theme, setTheme } = useRoom();
+  const theme = usePreferencesStore((state) => state.theme);
+  const setTheme = usePreferencesStore((state) => state.setTheme);
   const manualOverrideRef = useRef(false);
 
   useEffect(() => {

@@ -53,6 +53,25 @@ textarea {
   pointer-events: none;
 }
 
+.app-shell--animated {
+  animation: app-fade-in 260ms ease-out;
+}
+
+.app-shell--animated main {
+  animation: app-fade-in 320ms ease-out;
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .card-shadow {
   box-shadow: 0 25px 45px -25px var(--ring);
 }
