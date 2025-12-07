@@ -12,6 +12,7 @@
   },
   "packageManager": "pnpm@8.15.4",
   "devDependencies": {
-    "@tauri-apps/cli": "^1.6.3"
+    "@tauri-apps/cli": "^1.6.3",
+    "typescript": "^5.9.3"
   }
 }

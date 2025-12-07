@@ -4,6 +4,7 @@ import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { isTauri } from "../lib/persist/tauri";
+import { usePreferencesStore } from "../state/usePreferencesStore";
 
 interface TransferBoxProps {
   file: {
@@ -11,8 +12,9 @@ interface TransferBoxProps {
     name: string;
     size: number;
     mime?: string;
+    kind?: "file" | "folder";
     targetLabel?: string;
-    source?: "web" | "tauri";
+    source?: "web" | "tauri" | "tauri-folder";
     file?: File;
     path?: string;
   } | null;
@@ -27,6 +29,7 @@ interface TransferBoxProps {
     peerId: string;
   } | null;
   onPickFile: () => Promise<void>;
+  onPickFolder?: () => Promise<void>;
   onCancel: (peerId: string, transferId: string) => void;
   activeTransferId: string | null;
   hasConnectedPeers: boolean;
@@ -108,8 +111,19 @@ function renderTargetLabel(label?: string) {
   );
 }
 
-export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransferId, hasConnectedPeers }: TransferBoxProps) {
+export function TransferBox({
+  file,
+  transfer,
+  onPickFile,
+  onPickFolder,
+  onCancel,
+  activeTransferId,
+  hasConnectedPeers,
+}: TransferBoxProps) {
   const host = useTunnelStore((state) => state.host);
+  const primaryProvider = usePreferencesStore((state) => state.primaryTunnelProvider);
+  const fallbackProvider = usePreferencesStore((state) => state.fallbackTunnelProvider);
+  const fallbackEnabled = usePreferencesStore((state) => state.tunnelFallbackEnabled);
   const [hostingLink, setHostingLink] = useState(false);
   const [hostLinkError, setHostLinkError] = useState<string | null>(null);
   const canHostFromFile = useMemo(() => Boolean(file?.source), [file?.source]);
@@ -158,7 +172,8 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
         return;
       }
 
-      await host([pathToHost], "cloudflared");
+      const provider = fallbackEnabled ? fallbackProvider : primaryProvider;
+      await host([pathToHost], provider);
       setHostLinkError(null);
     } catch (error) {
       const message = typeof error === "string" ? error : (error as Error).message;
@@ -178,9 +193,16 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
           </div>
           <p className="text-sm text-[var(--muted)]">{statusLabel}</p>
         </div>
-        <Button type="button" onClick={() => onPickFile()}>
-          Selecionar arquivo
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" onClick={() => onPickFile()}>
+            Selecionar arquivo
+          </Button>
+          {onPickFolder ? (
+            <Button type="button" variant="secondary" onClick={() => onPickFolder()}>
+              Selecionar pasta
+            </Button>
+          ) : null}
+        </div>
       </div>
       <div className="space-y-4">
         {file ? (
@@ -189,6 +211,7 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
               <div className="space-y-1">
                 <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Nome</span>
                 <p className="text-sm text-[var(--text)]">{file.name}</p>
+                {file.kind === "folder" ? <Badge variant="accentSecondary">Pasta</Badge> : null}
               </div>
               <div className="space-y-1">
                 <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Tamanho</span>
@@ -233,7 +256,7 @@ export function TransferBox({ file, transfer, onPickFile, onCancel, activeTransf
           </>
         ) : (
           <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-6 py-10 text-center text-sm text-[var(--muted)]">
-            Selecione um arquivo para iniciar uma nova transferência.
+            Selecione um arquivo ou pasta para iniciar uma nova transferência.
           </div>
         )}
       </div>
