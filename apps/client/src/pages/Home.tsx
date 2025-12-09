@@ -4,6 +4,7 @@ import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { toast } from "../store/useToast";
 import { useRoom } from "../state/useRoomStore";
+import { useI18n } from "../i18n/LanguageProvider";
 
 const ROOM_CODE_PATTERN = /^[A-Z0-9-]{4,12}$/;
 
@@ -13,6 +14,7 @@ export function HomePage() {
   const [submitting, setSubmitting] = useState<"join" | "create" | null>(null);
   const navigate = useNavigate();
   const { roomId, createRoom, joinRoom, copyInviteLink } = useRoom();
+  const { t } = useI18n();
 
   const normalizedCode = useMemo(() => code.trim().toUpperCase(), [code]);
   const hasActiveRoom = Boolean(roomId);
@@ -20,11 +22,11 @@ export function HomePage() {
 
   function validateCode() {
     if (!normalizedCode) {
-      setError("Informe um código para entrar na sala.");
+      setError(t("p2p.validation.required"));
       return false;
     }
     if (!ROOM_CODE_PATTERN.test(normalizedCode)) {
-      setError("Código inválido. Use de 4 a 12 caracteres (A-Z, 0-9).");
+      setError(t("p2p.validation.invalid"));
       return false;
     }
     return true;
@@ -36,7 +38,7 @@ export function HomePage() {
     setError(null);
 
     if (!validateCode()) {
-      toast({ message: "Código inválido. Verifique e tente novamente.", variant: "error" });
+      toast({ message: t("p2p.toast.invalid"), variant: "error" });
       return;
     }
 
@@ -44,12 +46,12 @@ export function HomePage() {
       setSubmitting("join");
       const result = joinRoom(normalizedCode);
       if (!result?.roomId) {
-        throw new Error("Não foi possível entrar na sala.");
+        throw new Error(t("p2p.toast.joinError"));
       }
-      toast({ message: `Conectando à sala ${result.roomId}`, variant: "success" });
-      navigate(`/room/${result.roomId}`);
+      toast({ message: t("p2p.toast.joining", { room: result.roomId }), variant: "success" });
+      navigate(`/p2p/${result.roomId}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Falha ao entrar na sala.";
+      const message = err instanceof Error ? err.message : t("p2p.toast.joinError");
       setError(message);
       toast({ message, variant: "error" });
     } finally {
@@ -65,12 +67,12 @@ export function HomePage() {
       setSubmitting("create");
       const result = createRoom();
       if (!result?.roomId) {
-        throw new Error("Não foi possível criar a sala.");
+        throw new Error(t("p2p.toast.joinError"));
       }
-      toast({ message: `Sala ${result.roomId} criada com sucesso.`, variant: "success" });
-      navigate(`/room/${result.roomId}`);
+      toast({ message: t("p2p.toast.created", { room: result.roomId }), variant: "success" });
+      navigate(`/p2p/${result.roomId}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Falha ao criar sala.";
+      const message = err instanceof Error ? err.message : t("p2p.toast.joinError");
       setError(message);
       toast({ message, variant: "error" });
     } finally {
@@ -83,11 +85,11 @@ export function HomePage() {
     const result = await copyInviteLink();
     if (result.url) {
       toast({
-        message: result.copied ? "Link copiado para a área de transferência." : "Link gerado. Copie manualmente se preferir.",
+        message: result.copied ? t("p2p.toast.copySuccess") : t("p2p.toast.copyInfo"),
         variant: result.copied ? "success" : "info",
       });
     } else {
-      toast({ message: "Não foi possível copiar o link da sala.", variant: "error" });
+      toast({ message: t("p2p.toast.copyError"), variant: "error" });
     }
   }
 
@@ -96,18 +98,20 @@ export function HomePage() {
       {hasActiveRoom ? (
         <Card className="flex flex-col gap-3 p-5">
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Sala ativa</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+              {t("p2p.activeRoom")}
+            </p>
             <p className="font-mono text-lg text-[var(--text)]">{roomId}</p>
             <p className="text-sm text-[var(--muted)]">
-              Você já possui uma sala em andamento. Volte para ela ou crie uma nova somente se precisar resetar.
+              {t("p2p.activeRoomHint")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => navigate(`/room/${roomId}`)} disabled={isBusy} className="min-w-[160px]">
-              Voltar para sala
+            <Button onClick={() => navigate(`/p2p/${roomId}`)} disabled={isBusy} className="min-w-[160px]">
+              {t("p2p.goToRoom")}
             </Button>
             <Button variant="ghost" onClick={handleCopy} disabled={!roomId}>
-              Copiar link
+              {t("p2p.copyLink")}
             </Button>
           </div>
         </Card>
@@ -115,16 +119,14 @@ export function HomePage() {
 
       <Card className="space-y-6 p-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-[var(--text)]">FluxShare</h1>
-          <p className="text-sm text-[var(--muted)]">
-            Entre com um código de sala para iniciar uma sessão de compartilhamento P2P ou crie uma sala nova.
-          </p>
+          <h1 className="text-3xl font-bold text-[var(--text)]">{t("p2p.title")}</h1>
+          <p className="text-sm text-[var(--muted)]">{t("p2p.subtitle")}</p>
         </div>
 
         <form onSubmit={handleJoin} className="space-y-4">
           <div className="space-y-2">
             <label className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-              Código da sala
+              {t("p2p.roomCode")}
             </label>
             <input
               className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)]/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
@@ -134,7 +136,7 @@ export function HomePage() {
                 setCode(next);
                 if (error) setError(null);
               }}
-              placeholder="Ex: AB12CD"
+              placeholder={t("p2p.placeholder")}
               autoComplete="off"
               spellCheck={false}
               inputMode="text"
@@ -146,14 +148,14 @@ export function HomePage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Button type="submit" className="w-full" disabled={isBusy || normalizedCode.length === 0}>
-              {submitting === "join" ? "Entrando..." : "Entrar na sala"}
+              {submitting === "join" ? t("p2p.joining") : t("p2p.join")}
             </Button>
             <Button type="button" variant="secondary" className="w-full" onClick={handleCreate} disabled={isBusy}>
-              {submitting === "create" ? "Criando sala..." : "Criar nova sala"}
+              {submitting === "create" ? t("p2p.creating") : t("p2p.create")}
             </Button>
           </div>
           <p className="text-xs text-[var(--muted)]">
-            O botão fica desabilitado enquanto processamos sua ação para evitar duplicidades.
+            {t("p2p.buttonHint")}
           </p>
         </form>
       </Card>

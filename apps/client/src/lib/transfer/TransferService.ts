@@ -1,10 +1,14 @@
 import { nanoid } from "nanoid";
 import { isTauri } from "../persist/tauri";
 import { extractArchiveToFolder } from "./folder";
+import { translateInstant } from "../../i18n/translate";
 
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const BUFFERED_AMOUNT_LOW = DEFAULT_CHUNK_SIZE * 8;
 const BUFFERED_AMOUNT_HIGH = DEFAULT_CHUNK_SIZE * 32;
+
+const tError = (key: string, params?: Record<string, string | number>) =>
+  translateInstant(key as any, params);
 
 async function writeArchiveToCache(meta: TransferMeta, blob: Blob): Promise<string | null> {
   try {
@@ -186,7 +190,7 @@ class PeerChannelController {
 
   async sendFile(source: TransferSource, chunkSize = DEFAULT_CHUNK_SIZE) {
     if (this.sendSession) {
-      throw new Error("Transferência em andamento para este peer");
+      throw new Error(tError("error.peerBusy"));
     }
     const meta = this.createMeta(source, chunkSize);
     this.sendSession = {
@@ -261,7 +265,7 @@ class PeerChannelController {
           if (control.ready) {
             void this.startSendingChunks();
           } else {
-            this.cancelTransfer(control.id, "Peer não pode receber");
+            this.cancelTransfer(control.id, tError("error.peerCannotReceive"));
           }
           break;
         case "eof":
@@ -298,7 +302,7 @@ class PeerChannelController {
 
   private async prepareReceive(meta: TransferMeta) {
     if (this.receiveSession) {
-      this.cancelTransfer(this.receiveSession.meta.id, "Sobrescrito por nova transferência");
+      this.cancelTransfer(this.receiveSession.meta.id, tError("error.transferReplaced"));
     }
     const session: ReceiveSession = {
       meta,
@@ -534,7 +538,7 @@ class PeerChannelController {
       const slice = source.file.slice(start, start + size);
       return slice.arrayBuffer();
     }
-    throw new Error("Fonte de arquivo inválida");
+    throw new Error(tError("error.invalidSource"));
   }
 
   private waitForBackpressure(): Promise<void> {
@@ -623,7 +627,7 @@ export class TransferService {
   async sendToPeer(peerId: string, source: TransferSource, chunkSize = DEFAULT_CHUNK_SIZE) {
     const controller = this.peers.get(peerId);
     if (!controller) {
-      throw new Error(`Peer ${peerId} não registrado`);
+      throw new Error(tError("error.peerNotRegistered", { peerId }));
     }
     await controller.sendFile(source, chunkSize);
   }

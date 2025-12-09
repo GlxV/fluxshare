@@ -138,7 +138,7 @@ function buildInviteUrl(roomId: string | null): string | null {
   if (typeof window === "undefined") return null;
   const origin = window.location?.origin ?? "";
   if (!origin) return null;
-  return `${origin.replace(/\/$/, "")}/room/${roomId}`;
+  return `${origin.replace(/\/$/, "")}/p2p/${roomId}`;
 }
 
 export function useRoom() {

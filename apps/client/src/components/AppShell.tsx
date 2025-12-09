@@ -1,46 +1,16 @@
 import { useCallback, useEffect, useMemo, type ReactNode, useState } from "react";
 import { open } from "@tauri-apps/api/shell";
 import { Link, useLocation } from "react-router-dom";
-import { useTheme } from "./ThemeProvider";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { cn } from "../utils/cn";
 import { useRoom } from "../state/useRoomStore";
-import { usePreferencesStore } from "../state/usePreferencesStore";
+import { usePreferencesStore, type AppLanguage } from "../state/usePreferencesStore";
 import { useUpdateStore } from "../state/useUpdateStore";
-
-function SunIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 5V3m0 18v-2m7-7h2M3 12h2m13.364 6.364 1.414 1.414M4.222 4.222l1.414 1.414m0 12.728L4.222 19.778m15.556-15.556-1.414 1.414M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
-      />
-    </svg>
-  );
-}
-
-function MoonIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} {...props}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"
-      />
-    </svg>
-  );
-}
+import { useI18n } from "../i18n/LanguageProvider";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useI18n();
   const { roomId, copyInviteLink } = useRoom();
   const compactMode = usePreferencesStore((state) => state.compactMode);
   const setLastTab = usePreferencesStore((state) => state.setLastTab);
@@ -53,14 +23,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   const links = useMemo(() => {
-    const roomPath = roomId ? `/room/${roomId}` : "/room";
+    const roomPath = roomId ? `/p2p/${roomId}` : "/p2p";
     return [
-      { to: "/", label: "Início" },
-      { to: roomPath, label: "Sala" },
-      { to: "/tunnel", label: "Tunnel" },
-      { to: "/admin", label: "Admin" },
+      { to: "/", label: t("nav.send") },
+      { to: roomPath, label: t("nav.p2p") },
+      { to: "/config", label: t("nav.config") },
     ];
-  }, [roomId]);
+  }, [roomId, t]);
 
   const roomLabel = useMemo(() => {
     if (roomId) return roomId;
@@ -68,8 +37,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       const match = /\/room\/([A-Za-z0-9-]+)/.exec(lastInviteUrl);
       if (match) return match[1];
     }
-    return "Nenhuma sala";
-  }, [lastInviteUrl, roomId]);
+    return t("header.noRoom");
+  }, [lastInviteUrl, roomId, t]);
 
   const handleCopy = useCallback(async () => {
     const result = await copyInviteLink();
@@ -134,13 +103,16 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xl font-semibold tracking-tight text-[var(--text)]">
-              FluxShare
+              {t("app.name")}
             </span>
           </div>
           <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
             {links.map((link) => {
               const isActive =
-                location.pathname === link.to || (link.to.startsWith("/room/") && location.pathname.startsWith("/room"));
+                location.pathname === link.to ||
+                (link.to.startsWith("/p2p") &&
+                  (location.pathname.startsWith("/p2p") || location.pathname.startsWith("/room"))) ||
+                (link.to === "/" && location.pathname === "/");
               return (
                 <Link
                   key={link.to}
@@ -163,17 +135,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="flex items-center gap-3 rounded-2xl border border-[color-mix(in srgb,var(--primary) 55%,var(--border) 45%)] bg-[color-mix(in srgb,var(--surface-2) 82%,transparent)] px-3 py-2 shadow-[0_20px_45px_-24px_var(--ring)]">
                 <div className="flex flex-col leading-tight">
                   <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-                    Atualização
+                    {t("header.updateTitle")}
                   </span>
                   <span className="text-sm font-semibold text-[var(--text)]">v{updateInfo.latestVersion}</span>
                 </div>
                 <Button size="sm" variant="secondary" className="whitespace-nowrap" onClick={handleOpenRelease}>
-                  Ver no GitHub
+                  {t("header.viewRelease")}
                 </Button>
               </div>
             ) : isCheckingUpdate && !updateInfo ? (
               <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 80%,transparent)] px-3 py-2 text-xs text-[var(--muted)]">
-                Verificando atualizações...
+                {t("header.checkingUpdate")}
               </div>
             ) : null}
             <Card
@@ -182,7 +154,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <div className="flex flex-col">
                 <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-                  Sala
+                  {t("header.room")}
                 </span>
                 <span className="font-mono text-sm text-[var(--text)]">{roomLabel}</span>
               </div>
@@ -193,22 +165,23 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onClick={handleCopy}
                 className="min-w-[88px] justify-center"
               >
-                Copiar link
+                {t("header.copyInvite")}
               </Button>
             </Card>
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
-              onClick={toggleTheme}
-              className="h-10 w-10 rounded-full border border-[var(--border)] bg-[var(--surface-2)] p-0"
-            >
-              {theme === "dark" ? (
-                <SunIcon className="h-5 w-5" />
-              ) : (
-                <MoonIcon className="h-5 w-5" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]">
+              <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                {t("header.language")}
+              </span>
+              <select
+                aria-label={t("header.language")}
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as AppLanguage)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-2 py-1 text-sm text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
+              >
+                <option value="en">EN</option>
+                <option value="pt">PT</option>
+              </select>
+            </div>
           </div>
         </div>
       </header>

@@ -1,8 +1,16 @@
 import JSZip from "jszip";
 import { appCacheDir, downloadDir, join } from "@tauri-apps/api/path";
-import { createDir, readBinaryFile, readDir, removeFile, writeBinaryFile } from "@tauri-apps/api/fs";
+import {
+  BaseDirectory,
+  createDir,
+  readBinaryFile,
+  readDir,
+  removeFile,
+  writeBinaryFile,
+} from "@tauri-apps/api/fs";
 import { isTauri } from "../persist/tauri";
 import { toast } from "../../store/useToast";
+import { translateInstant } from "../../i18n/translate";
 
 export interface FolderSelection {
   path: string;
@@ -17,6 +25,8 @@ export interface FolderTransferPlan {
   cleanup: () => Promise<void>;
 }
 
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+
 async function ensureDir(path: string) {
   try {
     await createDir(path, { recursive: true });
@@ -25,28 +35,34 @@ async function ensureDir(path: string) {
   }
 }
 
-async function addFolderToZip(zip: JSZip, folderPath: string, rootName: string) {
-  const entries = await readDir(folderPath, { recursive: false });
-  for (const entry of entries) {
-    const name = entry.name ?? "item";
-    const relativePath = `${rootName}/${name}`;
-    if (entry.children && entry.children.length > 0) {
-      const sub = zip.folder(relativePath);
-      if (sub && entry.path) {
-        await addFolderToZip(sub, entry.path, "");
+async function addEntryToZip(zip: JSZip, entry: { path?: string; name?: string; children?: any[] }, prefix: string) {
+  const name = entry.name ?? "item";
+  const currentPath = prefix ? `${prefix}/${name}` : name;
+  if (entry.children) {
+    const folder = zip.folder(currentPath);
+    if (folder && entry.children.length > 0) {
+      for (const child of entry.children) {
+        await addEntryToZip(folder, child, "");
       }
-      continue;
     }
-    if (entry.path) {
-      const content = await readBinaryFile(entry.path);
-      zip.file(relativePath, content);
-    }
+    return;
+  }
+  if (entry.path) {
+    const content = await readBinaryFile(entry.path);
+    zip.file(currentPath, content);
   }
 }
 
-export async function prepareFolderTransfer(selection: FolderSelection): Promise<FolderTransferPlan | null> {
+export async function prepareFolderTransfer(
+  selection: FolderSelection,
+  t?: TranslateFn,
+): Promise<FolderTransferPlan | null> {
+  const translate =
+    t ??
+    ((key: string, params?: Record<string, string | number>) =>
+      translateInstant(key as any, params) ?? params?.message?.toString() ?? key);
   if (!isTauri()) {
-    toast({ message: "Envio de pastas requer o aplicativo desktop.", variant: "info" });
+    toast({ message: translate("toast.folderDesktop"), variant: "info" });
     return null;
   }
 
@@ -56,11 +72,15 @@ export async function prepareFolderTransfer(selection: FolderSelection): Promise
 
   try {
     const zip = new JSZip();
-    await addFolderToZip(zip, selection.path, selection.name);
+    const entries = await readDir(selection.path, { recursive: true });
+    for (const entry of entries) {
+      await addEntryToZip(zip, entry, selection.name);
+    }
     const content = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" });
     const archiveName = `${selection.name}.zip`;
-    const archivePath = await join(targetDir, `${Date.now()}-${archiveName}`);
-    await writeBinaryFile({ path: archivePath, contents: content });
+    const relativeArchive = `fluxshare-archives/${Date.now()}-${archiveName}`;
+    const archivePath = await join(cacheRoot, relativeArchive);
+    await writeBinaryFile({ path: relativeArchive, contents: content }, { dir: BaseDirectory.AppCache });
     const plan: FolderTransferPlan = {
       archivePath,
       displayName: archiveName,
@@ -68,24 +88,32 @@ export async function prepareFolderTransfer(selection: FolderSelection): Promise
       archiveRoot: selection.name,
       cleanup: async () => {
         try {
-          await removeFile(archivePath);
+          await removeFile(relativeArchive, { dir: BaseDirectory.AppCache });
         } catch {
           /* ignore */
         }
       },
     };
-    toast({ message: "Pasta compactada para envio.", variant: "success", duration: 2500 });
+    toast({ message: translate("toast.folderReady"), variant: "success", duration: 2500 });
     return plan;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    toast({ message: `Falha ao compactar pasta: ${message}`, variant: "error" });
+    toast({ message: translate("toast.folderFail", { message }), variant: "error" });
     return null;
   }
 }
 
-export async function extractArchiveToFolder(archivePath: string, targetFolderName?: string) {
+export async function extractArchiveToFolder(
+  archivePath: string,
+  targetFolderName?: string,
+  t?: TranslateFn,
+) {
+  const translate =
+    t ??
+    ((key: string, params?: Record<string, string | number>) =>
+      translateInstant(key as any, params) ?? params?.message?.toString() ?? key);
   if (!isTauri()) {
-    toast({ message: "Descompactação automática requer aplicativo desktop.", variant: "info" });
+    toast({ message: translate("toast.extractDesktop"), variant: "info" });
     return null;
   }
   try {
@@ -120,11 +148,11 @@ export async function extractArchiveToFolder(archivePath: string, targetFolderNa
       );
     });
     await Promise.all(writes);
-    toast({ message: `Pasta extraída em ${targetDir}`, variant: "success", duration: 4000 });
+    toast({ message: translate("toast.extractSuccess", { path: targetDir }), variant: "success", duration: 4000 });
     return targetDir;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    toast({ message: `Falha ao extrair pasta: ${message}`, variant: "error" });
+    toast({ message: translate("toast.extractFail", { message }), variant: "error" });
     return null;
   }
 }

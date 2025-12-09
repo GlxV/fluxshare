@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Card } from "./ui/Card";
 import { Badge } from "./ui/Badge";
 import { type TransferState } from "../store/useTransfers";
+import { useI18n } from "../i18n/LanguageProvider";
 
 interface SessionPanelProps {
   transfers: Record<string, TransferState>;
@@ -24,6 +25,7 @@ function formatEta(seconds: number | null) {
 }
 
 export function SessionPanel({ transfers }: SessionPanelProps) {
+  const { t } = useI18n();
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -82,23 +84,46 @@ export function SessionPanel({ transfers }: SessionPanelProps) {
 
   const queueCount = Math.max(0, totalCount - completedCount - active.length);
 
+  const currentStatusLabel = useMemo(() => {
+    switch (currentStatus) {
+      case "transferring":
+        return t("transfer.status.transferring");
+      case "completed":
+        return t("transfer.status.completed");
+      case "error":
+        return t("transfer.status.error");
+      case "cancelled":
+        return t("transfer.status.cancelled");
+      case "paused":
+        return t("transfer.status.paused");
+      default:
+        return currentStatus;
+    }
+  }, [currentStatus, t]);
+
   return (
     <Card className="space-y-4 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Sessão</p>
-          <p className="text-lg font-semibold text-[var(--text)]">Transferências</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+            {t("session.subtitle")}
+          </p>
+          <p className="text-lg font-semibold text-[var(--text)]">{t("session.title")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="accentSecondary">Ativas: {active.length}</Badge>
-          <Badge variant="success">Concluídas: {completedCount}</Badge>
-          {errorCount > 0 ? <Badge variant="danger">Erros: {errorCount}</Badge> : null}
+          <Badge variant="accentSecondary">
+            {t("session.active")}: {active.length}
+          </Badge>
+          <Badge variant="success">
+            {t("session.completed")}: {completedCount}
+          </Badge>
+          {errorCount > 0 ? <Badge variant="danger">{t("session.errors")}: {errorCount}</Badge> : null}
         </div>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm text-[var(--muted)]">
-          <span>Sessão</span>
+          <span>{t("session.progress")}</span>
           <span>
             {formatBytes(transferredBytes)} / {formatBytes(totalBytes || 0)} ({sessionProgress.toFixed(1)}%)
           </span>
@@ -110,15 +135,17 @@ export function SessionPanel({ transfers }: SessionPanelProps) {
           />
         </div>
         <div className="text-xs text-[var(--muted)]">
-          Fila: {queueCount} · Total: {totalCount}
+          {t("session.queue")}: {queueCount} · Total: {totalCount}
         </div>
       </div>
 
       {current ? (
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Atual</p>
-            <p className="text-sm font-medium text-[var(--text)]">{current.fileName ?? "Transferência"}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+              {t("session.current")}
+            </p>
+            <p className="text-sm font-medium text-[var(--text)]">{current.fileName ?? t("transfer.title")}</p>
             <p className="text-xs text-[var(--muted)]">
               {formatBytes(current.bytesTransferred)} / {formatBytes(current.totalBytes)}
             </p>
@@ -128,17 +155,21 @@ export function SessionPanel({ transfers }: SessionPanelProps) {
                 style={{ width: `${currentProgress}%` }}
               />
             </div>
-            <p className="text-xs text-[var(--muted)]">Status: {currentStatus}</p>
+            <p className="text-xs text-[var(--muted)]">
+              {t("transfer.title")}: {currentStatusLabel}
+            </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Velocidade / ETA</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+              {t("session.speedEta")}
+            </p>
             <p className="text-sm text-[var(--text)]">
               {currentSpeed > 0 ? `${formatBytes(currentSpeed)}/s` : "--"} · {formatEta(currentEta)}
             </p>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-[var(--muted)]">Nenhuma transferência em andamento.</p>
+        <p className="text-sm text-[var(--muted)]">{t("session.none")}</p>
       )}
     </Card>
   );

@@ -489,6 +489,7 @@ mod tests {
                 manifest_dir(),
                 manager.inner.clone(),
             )
+            .await
             .unwrap();
         });
 

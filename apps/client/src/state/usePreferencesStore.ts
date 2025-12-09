@@ -3,9 +3,18 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { type TunnelProvider } from "../types/tunnel";
 
 export type AppTheme = "light" | "dark";
+export type AppLanguage = "en" | "pt";
+
+export interface CustomTheme {
+  primary: string;
+  background: string;
+  accent: string;
+}
 
 export interface PreferencesState {
   theme: AppTheme;
+  language: AppLanguage;
+  customTheme: CustomTheme;
   lastTab: string | null;
   windowSize: { width: number; height: number } | null;
   compactMode: boolean;
@@ -15,6 +24,8 @@ export interface PreferencesState {
   autoStopMinutes: number | null;
   localOnly: boolean;
   setTheme(theme: AppTheme): void;
+  setLanguage(language: AppLanguage): void;
+  setCustomTheme(theme: CustomTheme): void;
   setLastTab(tab: string): void;
   setWindowSize(size: { width: number; height: number }): void;
   setCompactMode(enabled: boolean): void;
@@ -28,6 +39,8 @@ export interface PreferencesState {
 type PreferencesPersisted = Pick<
   PreferencesState,
   | "theme"
+  | "language"
+  | "customTheme"
   | "lastTab"
   | "windowSize"
   | "compactMode"
@@ -60,6 +73,12 @@ export const usePreferencesStore = create<PreferencesState>()(
   persist(
     (set) => ({
       theme: "dark",
+      language: "en",
+      customTheme: {
+        primary: "#8b5cf6",
+        background: "#0e0a1f",
+        accent: "#1c1842",
+      },
       lastTab: null,
       windowSize: null,
       compactMode: false,
@@ -69,6 +88,8 @@ export const usePreferencesStore = create<PreferencesState>()(
       autoStopMinutes: null,
       localOnly: false,
       setTheme: (theme) => set({ theme }),
+      setLanguage: (language) => set({ language }),
+      setCustomTheme: (customTheme) => set({ customTheme }),
       setLastTab: (tab) => set({ lastTab: tab }),
       setWindowSize: (size) => set({ windowSize: size }),
       setCompactMode: (enabled) => set({ compactMode: enabled }),
@@ -83,6 +104,8 @@ export const usePreferencesStore = create<PreferencesState>()(
       storage,
       partialize: (state) => ({
         theme: state.theme,
+        language: state.language,
+        customTheme: state.customTheme,
         lastTab: state.lastTab,
         windowSize: state.windowSize,
         compactMode: state.compactMode,
