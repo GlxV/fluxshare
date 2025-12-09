@@ -5,6 +5,7 @@ import { Card } from "./ui/Card";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { isTauri } from "../lib/persist/tauri";
 import { usePreferencesStore } from "../state/usePreferencesStore";
+import { useI18n } from "../i18n/LanguageProvider";
 
 interface TransferBoxProps {
   file: {
@@ -43,19 +44,22 @@ function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 100 ? 0 : 1)} ${units[exponent]}`;
 }
 
-function statusBadge(transfer: TransferBoxProps["transfer"] | null): { variant: BadgeProps["variant"]; label: string } | null {
+function statusBadge(
+  transfer: TransferBoxProps["transfer"] | null,
+  t: ReturnType<typeof useI18n>["t"],
+): { variant: BadgeProps["variant"]; label: string } | null {
   if (!transfer) return null;
   switch (transfer.status) {
     case "transferring":
-      return { variant: "accent", label: "TRANSFERINDO" };
+      return { variant: "accent", label: t("transfer.status.transferring") };
     case "completed":
-      return { variant: "success", label: "CONCLUÍDO" };
+      return { variant: "success", label: t("transfer.status.completed") };
     case "cancelled":
-      return { variant: "danger", label: "CANCELADO" };
+      return { variant: "danger", label: t("transfer.status.cancelled") };
     case "error":
-      return { variant: "danger", label: "ERRO" };
+      return { variant: "danger", label: t("transfer.status.error") };
     case "paused":
-      return { variant: "accentSecondary", label: "PAUSADO" };
+      return { variant: "accentSecondary", label: t("transfer.status.paused") };
     default:
       return null;
   }
@@ -74,38 +78,42 @@ function computeStatusLabel({
   file,
   transfer,
   hasConnectedPeers,
+  t,
 }: {
   file: TransferBoxProps["file"];
   transfer: TransferBoxProps["transfer"];
   hasConnectedPeers: boolean;
+  t: ReturnType<typeof useI18n>["t"];
 }): string {
   if (transfer) {
     switch (transfer.status) {
       case "transferring":
-        return transfer.direction === "receive" ? "Recebendo arquivo…" : "Transferindo…";
+        return transfer.direction === "receive" ? t("room.transfer.received") : t("transfer.status.transferring");
       case "completed":
-        return transfer.direction === "receive" ? "Arquivo recebido" : "Transferência concluída";
+        return transfer.direction === "receive" ? t("room.transfer.received") : t("transfer.status.completed");
       case "cancelled":
-        return "Transferência cancelada";
+        return t("transfer.status.cancelled");
       case "error":
-        return "Falha na transferência";
+        return t("transfer.status.error");
       case "paused":
-        return "Transferência pausada";
+        return t("transfer.status.paused");
       default:
-        return "Transferência";
+        return t("transfer.title");
     }
   }
   if (file) {
-    return hasConnectedPeers ? "Arquivo pronto para enviar" : "Aguardando peer";
+    return hasConnectedPeers ? t("transfer.ready") : t("transfer.waitingPeer");
   }
-  return "Nenhum arquivo selecionado";
+  return t("transfer.none");
 }
 
-function renderTargetLabel(label?: string) {
+function renderTargetLabel(label: string | undefined, t: ReturnType<typeof useI18n>["t"]) {
   if (!label) return null;
   return (
     <div className="space-y-1">
-      <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Destino</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+        {t("transfer.destination")}
+      </span>
       <p className="text-sm text-[var(--text)]">{label}</p>
     </div>
   );
@@ -120,6 +128,7 @@ export function TransferBox({
   activeTransferId,
   hasConnectedPeers,
 }: TransferBoxProps) {
+  const { t } = useI18n();
   const host = useTunnelStore((state) => state.host);
   const primaryProvider = usePreferencesStore((state) => state.primaryTunnelProvider);
   const fallbackProvider = usePreferencesStore((state) => state.fallbackTunnelProvider);
@@ -127,12 +136,12 @@ export function TransferBox({
   const [hostingLink, setHostingLink] = useState(false);
   const [hostLinkError, setHostLinkError] = useState<string | null>(null);
   const canHostFromFile = useMemo(() => Boolean(file?.source), [file?.source]);
-  const badge = statusBadge(transfer);
+  const badge = statusBadge(transfer, t);
   const progress = transfer ? Math.min(100, (transfer.bytesTransferred / Math.max(transfer.totalBytes, 1)) * 100) : 0;
   const elapsedSeconds = transfer ? Math.max(0, (transfer.updatedAt - transfer.startedAt) / 1000) : 0;
   const speedBytes = transfer && elapsedSeconds > 0 ? transfer.bytesTransferred / elapsedSeconds : 0;
   const eta = transfer ? formatEta(transfer.totalBytes - transfer.bytesTransferred, speedBytes) : "--";
-  const statusLabel = computeStatusLabel({ file, transfer, hasConnectedPeers });
+  const statusLabel = computeStatusLabel({ file, transfer, hasConnectedPeers, t });
 
   useEffect(() => {
     setHostLinkError(null);
@@ -142,7 +151,7 @@ export function TransferBox({
   async function handleHostLink() {
     if (!file) return;
     if (!isTauri()) {
-      setHostLinkError("Disponível apenas no aplicativo desktop.");
+      setHostLinkError(t("send.desktopRequired"));
       return;
     }
     if (hostingLink) return;
@@ -168,7 +177,7 @@ export function TransferBox({
       }
 
       if (!pathToHost) {
-        setHostLinkError("Não foi possível preparar o arquivo para hospedagem.");
+        setHostLinkError(t("transfer.hostError"));
         return;
       }
 
@@ -188,18 +197,18 @@ export function TransferBox({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-[var(--text)]">Transferência</h2>
+            <h2 className="text-xl font-semibold text-[var(--text)]">{t("transfer.title")}</h2>
             {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
           </div>
           <p className="text-sm text-[var(--muted)]">{statusLabel}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={() => onPickFile()}>
-            Selecionar arquivo
+            {t("transfer.pickFile")}
           </Button>
           {onPickFolder ? (
             <Button type="button" variant="secondary" onClick={() => onPickFolder()}>
-              Selecionar pasta
+              {t("transfer.pickFolder")}
             </Button>
           ) : null}
         </div>
@@ -209,21 +218,25 @@ export function TransferBox({
           <>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Nome</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                  {t("transfer.name")}
+                </span>
                 <p className="text-sm text-[var(--text)]">{file.name}</p>
-                {file.kind === "folder" ? <Badge variant="accentSecondary">Pasta</Badge> : null}
+                {file.kind === "folder" ? <Badge variant="accentSecondary">{t("send.type.folder")}</Badge> : null}
               </div>
               <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">Tamanho</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                  {t("transfer.size")}
+                </span>
                 <p className="text-sm text-[var(--text)]">{formatBytes(file.size)}</p>
               </div>
-              {renderTargetLabel(file.targetLabel)}
+              {renderTargetLabel(file.targetLabel, t)}
             </div>
             {canHostFromFile ? (
               <>
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" variant="outline" onClick={handleHostLink} disabled={hostingLink}>
-                    {hostingLink ? "Gerando link..." : "Hospedar por link"}
+                    {hostingLink ? t("transfer.hosting") : t("transfer.hostLink")}
                   </Button>
                 </div>
                 {hostLinkError ? (
@@ -240,28 +253,36 @@ export function TransferBox({
                   />
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--muted)]">
-                  <span>Progresso: {progress.toFixed(1)}%</span>
-                  <span>Velocidade: {speedBytes > 0 ? formatBytes(speedBytes) + "/s" : "--"}</span>
-                  <span>ETA: {eta}</span>
+                  <span>
+                    {t("transfer.progress")}: {progress.toFixed(1)}%
+                  </span>
+                  <span>
+                    {t("transfer.speed")}: {speedBytes > 0 ? `${formatBytes(speedBytes)}/s` : "--"}
+                  </span>
+                  <span>
+                    {t("transfer.eta")}: {eta}
+                  </span>
                 </div>
               </div>
             ) : null}
             {transfer && transfer.status === "transferring" ? (
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="danger" onClick={() => onCancel(transfer.peerId, transfer.id)}>
-                  Cancelar transferência
+                  {t("transfer.cancel")}
                 </Button>
               </div>
             ) : null}
           </>
         ) : (
           <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-6 py-10 text-center text-sm text-[var(--muted)]">
-            Selecione um arquivo ou pasta para iniciar uma nova transferência.
+            {t("transfer.selectPrompt")}
           </div>
         )}
       </div>
       {activeTransferId ? (
-        <p className="text-xs text-[var(--muted)]">Transferência em foco: {activeTransferId}</p>
+        <p className="text-xs text-[var(--muted)]">
+          {t("transfer.activeId")}: {activeTransferId}
+        </p>
       ) : null}
     </Card>
   );

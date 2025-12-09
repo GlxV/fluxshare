@@ -2,6 +2,7 @@ import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { cn } from "../utils/cn";
+import { useI18n } from "../i18n/LanguageProvider";
 
 export interface PeerTransferInfo {
   status: "idle" | "transferring" | "paused" | "completed" | "error" | "cancelled";
@@ -46,15 +47,16 @@ export function PeersPanel({
   onSend,
   onCancel,
 }: PeersPanelProps) {
+  const { t } = useI18n();
   return (
     <Card className="space-y-6 p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-[var(--text)]">Peers na sala</h2>
-        <p className="text-sm text-[var(--muted)]">Você é {selfPeerId || "--"}</p>
+        <h2 className="text-xl font-semibold text-[var(--text)]">{t("peers.title")}</h2>
+        <p className="text-sm text-[var(--muted)]">{t("peers.youAre", { id: selfPeerId || "--" })}</p>
       </div>
       {peers.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-4 py-6 text-center text-sm text-[var(--muted)]">
-          Aguarde: nenhum peer apareceu na sala ainda.
+          {t("peers.none")}
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -74,10 +76,10 @@ export function PeersPanel({
                     onSelect(peer.peerId);
                   }
                 }}
-                className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
-              >
-                <div
-                  className={cn(
+                  className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
+                >
+                  <div
+                    className={cn(
                     "card-shadow flex h-full flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-5 backdrop-blur-2xl transition duration-200",
                     isSelected
                       ? "border-[color-mix(in srgb,var(--primary) 65%,var(--border) 35%)] shadow-[0_28px_55px_-30px_var(--ring)]"
@@ -94,7 +96,11 @@ export function PeersPanel({
                   {peer.transfer ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                        <span>{peer.transfer.direction === "send" ? "Enviando" : "Recebendo"}</span>
+                        <span>
+                          {peer.transfer.direction === "send"
+                            ? t("peers.transfer.sending")
+                            : t("peers.transfer.receiving")}
+                        </span>
                         <span className="font-medium text-[var(--text)]">
                           {progress !== null ? `${progress.toFixed(1)}%` : "--"}
                         </span>
@@ -107,7 +113,7 @@ export function PeersPanel({
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-[var(--muted)]">Nenhuma transferência em andamento.</p>
+                    <p className="text-xs text-[var(--muted)]">{t("peers.transfer.none")}</p>
                   )}
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -118,7 +124,7 @@ export function PeersPanel({
                         onConnect(peer.peerId);
                       }}
                     >
-                      Conectar
+                      {t("peers.connect")}
                     </Button>
                     <Button
                       type="button"
@@ -128,7 +134,7 @@ export function PeersPanel({
                         onDisconnect(peer.peerId);
                       }}
                     >
-                      Desconectar
+                      {t("peers.disconnect")}
                     </Button>
                     <Button
                       type="button"
@@ -137,7 +143,7 @@ export function PeersPanel({
                         onSend(peer.peerId);
                       }}
                     >
-                      Enviar arquivo
+                      {t("peers.send")}
                     </Button>
                     {peer.transfer && peer.transfer.status === "transferring" ? (
                       <Button
@@ -148,7 +154,7 @@ export function PeersPanel({
                           onCancel(peer.peerId);
                         }}
                       >
-                        Cancelar
+                        {t("peers.cancel")}
                       </Button>
                     ) : null}
                   </div>

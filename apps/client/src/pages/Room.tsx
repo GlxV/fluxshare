@@ -9,25 +9,12 @@ import { useTransfersStore, type TransferState } from "../store/useTransfers";
 import { SignalingClient } from "../lib/signaling";
 import PeerManager, { type PeerConnectionState } from "../lib/rtc/PeerManager";
 import TransferService, { type TransferSource } from "../lib/transfer/TransferService";
-import { isTauri, getFileInfo, readFileRange } from "../lib/persist/tauri";
+import { isTauri, readFileRange } from "../lib/persist/tauri";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { notify } from "../lib/notify";
-import { prepareFolderTransfer } from "../lib/transfer/folder";
-import { toast } from "../store/useToast";
-
-interface SelectedFile {
-  id: string;
-  name: string;
-  size: number;
-  mime?: string;
-  kind: "file" | "folder";
-  source: "web" | "tauri" | "tauri-folder";
-  file?: File;
-  path?: string;
-  archiveRoot?: string;
-  cleanup?: () => Promise<void>;
-}
+import { pickTauriFile, pickWebFile, pickTauriFolder, type SelectedItem } from "../lib/transfer/selectFile";
+import { useI18n } from "../i18n/LanguageProvider";
 
 interface PeerTargetsOptions {
   overridePeerId?: string;
@@ -45,38 +32,31 @@ function generateDisplayName() {
   return `Peer-${nanoid(6)}`;
 }
 
-async function computeFileId(name: string, size: number, lastModified: number) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(`${name}:${size}:${lastModified}`);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 function mapConnectionState(
   state: PeerConnectionState,
-  transfer?: TransferState,
+  transfer: TransferState | undefined,
+  t: ReturnType<typeof useI18n>["t"],
 ): { label: string; variant: "accent" | "accentSecondary" | "success" | "danger" | "neutral" } {
   if (transfer && transfer.status === "transferring") {
-    return { label: "Transferindo", variant: "accent" };
+    return { label: t("transfer.status.transferring"), variant: "accent" };
   }
   switch (state) {
     case "connected":
-      return { label: "Conectado", variant: "success" };
+      return { label: t("connection.connected"), variant: "success" };
     case "connecting":
+      return { label: t("connection.connecting"), variant: "accentSecondary" };
     case "new":
-      return { label: "Conectando", variant: "accentSecondary" };
+      return { label: t("connection.new"), variant: "neutral" };
     case "failed":
     case "disconnected":
     case "closed":
-      return { label: "Desconectado", variant: "danger" };
+      return { label: t("connection.disconnected"), variant: "danger" };
     default:
       return { label: state, variant: "neutral" };
   }
 }
 
-function buildTransferSource(file: SelectedFile, peerId: string): TransferSource {
+function buildTransferSource(file: SelectedItem, peerId: string): TransferSource {
   const id = `${file.id}-${peerId}-${Date.now()}`;
   const source: TransferSource = {
     id,
@@ -112,9 +92,10 @@ export function RoomPage() {
   const params = useParams<{ code: string }>();
   const navigate = useNavigate();
   const { roomId, selfPeerId, peers, peerConnections, joinRoom, leaveRoom, copyInviteLink } = useRoom();
+  const { t } = useI18n();
   const transfers = useTransfersStore((state) => state.transfers);
   const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
+  const [selectedFile, setSelectedFile] = useState<SelectedItem | null>(null);
   const [activeTransferId, setActiveTransferId] = useState<string | null>(null);
   const displayName = useMemo(() => generateDisplayName(), []);
 
@@ -134,7 +115,7 @@ export function RoomPage() {
   useEffect(() => {
     const code = params.code;
     if (!code) {
-      navigate("/");
+      navigate("/p2p");
       return;
     }
     joinRoom(code);
@@ -239,13 +220,13 @@ export function RoomPage() {
         }
         if (state === "connected" && previous && previous !== "connected") {
           void notify({
-            title: "Peer conectado",
-            body: `Conexão restabelecida com ${existing?.displayName ?? peerId}.`,
+            title: t("room.peer.connected"),
+            body: t("room.peer.reconnected", { peer: existing?.displayName ?? peerId }),
           });
         }
         if ((state === "failed" || state === "disconnected" || state === "closed") && previous === "connected") {
           void notify({
-            title: "Peer desconectado",
+            title: t("room.peer.disconnected"),
             body: existing?.displayName ?? peerId,
           });
         }
@@ -349,7 +330,7 @@ export function RoomPage() {
           savePath: event.savePath,
         });
         void notify({
-          title: event.direction === "receive" ? "Arquivo recebido" : "Envio concluído",
+          title: event.direction === "receive" ? t("room.transfer.received") : t("transfer.status.completed"),
           body: event.meta.name,
         });
       }),
@@ -371,7 +352,7 @@ export function RoomPage() {
           error: event.error.message,
         });
         void notify({
-          title: "Erro na transferência",
+          title: t("transfer.status.error"),
           body: event.error.message,
         });
       }),
@@ -392,7 +373,7 @@ export function RoomPage() {
       registeredPeersRef.current.clear();
       pendingSendsRef.current.clear();
     };
-  }, [displayName, roomId]);
+  }, [displayName, roomId, t]);
 
   const determineTargets = useCallback(
     ({ overridePeerId }: PeerTargetsOptions = {}): string[] => {
@@ -404,7 +385,7 @@ export function RoomPage() {
   );
 
   const queueSendToPeer = useCallback(
-    (peerId: string, file: SelectedFile) => {
+    (peerId: string, file: SelectedItem) => {
       const transferService = transferServiceRef.current;
       const peerManager = peerManagerRef.current;
       if (!transferService || !peerManager) return;
@@ -442,7 +423,7 @@ export function RoomPage() {
   );
 
   const sendFileToTargets = useCallback(
-    (file: SelectedFile, options: PeerTargetsOptions = {}) => {
+    (file: SelectedItem, options: PeerTargetsOptions = {}) => {
       const targets = determineTargets(options);
       if (targets.length === 0) {
         return;
@@ -452,97 +433,6 @@ export function RoomPage() {
     [determineTargets, queueSendToPeer],
   );
 
-  const pickWebFile = useCallback(
-    () =>
-      new Promise<SelectedFile | null>((resolve) => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.multiple = false;
-        input.addEventListener("change", async () => {
-          const file = input.files?.[0];
-          if (!file) {
-            resolve(null);
-            return;
-          }
-          const id = await computeFileId(file.name, file.size, file.lastModified);
-          resolve({
-            id,
-            name: file.name,
-            size: file.size,
-            mime: file.type || undefined,
-            kind: "file",
-            source: "web",
-            file,
-          });
-        });
-        input.click();
-      }),
-    [],
-  );
-
-  const pickTauriFile = useCallback(async () => {
-    try {
-      const { open } = await import("@tauri-apps/api/dialog");
-      const selection = await open({ multiple: false });
-      if (!selection || Array.isArray(selection)) {
-        return null;
-      }
-      const path = selection;
-      const info = await getFileInfo(path);
-      const size = info.size ?? 0;
-      const name = path.split(/[\\/]/).pop() ?? "arquivo";
-      const id = await computeFileId(name, size, Date.now());
-      return {
-        id,
-        name,
-        size,
-        mime: undefined,
-        kind: "file",
-        source: "tauri",
-        path,
-      } satisfies SelectedFile;
-    } catch (error) {
-      console.error("fluxshare:file", "tauri picker failed", error);
-      return null;
-    }
-  }, []);
-
-  const pickTauriFolder = useCallback(async () => {
-    if (!isTauri()) {
-      toast({ message: "Envio de pastas requer o aplicativo desktop.", variant: "info" });
-      return null;
-    }
-    try {
-      const { open } = await import("@tauri-apps/api/dialog");
-      const selection = await open({ multiple: false, directory: true });
-      if (!selection || Array.isArray(selection)) {
-        return null;
-      }
-      const path = selection;
-      const name = path.split(/[\\/]/).pop() ?? "pasta";
-      const plan = await prepareFolderTransfer({ path, name });
-      if (!plan) return null;
-      const info = await getFileInfo(plan.archivePath);
-      const size = info.size ?? plan.size ?? 0;
-      const id = await computeFileId(plan.displayName, size || 1, Date.now());
-      return {
-        id,
-        name: plan.displayName.endsWith(".zip") ? plan.displayName : `${plan.displayName}.zip`,
-        size,
-        mime: "application/zip",
-        kind: "folder",
-        source: "tauri-folder",
-        path: plan.archivePath,
-        archiveRoot: plan.archiveRoot,
-        cleanup: plan.cleanup,
-      } satisfies SelectedFile;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      toast({ message: `Falha ao selecionar pasta: ${message}`, variant: "error" });
-      return null;
-    }
-  }, []);
-
   const handlePickFile = useCallback(
     async (overridePeerId?: string) => {
       const file = isTauri() ? await pickTauriFile() : await pickWebFile();
@@ -550,17 +440,17 @@ export function RoomPage() {
       setSelectedFile(file);
       sendFileToTargets(file, { overridePeerId });
     },
-    [pickTauriFile, pickWebFile, sendFileToTargets],
+    [sendFileToTargets],
   );
 
   const handlePickFolder = useCallback(
     async (overridePeerId?: string) => {
-      const folder = await pickTauriFolder();
+      const folder = await pickTauriFolder(t);
       if (!folder) return;
       setSelectedFile(folder);
       sendFileToTargets(folder, { overridePeerId });
     },
-    [pickTauriFolder, sendFileToTargets],
+    [sendFileToTargets, t],
   );
 
   const latestTransfersByPeer = useMemo(() => getLatestTransferByPeer(transfers), [transfers]);
@@ -571,7 +461,7 @@ export function RoomPage() {
       .map((peer) => {
         const connection = peerConnections[peer.peerId];
         const transfer = latestTransfersByPeer.get(peer.peerId);
-        const badge = mapConnectionState(connection?.state ?? "new", transfer ?? undefined);
+        const badge = mapConnectionState(connection?.state ?? "new", transfer ?? undefined, t);
         const transferInfo = transfer
           ? {
               status: transfer.status,
@@ -589,11 +479,11 @@ export function RoomPage() {
           transfer: transferInfo,
         } satisfies PeerViewModel;
       });
-  }, [latestTransfersByPeer, peerConnections, peers, selfPeerId]);
+  }, [latestTransfersByPeer, peerConnections, peers, selfPeerId, t]);
 
   const hasConnectedPeers = useMemo(
-    () => peerItems.some((item) => item.connectionState === "Conectado" || item.connectionState === "Transferindo"),
-    [peerItems],
+    () => peers.some((peer) => (peerConnections[peer.peerId]?.state ?? "new") === "connected"),
+    [peerConnections, peers],
   );
 
   const activeTransfer = activeTransferId ? transfers[activeTransferId] ?? null : null;
@@ -617,9 +507,9 @@ export function RoomPage() {
       const peerDisplay =
         peerItems.find((item) => item.peerId === transferForDisplay.peerId)?.displayName ??
         transferForDisplay.peerId;
-      const directionLabel = transferForDisplay.direction === "send" ? "Para" : "De";
+      const directionLabel = transferForDisplay.direction === "send" ? t("room.transfer.to") : t("room.transfer.from");
       const fallbackName =
-        transferForDisplay.direction === "receive" ? "Arquivo recebido" : "Arquivo";
+        transferForDisplay.direction === "receive" ? t("room.transfer.received") : t("room.transfer.file");
       return {
         id: transferForDisplay.fileId,
         name: transferForDisplay.fileName ?? selectedFile?.name ?? fallbackName,
@@ -629,7 +519,7 @@ export function RoomPage() {
       };
     }
     return selectedFile;
-  }, [peerItems, selectedFile, transferForDisplay]);
+  }, [peerItems, selectedFile, t, transferForDisplay]);
 
   const handleConnectPeer = useCallback((peerId: string) => {
     peerManagerRef.current?.connectTo(peerId).catch((error) => {
@@ -658,20 +548,20 @@ export function RoomPage() {
   const handleCancelForPeer = useCallback((peerId: string) => {
     const transfer = latestTransfersByPeer.get(peerId);
     if (!transfer) return;
-    transferServiceRef.current?.cancel(peerId, transfer.fileId, "Cancelado pelo usuário");
+    transferServiceRef.current?.cancel(peerId, transfer.fileId, t("room.transfer.cancelReason"));
     if (activeTransferId === transfer.fileId) {
       setActiveTransferId(null);
     }
-  }, [activeTransferId, latestTransfersByPeer]);
+  }, [activeTransferId, latestTransfersByPeer, t]);
 
   const handleCancelTransfer = useCallback(
     (peerId: string, transferId: string) => {
-      transferServiceRef.current?.cancel(peerId, transferId, "Cancelado pelo usuário");
+      transferServiceRef.current?.cancel(peerId, transferId, t("room.transfer.cancelReason"));
       if (activeTransferId === transferId) {
         setActiveTransferId(null);
       }
     },
-    [activeTransferId],
+    [activeTransferId, t],
   );
 
   const handleLeaveRoom = useCallback(async () => {
@@ -687,24 +577,26 @@ export function RoomPage() {
     setActiveTransferId(null);
     useTransfersStore.getState().reset();
     leaveRoom();
-    navigate("/");
+    navigate("/p2p");
   }, [leaveRoom, navigate]);
 
   return (
     <div className="space-y-6">
       <Card className="flex flex-wrap items-start justify-between gap-4 p-6">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-[var(--text)]">Sala {roomId ?? params.code ?? "--"}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--text)]">
+            {t("room.title", { code: roomId ?? params.code ?? "--" })}
+          </h1>
           <p className="text-sm text-[var(--muted)]">
-            Você está conectado como <span className="font-medium text-[var(--text)]">{displayName}</span> ({selfPeerId || "--"})
+            {t("room.connectedAs", { name: displayName, id: selfPeerId || "--" })}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => copyInviteLink()}>
-            Copiar link da sala
+            {t("room.copyLink")}
           </Button>
           <Button variant="danger" onClick={handleLeaveRoom}>
-            Sair da sala
+            {t("room.leave")}
           </Button>
         </div>
       </Card>

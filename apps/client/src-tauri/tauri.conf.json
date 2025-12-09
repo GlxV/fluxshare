@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "package": {
     "productName": "FluxShare",
-    "version": "1.0.1"
+    "version": "1.1.0"
   },
   "tauri": {
     "windows": [
@@ -14,7 +14,22 @@
       }
     ],
     "allowlist": {
-      "all": true
+      "all": true,
+      "fs": {
+        "all": true,
+        "scope": [
+          "$APPCACHE/**",
+          "$APPDATA/**",
+          "$APP/**",
+          "$RESOURCE/**",
+          "$HOME/**",
+          "$DESKTOP/**",
+          "$DOCUMENT/**",
+          "$DOWNLOAD/**",
+          "$TEMP/**",
+          "**/fluxshare-archives/**"
+        ]
+      }
     }
   },
   "build": {

@@ -5,8 +5,9 @@ import App from "./App";
 import HomePage from "./pages/Home";
 import RoomPage from "./pages/Room";
 import RoomLandingPage from "./pages/RoomLanding";
-import TunnelPage from "./pages/Tunnel";
 import AdminPage from "./pages/Admin";
+import SendPage from "./pages/Send";
+import ConfigPage from "./pages/Config";
 import "./styles/base.css";
 import "./styles/theme.css";
 
@@ -15,10 +16,12 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: <SendPage /> },
+      { path: "p2p", element: <HomePage /> },
+      { path: "p2p/:code", element: <RoomPage /> },
       { path: "room", element: <RoomLandingPage /> },
       { path: "room/:code", element: <RoomPage /> },
-      { path: "tunnel", element: <TunnelPage /> },
+      { path: "config", element: <ConfigPage /> },
       { path: "admin", element: <AdminPage /> },
     ],
   },

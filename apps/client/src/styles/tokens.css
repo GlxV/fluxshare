@@ -9,4 +9,25 @@
   --ring: rgba(139, 92, 246, 0.35);
   --text: #e8e8f0;
   --muted: #a3a3b2;
+  --danger: #f87171;
+  --success: #34d399;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #d5d9e2;
+  --primary: #6366f1;
+  --primary-foreground: #0f172a;
+  --ring: rgba(99, 102, 241, 0.28);
+  --text: #0f172a;
+  --muted: #475569;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }

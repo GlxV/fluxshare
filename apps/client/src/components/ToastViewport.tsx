@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useToastStore } from "../store/useToast";
 import { cn } from "../utils/cn";
+import { useI18n } from "../i18n/LanguageProvider";
 
 function CloseIcon() {
   return (
@@ -22,6 +23,7 @@ export function ToastViewport() {
   const toasts = useToastStore((state) => state.toasts);
   const dismiss = useToastStore((state) => state.dismiss);
   const [mounted, setMounted] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     setMounted(true);
@@ -51,7 +53,7 @@ export function ToastViewport() {
               type="button"
               onClick={() => dismiss(toast.id)}
               className="rounded-full p-1 text-[var(--muted)] transition hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]"
-              aria-label="Fechar notificação"
+              aria-label={t("toast.close")}
             >
               <CloseIcon />
             </button>
