@@ -1,15 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { useI18n } from "../i18n/LanguageProvider";
-import { pickTauriFile, pickTauriFolder, pickWebFile, type SelectedItem } from "../lib/transfer/selectFile";
+import {
+  pickTauriFile,
+  pickTauriFolder,
+  pickWebFile,
+  selectTauriPath,
+  type SelectedItem,
+} from "../lib/transfer/selectFile";
 import { selectTransferRoute, type RouteDecision } from "../lib/transfer/route";
 import { usePreferencesStore } from "../state/usePreferencesStore";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { toast } from "../store/useToast";
 import { isTauri } from "../lib/persist/tauri";
+import { cn } from "../utils/cn";
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes)) return "--";
@@ -48,15 +55,17 @@ export default function SendPage() {
   const [isSending, setIsSending] = useState(false);
   const [route, setRoute] = useState<RouteDecision | null>(null);
   const [showQr, setShowQr] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
   const fallbackEnabled = usePreferencesStore((state) => state.tunnelFallbackEnabled);
   const primaryProvider = usePreferencesStore((state) => state.primaryTunnelProvider);
   const fallbackProvider = usePreferencesStore((state) => state.fallbackTunnelProvider);
   const localOnly = usePreferencesStore((state) => state.localOnly);
-  const { host, url, localUrl, loading } = useTunnelStore((state) => ({
+  const { host, url, localUrl, loading, stop } = useTunnelStore((state) => ({
     host: state.host,
     url: state.url,
     localUrl: state.localUrl,
     loading: state.loading,
+    stop: state.stop,
   }));
 
   useEffect(
@@ -91,15 +100,17 @@ export default function SendPage() {
   const routeVariant: "accent" | "success" | "neutral" =
     route?.route === "local" ? "success" : route?.route === "p2p" ? "neutral" : "accent";
 
-  function resetSelection(next?: SelectedItem | null) {
-    if (selection && selection !== next) {
-      void selection.cleanup?.();
-    }
-    setSelection(next ?? null);
+  const resetSelection = useCallback((next?: SelectedItem | null) => {
+    setSelection((prev) => {
+      if (prev && prev !== next) {
+        void prev.cleanup?.();
+      }
+      return next ?? null;
+    });
     setShareLink(null);
     setRoute(null);
     setShowQr(false);
-  }
+  }, []);
 
   async function handleSelectFile() {
     const item = isTauri() ? await pickTauriFile() : await pickWebFile();
@@ -114,6 +125,47 @@ export default function SendPage() {
       resetSelection(item);
     }
   }
+
+  const handleDroppedPaths = useCallback(
+    async (paths: string[]) => {
+      if (!paths || paths.length === 0) return;
+      if (paths.length > 1) {
+        toast({ message: t("send.toast.dropMultiple"), variant: "info" });
+      }
+      const item = await selectTauriPath(paths[0], t);
+      if (item) {
+        resetSelection(item);
+      }
+    },
+    [resetSelection, t],
+  );
+
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: (() => void) | null = null;
+    const setup = async () => {
+      const { appWindow } = await import("@tauri-apps/api/window");
+      unlisten = await appWindow.onFileDropEvent((event) => {
+        const payload = event.payload;
+        if (payload.type === "hover") {
+          setIsDragActive(true);
+          return;
+        }
+        if (payload.type === "drop") {
+          setIsDragActive(false);
+          void handleDroppedPaths(payload.paths);
+          return;
+        }
+        setIsDragActive(false);
+      });
+    };
+    void setup();
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
+  }, [handleDroppedPaths]);
 
   async function handleShare() {
     if (!selection) {
@@ -165,6 +217,17 @@ export default function SendPage() {
     }
   }
 
+  async function handleStopSharing() {
+    try {
+      await stop(true);
+      resetSelection(null);
+      toast({ message: t("send.toast.stopped"), variant: "success" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast({ message: message || t("send.toast.stopFailed"), variant: "error" });
+    }
+  }
+
   async function handleCopyLink() {
     if (!shareLink) return;
     try {
@@ -176,6 +239,11 @@ export default function SendPage() {
   }
 
   const showFolderButton = isTauri();
+  const dropZoneClass = cn(
+    "rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 80%,transparent)] p-5 transition",
+    isDragActive &&
+      "border-[var(--primary)] bg-[color-mix(in srgb,var(--surface) 65%,transparent)] ring-2 ring-[var(--ring)]",
+  );
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -185,7 +253,7 @@ export default function SendPage() {
       </div>
 
       <Card className="space-y-5 p-6">
-        <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 80%,transparent)] p-5">
+        <div className={dropZoneClass}>
           {selection ? (
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-1">
@@ -223,6 +291,11 @@ export default function SendPage() {
           <Button onClick={handleShare} disabled={!selection || isSending || loading}>
             {isSending ? t("send.starting") : t("send.start")}
           </Button>
+          {shareLink ? (
+            <Button variant="danger" onClick={handleStopSharing} disabled={loading}>
+              {t("send.stop")}
+            </Button>
+          ) : null}
           {routeLabel ? (
             <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
               <span className="font-semibold text-[var(--text)]">{t("send.selectedRoute")}:</span>

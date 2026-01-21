@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { toast } from "../../store/useToast";
-import { isTauri, getFileInfo } from "../persist/tauri";
+import { isTauri, getFileInfo, getPathInfo } from "../persist/tauri";
 import { prepareFolderTransfer } from "./folder";
 
 export type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
@@ -115,4 +115,50 @@ export async function pickTauriFolder(t?: TranslateFn): Promise<SelectedItem | n
     toast({ message: translate("toast.folderFail", { message }), variant: "error" });
     return null;
   }
+}
+
+export async function selectTauriPath(path: string, t?: TranslateFn): Promise<SelectedItem | null> {
+  const translate = t ?? ((key: string) => key);
+  if (!isTauri()) {
+    toast({ message: translate("send.desktopRequired"), variant: "info" });
+    return null;
+  }
+  let info;
+  try {
+    info = await getPathInfo(path);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    toast({ message: translate("send.toast.dropFailed", { message }), variant: "error" });
+    return null;
+  }
+  const fallbackName = path.split(/[\\/]/).pop() ?? (info.isDir ? "folder" : "file");
+  const name = info.name || fallbackName;
+  if (info.isDir) {
+    const plan = await prepareFolderTransfer({ path, name }, translate);
+    if (!plan) return null;
+    const size = plan.size ?? 0;
+    const id = await computeFileId(plan.displayName, size || 1, Date.now());
+    return {
+      id,
+      name: plan.displayName.endsWith(".zip") ? plan.displayName : `${plan.displayName}.zip`,
+      size,
+      mime: "application/zip",
+      kind: "folder",
+      source: "tauri-folder",
+      path: plan.archivePath,
+      archiveRoot: plan.archiveRoot,
+      cleanup: plan.cleanup,
+    };
+  }
+  const size = info.size ?? 0;
+  const id = await computeFileId(name, size, Date.now());
+  return {
+    id,
+    name,
+    size,
+    mime: undefined,
+    kind: "file",
+    source: "tauri",
+    path,
+  };
 }
