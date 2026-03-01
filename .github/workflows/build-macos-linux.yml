@@ -62,13 +62,18 @@ jobs:
           if [ -d apps/client/src-tauri/target/release/bundle ]; then
             cp -r apps/client/src-tauri/target/release/bundle/* out/ || true
           fi
-          if [ -f apps/client/src-tauri/target/release/FluxShare ]; then
-            cp apps/client/src-tauri/target/release/FluxShare "out/FluxShare-${{ matrix.target_name }}"
-          elif [ -f apps/client/src-tauri/target/release/fluxshare ]; then
-            cp apps/client/src-tauri/target/release/fluxshare "out/FluxShare-${{ matrix.target_name }}"
-          fi
+          while IFS= read -r bin; do
+            base="$(basename "$bin")"
+            cp "$bin" "out/${base}-${{ matrix.target_name }}"
+          done < <(
+            find . -type f -path "*/target/release/*" -perm -111 \
+              ! -path "*/deps/*" \
+              ! -path "*/build/*" \
+              ! -path "*/incremental/*"
+          )
           if [ -z "$(ls -A out)" ]; then
             echo "No build artifacts found in expected locations."
+            find . -type f -path "*/target/release/*" | head -n 200
             exit 1
           fi
 
