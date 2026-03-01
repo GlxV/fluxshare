@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
+          - os: ubuntu-22.04
             target_name: linux
           - os: macos-latest
             target_name: macos
@@ -34,8 +34,16 @@ jobs:
         if: matrix.target_name == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config libssl-dev libgtk-3-dev librsvg2-dev patchelf
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libsoup2.4-dev
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libgtk-3-dev \
+            librsvg2-dev \
+            patchelf \
+            libwebkit2gtk-4.0-dev \
+            libsoup2.4-dev \
+            libjavascriptcoregtk-4.0-dev
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -51,7 +59,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
-          cp -r apps/client/src-tauri/target/release/bundle/* out/
+          if [ -d apps/client/src-tauri/target/release/bundle ]; then
+            cp -r apps/client/src-tauri/target/release/bundle/* out/ || true
+          fi
+          if [ -f apps/client/src-tauri/target/release/FluxShare ]; then
+            cp apps/client/src-tauri/target/release/FluxShare "out/FluxShare-${{ matrix.target_name }}"
+          elif [ -f apps/client/src-tauri/target/release/fluxshare ]; then
+            cp apps/client/src-tauri/target/release/fluxshare "out/FluxShare-${{ matrix.target_name }}"
+          fi
+          if [ -z "$(ls -A out)" ]; then
+            echo "No build artifacts found in expected locations."
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
