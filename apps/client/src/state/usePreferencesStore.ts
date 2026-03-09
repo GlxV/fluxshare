@@ -1,15 +1,18 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { type TunnelProvider } from "../types/tunnel";
+import {
+  createThemeTokensFromPreset,
+  DEFAULT_THEME_PRESET,
+  type ThemeEditableTokens,
+  type ThemePanelStyle,
+  type ThemePresetId,
+} from "../lib/theme/presets";
 
-export type AppTheme = "light" | "dark";
+export type AppTheme = ThemePresetId;
 export type AppLanguage = "en" | "pt";
-
-export interface CustomTheme {
-  primary: string;
-  background: string;
-  accent: string;
-}
+export type CustomTheme = ThemeEditableTokens;
+export type PanelStyle = ThemePanelStyle;
 
 export interface PreferencesState {
   theme: AppTheme;
@@ -24,8 +27,10 @@ export interface PreferencesState {
   autoStopMinutes: number | null;
   localOnly: boolean;
   setTheme(theme: AppTheme): void;
+  applyThemePreset(theme: AppTheme): void;
   setLanguage(language: AppLanguage): void;
   setCustomTheme(theme: CustomTheme): void;
+  resetCustomTheme(): void;
   setLastTab(tab: string): void;
   setWindowSize(size: { width: number; height: number }): void;
   setCompactMode(enabled: boolean): void;
@@ -69,16 +74,14 @@ const storage = createJSONStorage<PreferencesPersisted>(() => {
   }
 });
 
+const defaultThemeTokens = createThemeTokensFromPreset(DEFAULT_THEME_PRESET);
+
 export const usePreferencesStore = create<PreferencesState>()(
   persist(
-    (set) => ({
-      theme: "dark",
+    (set, get) => ({
+      theme: DEFAULT_THEME_PRESET,
       language: "en",
-      customTheme: {
-        primary: "#8b5cf6",
-        background: "#0e0a1f",
-        accent: "#1c1842",
-      },
+      customTheme: defaultThemeTokens,
       lastTab: null,
       windowSize: null,
       compactMode: false,
@@ -88,8 +91,17 @@ export const usePreferencesStore = create<PreferencesState>()(
       autoStopMinutes: null,
       localOnly: false,
       setTheme: (theme) => set({ theme }),
+      applyThemePreset: (theme) =>
+        set({
+          theme,
+          customTheme: createThemeTokensFromPreset(theme),
+        }),
       setLanguage: (language) => set({ language }),
       setCustomTheme: (customTheme) => set({ customTheme }),
+      resetCustomTheme: () => {
+        const theme = get().theme;
+        set({ customTheme: createThemeTokensFromPreset(theme) });
+      },
       setLastTab: (tab) => set({ lastTab: tab }),
       setWindowSize: (size) => set({ windowSize: size }),
       setCompactMode: (enabled) => set({ compactMode: enabled }),
@@ -115,6 +127,17 @@ export const usePreferencesStore = create<PreferencesState>()(
         autoStopMinutes: state.autoStopMinutes,
         localOnly: state.localOnly,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<PreferencesPersisted> | undefined;
+        return {
+          ...currentState,
+          ...persisted,
+          customTheme: {
+            ...currentState.customTheme,
+            ...(persisted?.customTheme ?? {}),
+          },
+        };
+      },
     },
   ),
 );

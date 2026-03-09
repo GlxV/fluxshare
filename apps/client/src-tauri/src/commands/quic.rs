@@ -32,7 +32,9 @@ pub async fn quic_start(
         .ensure_endpoint()
         .await
         .map_err(|e| format!("erro ao criar endpoint QUIC: {e}"))?;
-    let addr: SocketAddr = remote_addr.parse::<SocketAddr>().map_err(|e| e.to_string())?;
+    let addr: SocketAddr = remote_addr
+        .parse::<SocketAddr>()
+        .map_err(|e| e.to_string())?;
     let connection = endpoint
         .connect(addr, "fluxshare")
         .map_err(|e| e.to_string())?;

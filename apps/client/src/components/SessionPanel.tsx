@@ -102,13 +102,13 @@ export function SessionPanel({ transfers }: SessionPanelProps) {
   }, [currentStatus, t]);
 
   return (
-    <Card className="space-y-4 p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <Card className="space-y-5 p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
             {t("session.subtitle")}
           </p>
-          <p className="text-lg font-semibold text-[var(--text)]">{t("session.title")}</p>
+          <p className="text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">{t("session.title")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="accentSecondary">
@@ -121,55 +121,71 @@ export function SessionPanel({ transfers }: SessionPanelProps) {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
           <span>{t("session.progress")}</span>
           <span>
-            {formatBytes(transferredBytes)} / {formatBytes(totalBytes || 0)} ({sessionProgress.toFixed(1)}%)
+            {formatBytes(transferredBytes)} / {formatBytes(totalBytes || 0)}
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)]">
+        <div className="h-2 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--panel-strong)_78%,transparent)]">
           <div
             className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
             style={{ width: `${sessionProgress}%` }}
           />
         </div>
-        <div className="text-xs text-[var(--muted)]">
-          {t("session.queue")}: {queueCount} · Total: {totalCount}
+      </div>
+
+      <div className="fs-metric-grid">
+        <div className="fs-metric">
+          <p className="fs-metric__label">{t("session.queue")}</p>
+          <p className="fs-metric__value">{queueCount}</p>
+        </div>
+        <div className="fs-metric">
+          <p className="fs-metric__label">{t("session.completed")}</p>
+          <p className="fs-metric__value">{completedCount}</p>
+        </div>
+        <div className="fs-metric">
+          <p className="fs-metric__label">{t("session.active")}</p>
+          <p className="fs-metric__value">{active.length}</p>
         </div>
       </div>
 
       {current ? (
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-              {t("session.current")}
-            </p>
-            <p className="text-sm font-medium text-[var(--text)]">{current.fileName ?? t("transfer.title")}</p>
-            <p className="text-xs text-[var(--muted)]">
-              {formatBytes(current.bytesTransferred)} / {formatBytes(current.totalBytes)}
-            </p>
-            <div className="h-2 overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(13rem,0.9fr)]">
+          <div className="space-y-3 rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_88%,transparent)] p-4">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
+                {t("session.current")}
+              </p>
+              <p className="text-sm font-semibold text-[var(--text)]">{current.fileName ?? t("transfer.title")}</p>
+              <p className="text-xs text-[var(--muted)]">{currentStatusLabel}</p>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--panel-strong)_78%,transparent)]">
               <div
                 className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
                 style={{ width: `${currentProgress}%` }}
               />
             </div>
             <p className="text-xs text-[var(--muted)]">
-              {t("transfer.title")}: {currentStatusLabel}
+              {formatBytes(current.bytesTransferred)} / {formatBytes(current.totalBytes)}
             </p>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+
+          <div className="space-y-3 rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_88%,transparent)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
               {t("session.speedEta")}
             </p>
-            <p className="text-sm text-[var(--text)]">
-              {currentSpeed > 0 ? `${formatBytes(currentSpeed)}/s` : "--"} · {formatEta(currentEta)}
+            <p className="text-sm font-semibold text-[var(--text)]">
+              {currentSpeed > 0 ? `${formatBytes(currentSpeed)}/s` : "--"}
             </p>
+            <p className="text-sm text-[var(--muted)]">{formatEta(currentEta)}</p>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-[var(--muted)]">{t("session.none")}</p>
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_82%,transparent)] px-5 py-6 text-sm text-[var(--muted)]">
+          {t("session.none")}
+        </div>
       )}
     </Card>
   );

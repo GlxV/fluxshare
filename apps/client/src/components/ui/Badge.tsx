@@ -7,19 +7,23 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  neutral: "bg-[color-mix(in srgb,var(--surface) 65%,transparent)] text-[var(--muted)]",
-  accent: "bg-[color-mix(in srgb,var(--primary) 25%,transparent)] text-[var(--primary)]",
-  accentSecondary: "bg-[color-mix(in srgb,var(--primary) 18%,var(--surface) 82%)] text-[var(--text)]",
+  neutral:
+    "border border-[color-mix(in_srgb,var(--panel-muted)_35%,var(--border)_65%)] bg-[color-mix(in_srgb,var(--panel-muted)_86%,transparent)] text-[var(--muted-strong)]",
+  accent:
+    "border border-[color-mix(in_srgb,var(--primary)_28%,var(--border)_72%)] bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--text)]",
+  accentSecondary:
+    "border border-[color-mix(in_srgb,var(--secondary)_24%,var(--border)_76%)] bg-[color-mix(in_srgb,var(--secondary)_14%,transparent)] text-[var(--text)]",
   success:
-    "border border-[color-mix(in srgb,var(--primary) 45%,var(--border) 55%)] bg-[color-mix(in srgb,var(--primary) 32%,var(--surface-2) 68%)] text-[var(--text)] shadow-[0_10px_30px_-22px_var(--ring)]",
-  danger: "bg-[color-mix(in srgb,var(--primary) 45%,var(--surface-2) 55%)] text-[var(--primary-foreground)]",
+    "border border-[color-mix(in_srgb,var(--success)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-[var(--text)]",
+  danger:
+    "border border-[color-mix(in_srgb,var(--danger)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] text-[var(--text)]",
 };
 
 export function Badge({ className, variant = "neutral", ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-[0.68rem] font-semibold tracking-[0.08em] uppercase",
         variantClasses[variant],
         className,
       )}

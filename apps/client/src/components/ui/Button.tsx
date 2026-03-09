@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { cn } from "../../utils/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger";
-type ButtonSize = "md" | "sm";
+type ButtonSize = "lg" | "md" | "sm";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -11,20 +11,21 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_20px_45px_-20px_var(--ring)] hover:bg-[color-mix(in srgb,var(--primary) 88%,var(--surface) 12%)]",
+    "border border-transparent bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--shadow-accent)] hover:-translate-y-px hover:brightness-[1.03]",
   secondary:
-    "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color-mix(in srgb,var(--surface) 85%,var(--bg) 15%)]",
+    "border border-[var(--border)] bg-[color-mix(in_srgb,var(--panel-muted)_88%,transparent)] text-[var(--text)] hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--panel-muted)_78%,var(--surface-3)_22%)]",
   ghost:
-    "bg-transparent text-[var(--text)] hover:bg-[color-mix(in srgb,var(--surface) 55%,transparent)]",
+    "border border-transparent bg-transparent text-[var(--muted-strong)] hover:bg-[color-mix(in_srgb,var(--panel-muted)_58%,transparent)] hover:text-[var(--text)]",
   outline:
-    "border border-[var(--border)] text-[var(--text)] hover:border-[color-mix(in srgb,var(--primary) 65%,var(--border) 35%)]",
+    "border border-[var(--border)] bg-transparent text-[var(--text)] hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--panel-muted)_42%,transparent)]",
   danger:
-    "border border-[color-mix(in srgb,var(--primary) 55%,var(--border) 45%)] bg-[color-mix(in srgb,var(--primary) 65%,var(--surface-2) 35%)] text-[var(--text)] shadow-[0_20px_45px_-20px_var(--ring)] hover:bg-[color-mix(in srgb,var(--primary) 75%,var(--surface-2) 25%)] hover:border-[color-mix(in srgb,var(--primary) 72%,var(--border) 28%)]",
+    "border border-[color-mix(in_srgb,var(--danger)_48%,var(--border)_52%)] bg-[color-mix(in_srgb,var(--danger)_14%,var(--surface)_86%)] text-[var(--text)] hover:bg-[color-mix(in_srgb,var(--danger)_18%,var(--surface)_82%)]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
+  lg: "h-12 px-5 text-sm",
   md: "h-10 px-4 text-sm",
-  sm: "h-9 px-3 text-xs",
+  sm: "h-8 px-3 text-xs",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -33,9 +34,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition duration-200 ease-out transform hover:scale-[1.02] active:scale-[0.98]",
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md)] font-medium tracking-[-0.01em] transition duration-150 ease-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]",
-          "disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100",
+          "disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none disabled:shadow-none",
           variantClasses[variant],
           sizeClasses[size],
           className,

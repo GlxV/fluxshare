@@ -1,10 +1,10 @@
 [package]
 name = "fluxshare"
-version = "1.1.0"
+version = "2.0.0"
 edition = "2021"
 description = "FluxShare Tauri backend"
 authors = ["FluxShare Team"]
-license = "MIT"
+license = "GPL-3.0-or-later"
 
 [lib]
 name = "fluxshare_lib"
@@ -18,6 +18,7 @@ http-body-util = "0.1"
 blake3 = "1"
 bytes = "1"
 chacha20poly1305 = { version = "0.10", features = ["std"] }
+csv = "1"
 dirs = "5"
 fs_extra = "1"
 html-escape = "0.2"
@@ -25,6 +26,8 @@ percent-encoding = "2"
 parking_lot = "0.12"
 quinn = { version = "0.10", features = ["rustls"] }
 rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+roxmltree = "0.20"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "1"
@@ -37,8 +40,14 @@ tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"]
 url = "2"
 webrtc = "0.10"
 which = "4"
+walkdir = "2"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
 # opcional: só se realmente usar
 chrono = { version = "0.4", features = ["serde"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_UI_Shell"] }
+winreg = "0.52"
 
 [build-dependencies]
 tauri-build = { version = "1", features = [] }

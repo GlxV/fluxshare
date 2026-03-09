@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge, type BadgeProps } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import ImportPreparationPanel from "./ImportPreparationPanel";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { isTauri } from "../lib/persist/tauri";
 import { usePreferencesStore } from "../state/usePreferencesStore";
 import { useI18n } from "../i18n/LanguageProvider";
+import { type ImportPreparationStatus } from "../lib/transfer/importStatus";
 
 interface TransferBoxProps {
   file: {
@@ -29,6 +31,7 @@ interface TransferBoxProps {
     updatedAt: number;
     peerId: string;
   } | null;
+  importStatus: ImportPreparationStatus;
   onPickFile: () => Promise<void>;
   onPickFolder?: () => Promise<void>;
   onCancel: (peerId: string, transferId: string) => void;
@@ -107,21 +110,10 @@ function computeStatusLabel({
   return t("transfer.none");
 }
 
-function renderTargetLabel(label: string | undefined, t: ReturnType<typeof useI18n>["t"]) {
-  if (!label) return null;
-  return (
-    <div className="space-y-1">
-      <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-        {t("transfer.destination")}
-      </span>
-      <p className="text-sm text-[var(--text)]">{label}</p>
-    </div>
-  );
-}
-
 export function TransferBox({
   file,
   transfer,
+  importStatus,
   onPickFile,
   onPickFolder,
   onCancel,
@@ -193,14 +185,14 @@ export function TransferBox({
   }
 
   return (
-    <Card className="flex h-full flex-col gap-6 p-6">
+    <Card className="flex h-full flex-col gap-5 p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-[var(--text)]">{t("transfer.title")}</h2>
-            {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">{t("transfer.title")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xl font-semibold tracking-[-0.03em] text-[var(--text)]">{statusLabel}</p>
+            {badge ? <Badge variant={badge.variant}>{badge.label}</Badge> : null}
           </div>
-          <p className="text-sm text-[var(--muted)]">{statusLabel}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={() => onPickFile()}>
@@ -213,75 +205,87 @@ export function TransferBox({
           ) : null}
         </div>
       </div>
-      <div className="space-y-4">
-        {file ? (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-                  {t("transfer.name")}
-                </span>
-                <p className="text-sm text-[var(--text)]">{file.name}</p>
+
+      <ImportPreparationPanel status={importStatus} />
+
+      {file ? (
+        <>
+          <div className="rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_88%,transparent)] p-5">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">{t("transfer.name")}</p>
+                  <p className="break-all text-base font-semibold text-[var(--text)]">{file.name}</p>
+                </div>
                 {file.kind === "folder" ? <Badge variant="accentSecondary">{t("send.type.folder")}</Badge> : null}
               </div>
-              <div className="space-y-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-                  {t("transfer.size")}
-                </span>
-                <p className="text-sm text-[var(--text)]">{formatBytes(file.size)}</p>
-              </div>
-              {renderTargetLabel(file.targetLabel, t)}
-            </div>
-            {canHostFromFile ? (
-              <>
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" onClick={handleHostLink} disabled={hostingLink}>
-                    {hostingLink ? t("transfer.hosting") : t("transfer.hostLink")}
-                  </Button>
+
+              <div className="fs-metric-grid">
+                <div className="fs-metric">
+                  <p className="fs-metric__label">{t("transfer.size")}</p>
+                  <p className="fs-metric__value">{formatBytes(file.size)}</p>
                 </div>
-                {hostLinkError ? (
-                  <p className="text-xs text-[color-mix(in srgb,var(--danger) 70%,var(--text) 30%)]">{hostLinkError}</p>
-                ) : null}
-              </>
-            ) : null}
-            {transfer ? (
-              <div className="space-y-2">
-                <div className="h-3 w-full overflow-hidden rounded-full border border-[var(--border)] bg-[var(--surface)]">
+                <div className="fs-metric">
+                  <p className="fs-metric__label">{t("transfer.destination")}</p>
+                  <p className="fs-metric__value">{file.targetLabel ?? statusLabel}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {transfer ? (
+            <div className="rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_88%,transparent)] p-5">
+              <div className="space-y-3">
+                <div className="h-2 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--panel-strong)_78%,transparent)]">
                   <div
                     className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-300"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--muted)]">
-                  <span>
-                    {t("transfer.progress")}: {progress.toFixed(1)}%
-                  </span>
-                  <span>
-                    {t("transfer.speed")}: {speedBytes > 0 ? `${formatBytes(speedBytes)}/s` : "--"}
-                  </span>
-                  <span>
-                    {t("transfer.eta")}: {eta}
-                  </span>
+                <div className="fs-metric-grid">
+                  <div className="fs-metric">
+                    <p className="fs-metric__label">{t("transfer.progress")}</p>
+                    <p className="fs-metric__value">{progress.toFixed(1)}%</p>
+                  </div>
+                  <div className="fs-metric">
+                    <p className="fs-metric__label">{t("transfer.speed")}</p>
+                    <p className="fs-metric__value">{speedBytes > 0 ? `${formatBytes(speedBytes)}/s` : "--"}</p>
+                  </div>
+                  <div className="fs-metric">
+                    <p className="fs-metric__label">{t("transfer.eta")}</p>
+                    <p className="fs-metric__value">{eta}</p>
+                  </div>
                 </div>
               </div>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2">
+            {canHostFromFile ? (
+              <Button type="button" variant="outline" onClick={handleHostLink} disabled={hostingLink}>
+                {hostingLink ? t("transfer.hosting") : t("transfer.hostLink")}
+              </Button>
             ) : null}
             {transfer && transfer.status === "transferring" ? (
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="danger" onClick={() => onCancel(transfer.peerId, transfer.id)}>
-                  {t("transfer.cancel")}
-                </Button>
-              </div>
+              <Button type="button" variant="danger" onClick={() => onCancel(transfer.peerId, transfer.id)}>
+                {t("transfer.cancel")}
+              </Button>
             ) : null}
-          </>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in srgb,var(--surface) 75%,transparent)] px-6 py-10 text-center text-sm text-[var(--muted)]">
-            {t("transfer.selectPrompt")}
           </div>
-        )}
-      </div>
+
+          {hostLinkError ? (
+            <p className="text-xs text-[color-mix(in_srgb,var(--danger)_82%,var(--text)_18%)]">{hostLinkError}</p>
+          ) : null}
+        </>
+      ) : (
+        <div className="rounded-[var(--radius-lg)] border border-dashed border-[color-mix(in_srgb,var(--panel-muted)_34%,var(--border)_66%)] bg-[color-mix(in_srgb,var(--panel-muted)_82%,transparent)] px-6 py-10 text-center text-sm text-[var(--muted)]">
+          {t("transfer.selectPrompt")}
+        </div>
+      )}
+
       {activeTransferId ? (
         <p className="text-xs text-[var(--muted)]">
-          {t("transfer.activeId")}: {activeTransferId}
+          {t("transfer.activeId")}: <span className="font-mono">{activeTransferId}</span>
         </p>
       ) : null}
     </Card>

@@ -6,11 +6,13 @@ use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Settings {
     pub chunk_size: u64,
     pub parallel_chunks: u32,
     pub ice_timeout_ms: u64,
     pub cloudflared_path: String,
+    pub explorer_context_menu_enabled: bool,
 }
 
 impl Default for Settings {
@@ -20,6 +22,7 @@ impl Default for Settings {
             parallel_chunks: 4,
             ice_timeout_ms: 30_000,
             cloudflared_path: "cloudflared".into(),
+            explorer_context_menu_enabled: false,
         }
     }
 }

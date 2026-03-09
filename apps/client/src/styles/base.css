@@ -1,3 +1,111 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+html {
+  font-family: "Segoe UI Variable Text", "Segoe UI", "SF Pro Text", "Helvetica Neue", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 14% 18%, var(--ambient-a) 0, transparent 30%),
+    radial-gradient(circle at 82% 12%, var(--ambient-b) 0, transparent 26%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 94%, var(--canvas-edge) 6%) 0%, var(--bg) 52%, var(--canvas-edge) 100%);
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  color: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 28%, transparent);
+  color: inherit;
+}
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  color: var(--text);
+  isolation: isolate;
+}
+
+.app-shell__background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.app-shell__background::before,
+.app-shell__background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.app-shell__background::before {
+  background:
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--canvas-edge) 30%, transparent) 100%),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(0deg, var(--grid-line) 1px, transparent 1px);
+  background-size: auto, 28px 28px, 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 76%);
+  opacity: 0.6;
+}
+
+.app-shell__background::after {
+  background:
+    radial-gradient(circle at 50% 0%, transparent 22%, color-mix(in srgb, var(--canvas-edge) 48%, transparent) 100%),
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--canvas-edge) 40%, transparent) 100%);
+}
+
+.app-shell--animated {
+  animation: app-fade-in 220ms ease-out;
+}
+
+.app-shell--animated main {
+  animation: app-fade-in 280ms ease-out;
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-shadow {
+  box-shadow: var(--shadow-panel);
+}

@@ -1,33 +1,57 @@
 :root {
   color-scheme: dark;
-  --bg: #0e0a1f;
-  --surface: #151233;
-  --surface-2: #1c1842;
-  --border: #2b265a;
-  --primary: #8b5cf6;
-  --primary-foreground: #0b0a16;
-  --ring: rgba(139, 92, 246, 0.35);
-  --text: #e8e8f0;
-  --muted: #a3a3b2;
-  --danger: #f87171;
-  --success: #34d399;
+  --bg: #11161d;
+  --surface: #171d26;
+  --surface-2: #1d2531;
+  --surface-3: #243041;
+  --panel-bg: #171d26;
+  --panel-muted: #1d2531;
+  --panel-strong: #243041;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --primary: #68b3ff;
+  --secondary: #89c8ff;
+  --primary-soft: rgba(104, 179, 255, 0.18);
+  --secondary-soft: rgba(137, 200, 255, 0.18);
+  --primary-foreground: #08111b;
+  --ring: rgba(104, 179, 255, 0.32);
+  --text: #eef3fb;
+  --muted: #9aa7b9;
+  --muted-strong: #bac5d4;
+  --success: #41b883;
+  --danger: #ef6b73;
+  --ambient-a: rgba(57, 122, 255, 0.18);
+  --ambient-b: rgba(39, 53, 78, 0.22);
+  --canvas-edge: #0a0f16;
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --space-scale: 1;
+  --radius-scale: 1;
+  --shadow-soft: 0 26px 60px -40px rgba(5, 7, 12, 0.72);
+  --shadow-panel: 0 24px 54px -36px rgba(5, 7, 12, 0.68);
+  --shadow-strong: 0 30px 70px -34px rgba(5, 7, 12, 0.82);
+  --shadow-accent: 0 18px 40px -24px rgba(104, 179, 255, 0.32);
+
+  --radius-xs: calc(0.5rem * var(--radius-scale));
+  --radius-sm: calc(0.75rem * var(--radius-scale));
+  --radius-md: calc(1rem * var(--radius-scale));
+  --radius-lg: calc(1.35rem * var(--radius-scale));
+  --radius-xl: calc(1.7rem * var(--radius-scale));
+
+  --space-1: calc(0.25rem * var(--space-scale));
+  --space-2: calc(0.5rem * var(--space-scale));
+  --space-3: calc(0.75rem * var(--space-scale));
+  --space-4: calc(1rem * var(--space-scale));
+  --space-5: calc(1.25rem * var(--space-scale));
+  --space-6: calc(1.5rem * var(--space-scale));
+  --space-8: calc(2rem * var(--space-scale));
+  --space-10: calc(2.5rem * var(--space-scale));
+  --space-12: calc(3rem * var(--space-scale));
 }
 
-:root[data-theme="light"] {
+:root[data-theme-mode="light"] {
   color-scheme: light;
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --border: #d5d9e2;
-  --primary: #6366f1;
-  --primary-foreground: #0f172a;
-  --ring: rgba(99, 102, 241, 0.28);
-  --text: #0f172a;
-  --muted: #475569;
-  --danger: #dc2626;
-  --success: #16a34a;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme-mode="dark"] {
   color-scheme: dark;
 }

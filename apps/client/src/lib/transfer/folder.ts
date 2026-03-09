@@ -1,16 +1,13 @@
 import JSZip from "jszip";
-import { appCacheDir, downloadDir, join } from "@tauri-apps/api/path";
-import {
-  BaseDirectory,
-  createDir,
-  readBinaryFile,
-  readDir,
-  removeFile,
-  writeBinaryFile,
-} from "@tauri-apps/api/fs";
+import { downloadDir, join } from "@tauri-apps/api/path";
+import { createDir, readBinaryFile, removeFile, writeBinaryFile } from "@tauri-apps/api/fs";
+import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/tauri";
+import { nanoid } from "nanoid";
 import { isTauri } from "../persist/tauri";
 import { toast } from "../../store/useToast";
 import { translateInstant } from "../../i18n/translate";
+import { type ImportProgressEventPayload, type ImportStatusReporter } from "./importStatus";
 
 export interface FolderSelection {
   path: string;
@@ -35,27 +32,10 @@ async function ensureDir(path: string) {
   }
 }
 
-async function addEntryToZip(zip: JSZip, entry: { path?: string; name?: string; children?: any[] }, prefix: string) {
-  const name = entry.name ?? "item";
-  const currentPath = prefix ? `${prefix}/${name}` : name;
-  if (entry.children) {
-    const folder = zip.folder(currentPath);
-    if (folder && entry.children.length > 0) {
-      for (const child of entry.children) {
-        await addEntryToZip(folder, child, "");
-      }
-    }
-    return;
-  }
-  if (entry.path) {
-    const content = await readBinaryFile(entry.path);
-    zip.file(currentPath, content);
-  }
-}
-
 export async function prepareFolderTransfer(
   selection: FolderSelection,
   t?: TranslateFn,
+  reportStatus?: ImportStatusReporter,
 ): Promise<FolderTransferPlan | null> {
   const translate =
     t ??
@@ -66,40 +46,93 @@ export async function prepareFolderTransfer(
     return null;
   }
 
-  const cacheRoot = await appCacheDir();
-  const targetDir = await join(cacheRoot, "fluxshare-archives");
-  await ensureDir(targetDir);
+  const jobId = `folder-${nanoid(10)}`;
+  let stopListening: (() => void) | null = null;
 
   try {
-    const zip = new JSZip();
-    const entries = await readDir(selection.path, { recursive: true });
-    for (const entry of entries) {
-      await addEntryToZip(zip, entry, selection.name);
-    }
-    const content = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" });
-    const archiveName = `${selection.name}.zip`;
-    const relativeArchive = `fluxshare-archives/${Date.now()}-${archiveName}`;
-    const archivePath = await join(cacheRoot, relativeArchive);
-    await writeBinaryFile({ path: relativeArchive, contents: content }, { dir: BaseDirectory.AppCache });
+    stopListening = await listen<ImportProgressEventPayload>("fluxshare://import-progress", (event) => {
+      const payload = event.payload;
+      if (!payload || payload.jobId !== jobId || !reportStatus) return;
+      const stage = payload.stage;
+      reportStatus({
+        active: stage !== "complete" && stage !== "error",
+        stage:
+          stage === "scanning" || stage === "packing" || stage === "error"
+            ? stage
+            : stage === "complete"
+              ? "ready"
+              : "analyzing",
+        progress: typeof payload.progress === "number" ? Math.max(0, Math.min(1, payload.progress)) : null,
+        message:
+          stage === "scanning"
+            ? translate("import.folder.scanning")
+            : stage === "packing"
+              ? translate("import.folder.packing")
+              : stage === "complete"
+                ? translate("import.folder.ready")
+                : translate("import.folder.failed"),
+        detail: payload.message,
+        filesProcessed: payload.filesProcessed,
+        totalFiles: payload.totalFiles ?? undefined,
+        bytesProcessed: payload.bytesProcessed,
+        totalBytes: payload.totalBytes ?? undefined,
+      });
+    });
+
+    reportStatus?.({
+      active: true,
+      stage: "scanning",
+      progress: null,
+      message: translate("import.folder.scanning"),
+    });
+
+    const result = (await invoke("prepare_folder_archive", {
+      path: selection.path,
+      name: selection.name,
+      jobId,
+    })) as {
+      archivePath: string;
+      displayName: string;
+      size: number;
+      archiveRoot: string;
+    };
+
     const plan: FolderTransferPlan = {
-      archivePath,
-      displayName: archiveName,
-      size: content.byteLength,
-      archiveRoot: selection.name,
+      archivePath: result.archivePath,
+      displayName: result.displayName,
+      size: result.size,
+      archiveRoot: result.archiveRoot,
       cleanup: async () => {
         try {
-          await removeFile(relativeArchive, { dir: BaseDirectory.AppCache });
+          await removeFile(result.archivePath);
         } catch {
           /* ignore */
         }
       },
     };
+    reportStatus?.({
+      active: false,
+      stage: "ready",
+      progress: 1,
+      message: translate("import.folder.ready"),
+      totalBytes: result.size,
+      bytesProcessed: result.size,
+    });
     toast({ message: translate("toast.folderReady"), variant: "success", duration: 2500 });
     return plan;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    reportStatus?.({
+      active: false,
+      stage: "error",
+      progress: null,
+      message: translate("import.folder.failed"),
+      detail: message,
+    });
     toast({ message: translate("toast.folderFail", { message }), variant: "error" });
     return null;
+  } finally {
+    stopListening?.();
   }
 }
 

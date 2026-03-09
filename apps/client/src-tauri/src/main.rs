@@ -1,7 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod commands {
+    pub mod explorer;
     pub mod files;
+    pub mod hosted_page;
+    pub mod import;
+    pub mod launch;
     pub mod quic;
     pub mod settings;
     pub mod transfer;
@@ -10,11 +14,23 @@ mod commands {
 }
 
 use commands::{
+    explorer::{
+        get_explorer_integration_status, set_explorer_context_menu_enabled,
+        sync_explorer_integration,
+    },
     files::{list_files, read_file_range, write_file_range},
+    import::prepare_folder_archive,
+    launch::{
+        collect_share_paths_from_args, consume_pending_explorer_share_requests,
+        start_single_instance_server, try_forward_to_existing_instance, LaunchRequestManager,
+    },
     quic::{quic_start, QuicManager},
     settings::{get_settings, set_settings, SettingsManager},
     transfer::{get_status, send_files, TransferManager},
-    tunnel::{start_host, start_tunnel, stop_host, stop_tunnel, tunnel_status, TunnelManager},
+    tunnel::{
+        probe_tunnel_endpoint, start_host, start_tunnel, stop_host, stop_tunnel, tunnel_status,
+        TunnelManager,
+    },
     webrtc::{start_signaling, webrtc_start, WebRTCManager},
 };
 use tauri::Manager;
@@ -54,9 +70,15 @@ fn open_logs_folder(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 fn main() {
+    let launch_paths = collect_share_paths_from_args(std::env::args().collect::<Vec<_>>());
+    if try_forward_to_existing_instance(launch_paths.clone()).unwrap_or(false) {
+        return;
+    }
+
     init_tracing();
     let transfer_manager = TransferManager::default();
     let settings_manager = SettingsManager::default();
+    let launch_manager = LaunchRequestManager::with_initial_paths(launch_paths);
     let tunnel_manager = TunnelManager::default(); // LLM-LOCK: central manager for Cloudflare tunnel lifecycle and stop events
     let webrtc_manager = WebRTCManager::default();
     let quic_manager = QuicManager::default();
@@ -64,10 +86,17 @@ fn main() {
     settings_manager
         .ensure_initialized()
         .expect("settings init");
+    if let Err(error) = sync_explorer_integration(&settings_manager) {
+        tracing::error!(?error, "explorer_integration_sync_failed");
+    }
+    if let Err(error) = start_single_instance_server(launch_manager.clone()) {
+        tracing::error!(?error, "single_instance_server_start_failed");
+    }
 
     tauri::Builder::default()
         .manage(transfer_manager.clone())
         .manage(settings_manager.clone())
+        .manage(launch_manager.clone())
         .manage(tunnel_manager.clone())
         .manage(webrtc_manager.clone())
         .manage(quic_manager.clone())
@@ -75,6 +104,7 @@ fn main() {
             list_files,
             read_file_range,
             write_file_range,
+            prepare_folder_archive,
             start_signaling,
             webrtc_start,
             quic_start,
@@ -85,11 +115,16 @@ fn main() {
             stop_host,
             stop_tunnel,
             tunnel_status,
+            probe_tunnel_endpoint,
+            consume_pending_explorer_share_requests,
+            get_explorer_integration_status,
+            set_explorer_context_menu_enabled,
             set_settings,
             get_settings,
             open_logs_folder
         ])
         .setup(move |app| {
+            launch_manager.attach_app(app.handle());
             app.listen_global("tauri://close-requested", move |_event| {
                 tracing::info!("shutdown requested");
             });

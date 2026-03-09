@@ -15,6 +15,7 @@ import { Card } from "../components/ui/Card";
 import { notify } from "../lib/notify";
 import { pickTauriFile, pickWebFile, pickTauriFolder, type SelectedItem } from "../lib/transfer/selectFile";
 import { useI18n } from "../i18n/LanguageProvider";
+import { IDLE_IMPORT_STATUS, type ImportPreparationStatus } from "../lib/transfer/importStatus";
 
 interface PeerTargetsOptions {
   overridePeerId?: string;
@@ -97,6 +98,7 @@ export function RoomPage() {
   const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<SelectedItem | null>(null);
   const [activeTransferId, setActiveTransferId] = useState<string | null>(null);
+  const [selectionStatus, setSelectionStatus] = useState<ImportPreparationStatus>(IDLE_IMPORT_STATUS);
   const displayName = useMemo(() => generateDisplayName(), []);
 
   const signalingRef = useRef<SignalingClient | null>(null);
@@ -435,7 +437,8 @@ export function RoomPage() {
 
   const handlePickFile = useCallback(
     async (overridePeerId?: string) => {
-      const file = isTauri() ? await pickTauriFile() : await pickWebFile();
+      setSelectionStatus(IDLE_IMPORT_STATUS);
+      const file = isTauri() ? await pickTauriFile(setSelectionStatus) : await pickWebFile();
       if (!file) return;
       setSelectedFile(file);
       sendFileToTargets(file, { overridePeerId });
@@ -445,7 +448,8 @@ export function RoomPage() {
 
   const handlePickFolder = useCallback(
     async (overridePeerId?: string) => {
-      const folder = await pickTauriFolder(t);
+      setSelectionStatus(IDLE_IMPORT_STATUS);
+      const folder = await pickTauriFolder(t, setSelectionStatus);
       if (!folder) return;
       setSelectedFile(folder);
       sendFileToTargets(folder, { overridePeerId });
@@ -483,6 +487,10 @@ export function RoomPage() {
 
   const hasConnectedPeers = useMemo(
     () => peers.some((peer) => (peerConnections[peer.peerId]?.state ?? "new") === "connected"),
+    [peerConnections, peers],
+  );
+  const connectedPeerCount = useMemo(
+    () => peers.filter((peer) => (peerConnections[peer.peerId]?.state ?? "new") === "connected").length,
     [peerConnections, peers],
   );
 
@@ -582,31 +590,52 @@ export function RoomPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="flex flex-wrap items-start justify-between gap-4 p-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-[var(--text)]">
-            {t("room.title", { code: roomId ?? params.code ?? "--" })}
-          </h1>
-          <p className="text-sm text-[var(--muted)]">
-            {t("room.connectedAs", { name: displayName, id: selfPeerId || "--" })}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => copyInviteLink()}>
-            {t("room.copyLink")}
-          </Button>
-          <Button variant="danger" onClick={handleLeaveRoom}>
-            {t("room.leave")}
-          </Button>
-        </div>
-      </Card>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_22rem]">
+        <Card className="space-y-5 p-6">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">{t("nav.p2p")}</p>
+            <h1 className="text-[1.95rem] font-semibold tracking-[-0.04em] text-[var(--text)]">
+              {t("room.title", { code: roomId ?? params.code ?? "--" })}
+            </h1>
+            <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
+              {t("room.connectedAs", { name: displayName, id: selfPeerId || "--" })}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={() => copyInviteLink()}>
+              {t("room.copyLink")}
+            </Button>
+            <Button variant="danger" onClick={handleLeaveRoom}>
+              {t("room.leave")}
+            </Button>
+          </div>
+        </Card>
+
+        <Card tone="muted" className="p-5">
+          <div className="fs-metric-grid">
+            <div className="fs-metric">
+              <p className="fs-metric__label">{t("header.room")}</p>
+              <p className="fs-metric__value">{roomId ?? params.code ?? "--"}</p>
+            </div>
+            <div className="fs-metric">
+              <p className="fs-metric__label">{t("peers.title")}</p>
+              <p className="fs-metric__value">{peerItems.length}</p>
+            </div>
+            <div className="fs-metric">
+              <p className="fs-metric__label">{t("connection.connected")}</p>
+              <p className="fs-metric__value">{connectedPeerCount}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       <SessionPanel transfers={transfers} />
 
-      <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,1.25fr)]">
         <TransferBox
           file={transferBoxFile}
           transfer={transferBoxTransfer}
+          importStatus={selectionStatus}
           onPickFile={() => handlePickFile()}
           onPickFolder={() => handlePickFolder()}
           onCancel={handleCancelTransfer}

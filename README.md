@@ -1,172 +1,96 @@
-# FluxShare
+# FluxShare 2.0
 
-FluxShare é um cliente desktop multiplataforma (Windows/Linux/macOS) para transferência de arquivos **via Cloudflare Tunnel (HTTP/3/QUIC) como caminho principal**, eliminando problemas de NAT/CGNAT.  
-Quando os peers estão na **mesma rede**, o app usa **WebRTC P2P** como otimização de latência. Se P2P não for possível, o **túnel** assume automaticamente.  
-Licenciado sob GNU GPLv3 (GPL-3.0-or-later). Veja o arquivo `LICENSE` para detalhes. Monorepo com **pnpm**.
+FluxShare 2.0 e um app desktop para compartilhamento rapido de arquivos com foco oficial em Windows. A release estavel desta fase prioriza Windows 10 e Windows 11, com UX, integracoes de shell e fluxo de distribuicao pensados primeiro para esse ambiente.
 
-## Pré-requisitos
+O projeto continua sendo um monorepo com `pnpm`, mas a narrativa da release agora e simples: o produto principal e o app Windows.
 
-- [Node.js 20+](https://nodejs.org/) com pnpm (`corepack enable`)
-- [Rust](https://www.rust-lang.org/) *stable* (via rustup)
-- Dependências do **Tauri v2** (ver [documentação oficial](https://tauri.app/v2/guides/getting-started/prerequisites))
-- `cloudflared` disponível no `PATH`
+## Escopo da release estavel
 
-### Dicas rápidas de instalação do `cloudflared`
-- **Windows**: `winget install Cloudflare.cloudflared` (ou `choco install cloudflared`)
-- **macOS**: `brew install cloudflare/cloudflare/cloudflared`
-- **Linux**: use o gerenciador da sua distro ou o binário oficial; confirme com `cloudflared --version`.
+- Plataforma oficial: Windows 10/11
+- Fluxo principal: `Send File`, `P2P` e `Settings`
+- Compartilhamento: envio rapido local, P2P e link publico via tunel
+- Integracoes nativas: menu de contexto do Explorer e empacotamento desktop
 
-### Linux/WSL build deps
+Linux e macOS nao foram removidos do codigo, mas nao sao o foco oficial da release 2.0. Eles devem ser tratados como caminhos experimentais ou de adaptacao manual.
 
-Para compilar o cliente Tauri em distribuições Linux (incluindo WSL2):
+## Destaques do FluxShare 2.0
 
-```bash
-# Ubuntu / Debian
-sudo apt update && sudo apt install -y   build-essential pkg-config libglib2.0-dev libgtk-3-dev   libwebkit2gtk-4.1-dev libsoup-3.0-dev
+- Importacao mais robusta para arquivos pesados, com feedback real e menos sensacao de travamento
+- Fluxo de tunel mais consistente, com estados mais confiaveis e validacao de disponibilidade
+- Pagina publica de arquivo redesenhada, com preview inline mais rico
+- UI do app refinada, com tema modular, presets adicionais e melhor consistencia entre abas
+- Integracao opcional com o menu de contexto do Windows Explorer
 
-# Arch Linux
-sudo pacman -S --needed base-devel pkgconf glib2 gtk3 webkit2gtk-4.1 libsoup3
+## Requisitos para desenvolvimento
 
-# Fedora
-sudo dnf install -y gcc-c++ make pkgconfig glib2-devel gtk3-devel   webkit2gtk4.1-devel libsoup3-devel
-```
+### Windows
 
-> **Nota WSL**: para empacotar apps desktop no Windows, prefira build nativo no Windows. WSL é útil para dev do servidor.
+- Windows 10 ou Windows 11
+- Node.js 20+
+- `pnpm` 8+
+- Rust toolchain estavel
+- Microsoft WebView2 Runtime
+- `cloudflared` no `PATH` se voce quiser testar compartilhamento via tunel publico
 
-## Instalação
+### Instalar dependencias
 
-```bash
+```powershell
 pnpm install
 ```
 
-## Desenvolvimento
+## Rodando o app
 
-```bash
-# terminal 1 – servidor de sinalização
-pnpm --filter signaling-server dev
+### App desktop
 
-# terminal 2 – cliente web
-pnpm --filter fluxshare-client dev
-
-# opcional: cliente Tauri (desktop)
-pnpm --filter fluxshare-client tauri dev
+```powershell
+pnpm tauri:dev
 ```
 
-O cabeçalho do cliente tem alternância de tema claro/escuro com persistência em `localStorage`.
+### Servidor de sinalizacao P2P
 
-Crie um arquivo `.env` em `apps/client`:
+Se voce quiser validar a parte de sinalizacao localmente:
 
-```bash
-# Dev (WebSocket)
-VITE_SIGNALING_URL=ws://localhost:5174/ws
-
-# ICE servers para P2P na mesma LAN
-VITE_STUN_URL=stun:stun.l.google.com:19302
-# TURN opcional
-# VITE_TURN_URL=turn://example.com:3478
-# VITE_TURN_USER=user
-# VITE_TURN_PASS=pass
-
-# Em produção, prefira WSS:
-# VITE_SIGNALING_URL=wss://seu-dominio/ws
+```powershell
+pnpm signaling:dev
 ```
 
-> **Cloudflared no PATH**: o app inicia/para o processo quando necessário. Se aparecer erro “`cloudflared` não está no PATH”, instale-o ou ajuste a variável de ambiente.
+## Gerando a release Windows
 
-### Configuração do servidor de sinalização
-
-O servidor expõe **WebSocket** em `/ws`. Mensagens validadas com `zod`:
-
-```jsonc
-// client → server
-{"type":"join","room":"AB12CD","peerId":"p1","displayName":"Alice"}
-{"type":"signal","room":"AB12CD","from":"p1","to":"p2","data":{...}}
-{"type":"leave","room":"AB12CD","peerId":"p1"}
-{"type":"heartbeat","peerId":"p1"}
-
-// server → client
-{"type":"peers","room":"AB12CD","peers":[{"peerId":"p2","displayName":"Bob"}]}
-{"type":"peer-joined","peer":{"peerId":"p3","displayName":"Carol"}}
-{"type":"peer-left","peerId":"p2"}
-{"type":"signal","from":"p2","to":"p1","data":{...}}
+```powershell
+pnpm tauri:build
 ```
 
-> **Heartbeat**: enviado periodicamente (ex.: a cada 15s). O servidor remove peers inativos após *timeout* configurado.
+Os artefatos de release do Tauri ficam dentro de `apps/client/src-tauri/target/release/` e `apps/client/src-tauri/target/release/bundle/`.
 
-## Como usar
+## Linux e macOS: estado atual
 
-1. Abra o app e crie/entre em uma **sala** (código curto).
-2. Compartilhe o código com quem vai receber.
-3. Arraste/solte arquivos; o app escolhe o melhor caminho (Tunnel por padrão, P2P na LAN).
+Linux e macOS continuam possiveis para experimentacao, mas nao fazem parte da superficie oficialmente estabilizada no FluxShare 2.0.
 
-## Build de Release
+Se voce quiser tentar rodar nesses sistemas:
 
-```bash
-# Desktop (Tauri, modo release)
-pnpm --filter fluxshare-client tauri build
+- instale as dependencias nativas do Tauri para o seu SO
+- valide manualmente o pipeline de build desktop
+- adapte as integracoes especificas de Windows, como Explorer/context menu
+- revise caminhos, permissao de arquivos e comportamento do tunel no ambiente alvo
 
-# Servidor de sinalização (TypeScript → dist/)
-pnpm --filter signaling-server build
-# (ou) tsc -p apps/signaling-server
+Em outras palavras: o core do app pode ser reaproveitado, mas a release estavel atual nao promete o mesmo nivel de acabamento fora do Windows.
+
+## Estrutura do monorepo
+
+- `apps/client`: app desktop Tauri + frontend React
+- `apps/client/src-tauri`: backend Rust, empacotamento e integracoes nativas
+- `apps/signaling-server`: servidor de sinalizacao usado no fluxo P2P
+
+## Comandos uteis
+
+```powershell
+pnpm install
+pnpm tauri:dev
+pnpm tauri:build
+pnpm signaling:dev
+pnpm signaling:build
 ```
 
-> Se você preferir um atalho, pode ter um `pnpm build` na raiz que orquestra ambos, mas os comandos acima são os canônicos.
+## Licenca
 
-## Testes
-
-```bash
-pnpm test
-```
-
-Executa:
-- Testes de unidade em **Rust** (chunking, checksums, criptografia).
-- Testes de unidade no **signaling** (validação com `zod`).
-
-## Estrutura do Repositório
-
-```
-fluxshare/
-  apps/
-    client/                 # package name: "fluxshare-client"
-      src/
-        App.tsx
-        index.tsx
-        pages/
-          Home.tsx
-          Room.tsx
-        components/
-          PeersPanel.tsx
-          TransferBox.tsx
-        lib/
-          signaling.ts
-          persist/
-            indexeddb.ts
-            tauri.ts
-          webrtc/
-            PeerManager.ts
-            transfer.ts
-        store/
-          usePeers.ts
-          useTransfers.ts
-        workers/
-          fileReader.worker.ts
-        utils/env.ts
-        types/protocol.ts
-      src-tauri/
-        src/commands/files.rs
-        src/main.rs
-    signaling-server/
-      src/index.ts
-```
-
-## Decisões principais
-
-- **Caminho principal**: Cloudflare Tunnel (HTTP/3/QUIC). **P2P/WebRTC na LAN** como otimização.
-- Protocolo de sinalização via **WebSocket** com salas, heartbeat e eventos de presença.
-- Cliente React usa **Zustand** com persistência parcial (**IndexedDB + BroadcastChannel**) para manter seleção/progresso entre abas.
-- Transferências via **WebRTC DataChannel confiável** com chunking de **16 KiB**, backpressure e protocolo de **ACK/RESUME**.
-- Leitura de arquivos em **Worker (web)** e comando **Tauri** (`read_file_range`) para reduzir uso de memória.
-
-## Licença
-
-MIT
+FluxShare esta licenciado sob `GPL-3.0-or-later`. Veja [LICENSE](LICENSE).

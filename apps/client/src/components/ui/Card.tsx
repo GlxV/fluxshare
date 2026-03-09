@@ -1,16 +1,33 @@
 import { cn } from "../../utils/cn";
 
+type CardTone = "default" | "muted" | "solid";
+
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  interactive?: boolean;
   noShadow?: boolean;
+  tone?: CardTone;
 }
 
-export function Card({ className, noShadow = false, ...props }: CardProps) {
+const toneClasses: Record<CardTone, string> = {
+  default: "fs-panel",
+  muted: "fs-panel-muted",
+  solid: "fs-panel-solid",
+};
+
+export function Card({
+  className,
+  interactive = false,
+  noShadow = false,
+  tone = "default",
+  ...props
+}: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-3xl border border-[var(--border)] bg-[var(--surface-2)] backdrop-blur-2xl",
-        "transition duration-200 ease-out hover:-translate-y-[2px] hover:shadow-[0_20px_55px_-35px_var(--ring)]",
-        noShadow ? undefined : "card-shadow",
+        toneClasses[tone],
+        interactive &&
+          "transition duration-150 ease-out hover:-translate-y-px hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-strong)]",
+        noShadow ? "shadow-none" : undefined,
         className,
       )}
       {...props}

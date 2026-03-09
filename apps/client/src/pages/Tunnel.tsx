@@ -9,9 +9,15 @@ import { toast } from "../store/useToast";
 import { usePreferencesStore } from "../state/usePreferencesStore";
 import { TUNNEL_PROVIDERS, TUNNEL_PROVIDER_LABEL, type TunnelProvider } from "../types/tunnel";
 
-const STATUS_LABEL: Record<"RUNNING" | "STOPPED", string> = {
-  RUNNING: "Ativo",
-  STOPPED: "Parado",
+const PHASE_LABEL: Record<string, string> = {
+  stopped: "Parado",
+  starting: "Iniciando",
+  waiting_local: "Aguardando local",
+  waiting_public: "Aguardando publico",
+  online: "Online",
+  reconnecting: "Reconectando",
+  stopping: "Encerrando",
+  failed: "Falhou",
 };
 
 export default function TunnelPage() {
@@ -32,7 +38,10 @@ export default function TunnelPage() {
   const localOnly = usePreferencesStore((state) => state.localOnly);
   const setLocalOnly = usePreferencesStore((state) => state.setLocalOnly);
   const {
-    status,
+    phase,
+    message,
+    publicReady,
+    localReady,
     url,
     localUrl,
     hostedFiles,
@@ -49,7 +58,10 @@ export default function TunnelPage() {
     clear,
     testConnectivity,
   } = useTunnelStore((state) => ({
-    status: state.status,
+    phase: state.phase,
+    message: state.message,
+    publicReady: state.publicReady,
+    localReady: state.localReady,
     url: state.url,
     localUrl: state.localUrl,
     hostedFiles: state.hostedFiles,
@@ -86,8 +98,8 @@ export default function TunnelPage() {
     }
   }, [logs, showAdvanced]);
 
-  const canCopyPublic = useMemo(() => Boolean(url), [url]);
-  const canOpenLocal = useMemo(() => Boolean(localUrl), [localUrl]);
+  const canCopyPublic = useMemo(() => Boolean(url && publicReady), [publicReady, url]);
+  const canOpenLocal = useMemo(() => Boolean(localUrl && localReady), [localReady, localUrl]);
   const canCopyLocal = canOpenLocal;
   const hostedCount = useMemo(() => hostedFiles.length, [hostedFiles]);
 
@@ -135,9 +147,12 @@ export default function TunnelPage() {
         return;
       }
       setHostError(null);
-      const provider = fallbackEnabled ? fallbackProvider : primaryProvider;
+      const provider = localOnly ? undefined : fallbackEnabled ? fallbackProvider : primaryProvider;
       await host(normalized, provider);
-      toast({ message: "Arquivos hospedados.", variant: "success" });
+      const nextState = useTunnelStore.getState();
+      if (provider === undefined || nextState.publicReady) {
+        toast({ message: "Arquivos hospedados.", variant: "success" });
+      }
     } catch (err) {
       const message = typeof err === "string" ? err : (err as Error).message;
       setHostError(message);
@@ -305,18 +320,19 @@ export default function TunnelPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Status</p>
-            <p className="text-lg font-medium text-[var(--text)]">{STATUS_LABEL[status]}</p>
+            <p className="text-lg font-medium text-[var(--text)]">{PHASE_LABEL[phase] ?? phase}</p>
+            {message ? <p className="text-sm text-[var(--muted)]">{message}</p> : null}
             {localOnly ? <span className="text-xs text-[var(--muted)]">Modo local ativado.</span> : null}
           </div>
           <div className="flex flex-wrap gap-2">
             <Button onClick={handleSelectAndHost} disabled={loading}>
               {loading ? "Processando..." : "Selecionar arquivo(s) e gerar link"}
             </Button>
-            <Button onClick={handleStart} disabled={loading || status === "RUNNING"}>
-              {loading && status !== "RUNNING" ? "Iniciando..." : "Iniciar Tunnel"}
+            <Button onClick={handleStart} disabled={loading || phase === "online" || phase === "waiting_public"}>
+              {loading && phase !== "online" ? "Iniciando..." : "Iniciar Tunnel"}
             </Button>
-            <Button variant="secondary" onClick={handleStop} disabled={loading || status === "STOPPED"}>
-              {loading && status === "RUNNING" ? "Parando..." : "Parar Tunnel"}
+            <Button variant="secondary" onClick={handleStop} disabled={loading || phase === "stopped"}>
+              {loading && phase !== "stopped" ? "Parando..." : "Parar Tunnel"}
             </Button>
             <Button variant="ghost" onClick={() => handleCopy(url)} disabled={!canCopyPublic}>
               Copiar URL pública
@@ -332,6 +348,7 @@ export default function TunnelPage() {
                 {localUrl ?? "--"}
               </div>
             </div>
+            <p className="text-xs text-[var(--muted)]">{localReady ? "Disponivel" : "Aguardando disponibilidade"}</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => handleOpen(localUrl)} disabled={!canOpenLocal}>
                 Abrir
@@ -348,6 +365,9 @@ export default function TunnelPage() {
                 {url ?? "--"}
               </div>
             </div>
+            <p className="text-xs text-[var(--muted)]">
+              {publicReady ? "Disponivel" : phase === "reconnecting" ? "Reconectando..." : "Aguardando disponibilidade"}
+            </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => handleOpen(url)} disabled={!canCopyPublic}>
                 Abrir

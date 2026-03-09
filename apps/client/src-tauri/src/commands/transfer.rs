@@ -207,11 +207,14 @@ async fn execute_transfer(
         let mut chunk_index = 0u64;
 
         // Garante que existe um entry no manifest sem manter &mut vivo
-        manifest.files.entry(file.path.clone()).or_insert_with(|| FileManifest {
-            path: file.path.clone(),
-            size: file.size,
-            ..Default::default()
-        });
+        manifest
+            .files
+            .entry(file.path.clone())
+            .or_insert_with(|| FileManifest {
+                path: file.path.clone(),
+                size: file.size,
+                ..Default::default()
+            });
 
         // bytes já existentes (para "resumindo")
         let reused_bytes: u64 = manifest
@@ -253,20 +256,20 @@ async fn execute_transfer(
                 .map(|c| c.hash == chunk_hash && c.size == read as u64)
                 .unwrap_or(false);
 
-           if exists_equal {
-    file_hasher.update(&buffer);
-    total_transferred += read as u64;
-    update_progress(
-        &manager,
-        &session_id,
-        &file.path,
-        read as u64,
-        total_transferred,
-        started,
-    );
-    chunk_index += 1;
-    continue;
-}
+            if exists_equal {
+                file_hasher.update(&buffer);
+                total_transferred += read as u64;
+                update_progress(
+                    &manager,
+                    &session_id,
+                    &file.path,
+                    read as u64,
+                    total_transferred,
+                    started,
+                );
+                chunk_index += 1;
+                continue;
+            }
 
             if let Some(key) = &key {
                 use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, Key, Nonce};
@@ -274,7 +277,9 @@ async fn execute_transfer(
                 let mut nonce_bytes = [0u8; 12];
                 nonce_bytes[..8].copy_from_slice(&chunk_index.to_be_bytes());
                 let nonce = Nonce::from_slice(&nonce_bytes);
-                let _encrypted = cipher.encrypt(nonce, buffer.as_ref()).context("encrypt chunk")?;
+                let _encrypted = cipher
+                    .encrypt(nonce, buffer.as_ref())
+                    .context("encrypt chunk")?;
             }
 
             file_hasher.update(&buffer);
@@ -498,4 +503,3 @@ mod tests {
         assert!(status.file_progress[0].done);
     }
 }
-
