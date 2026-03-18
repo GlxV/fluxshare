@@ -1,10 +1,8 @@
-import JSZip from "jszip";
-import { downloadDir, join } from "@tauri-apps/api/path";
-import { createDir, readBinaryFile, removeFile, writeBinaryFile } from "@tauri-apps/api/fs";
+import { removeFile } from "@tauri-apps/api/fs";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { nanoid } from "nanoid";
-import { isTauri } from "../persist/tauri";
+import { extractReceivedArchive, isTauri } from "../persist/tauri";
 import { toast } from "../../store/useToast";
 import { translateInstant } from "../../i18n/translate";
 import { type ImportProgressEventPayload, type ImportStatusReporter } from "./importStatus";
@@ -23,14 +21,6 @@ export interface FolderTransferPlan {
 }
 
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-async function ensureDir(path: string) {
-  try {
-    await createDir(path, { recursive: true });
-  } catch {
-    // ignore existing dirs
-  }
-}
 
 export async function prepareFolderTransfer(
   selection: FolderSelection,
@@ -137,7 +127,7 @@ export async function prepareFolderTransfer(
 }
 
 export async function extractArchiveToFolder(
-  archivePath: string,
+  archiveHandleId: string,
   targetFolderName?: string,
   t?: TranslateFn,
 ) {
@@ -150,37 +140,7 @@ export async function extractArchiveToFolder(
     return null;
   }
   try {
-    const data = await readBinaryFile(archivePath);
-    const zip = await JSZip.loadAsync(data);
-    const downloads = await downloadDir();
-    const rootName = targetFolderName ?? "FluxShare-Folder";
-    const targetDir = await join(downloads, rootName);
-    await ensureDir(targetDir);
-
-    const writes: Array<Promise<void>> = [];
-    zip.forEach((relativePath, file) => {
-      if (file.dir) {
-        writes.push(
-          (async () => {
-            const dirPath = await join(targetDir, relativePath);
-            await ensureDir(dirPath);
-          })(),
-        );
-        return;
-      }
-      writes.push(
-        (async () => {
-          const content = await file.async("uint8array");
-          const filePath = await join(targetDir, relativePath);
-          const dirPath = filePath.split(/[\\/]/).slice(0, -1).join("/");
-          if (dirPath) {
-            await ensureDir(dirPath);
-          }
-          await writeBinaryFile({ path: filePath, contents: content });
-        })(),
-      );
-    });
-    await Promise.all(writes);
+    const targetDir = await extractReceivedArchive(archiveHandleId, targetFolderName);
     toast({ message: translate("toast.extractSuccess", { path: targetDir }), variant: "success", duration: 4000 });
     return targetDir;
   } catch (error) {

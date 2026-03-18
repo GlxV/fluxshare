@@ -1,6 +1,6 @@
 {
   "name": "fluxshare-signaling-server",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "ws": "^8.15.1",
+    "express": "^4.22.1",
+    "ws": "^8.19.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

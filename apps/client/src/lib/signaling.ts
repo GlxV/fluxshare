@@ -22,6 +22,7 @@ export type SignalingEvent = keyof SignalingEventMap;
 
 const HEARTBEAT_INTERVAL = 10_000;
 const RECONNECT_DELAY = 2_000;
+const NON_RETRYABLE_CLOSE_CODES = new Set([1008, 1009]);
 
 class TypedEventEmitter {
   private listeners = new Map<SignalingEvent, Set<(payload: any) => void>>();
@@ -97,12 +98,16 @@ export class SignalingClient {
       this.emitter.emit("open", undefined);
     });
 
-    ws.addEventListener("close", () => {
+    ws.addEventListener("close", (event) => {
       console.log("fluxshare:signaling", "closed");
       this.stopHeartbeat();
-      const shouldReconnect = !this.manualClose;
+      const shouldReconnect = !this.manualClose && !NON_RETRYABLE_CLOSE_CODES.has(event.code);
       if (shouldReconnect) {
         this.scheduleReconnect();
+      } else if (!this.manualClose && NON_RETRYABLE_CLOSE_CODES.has(event.code)) {
+        this.emitter.emit("error", {
+          error: new Error(event.reason || `signaling connection closed (${event.code})`),
+        });
       }
       this.emitter.emit("close", { willReconnect: shouldReconnect });
     });

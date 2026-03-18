@@ -12,6 +12,9 @@ use blake3::Hasher;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 
+const MANIFEST_FLUSH_INTERVAL: Duration = Duration::from_millis(750);
+const MANIFEST_FLUSH_CHUNK_BATCH: usize = 32;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FileEntry {
@@ -159,6 +162,32 @@ pub async fn send_files(
     Ok(())
 }
 
+fn flush_manifest_if_needed(
+    manifest_path: &Path,
+    manifest: &TransferManifest,
+    manifest_dirty: &mut bool,
+    manifest_chunks_since_flush: &mut usize,
+    last_manifest_flush: &mut Instant,
+    force: bool,
+) -> anyhow::Result<()> {
+    if !*manifest_dirty {
+        return Ok(());
+    }
+
+    let should_flush = force
+        || *manifest_chunks_since_flush >= MANIFEST_FLUSH_CHUNK_BATCH
+        || last_manifest_flush.elapsed() >= MANIFEST_FLUSH_INTERVAL;
+    if !should_flush {
+        return Ok(());
+    }
+
+    save_manifest(manifest_path, manifest)?;
+    *manifest_dirty = false;
+    *manifest_chunks_since_flush = 0;
+    *last_manifest_flush = Instant::now();
+    Ok(())
+}
+
 async fn execute_transfer(
     session_id: String,
     files: Vec<FileEntry>,
@@ -178,6 +207,9 @@ async fn execute_transfer(
     let mut total_transferred = 0u64;
     let mut last_tick = Instant::now();
     let mut last_transferred = 0u64;
+    let mut manifest_dirty = false;
+    let mut manifest_chunks_since_flush = 0usize;
+    let mut last_manifest_flush = Instant::now();
 
     let key = if options.encrypt {
         Some(derive_key(
@@ -295,7 +327,16 @@ async fn execute_transfer(
                 });
             }
             // só agora salva
-            save_manifest(&manifest_path, &manifest)?;
+            manifest_dirty = true;
+            manifest_chunks_since_flush += 1;
+            flush_manifest_if_needed(
+                &manifest_path,
+                &manifest,
+                &mut manifest_dirty,
+                &mut manifest_chunks_since_flush,
+                &mut last_manifest_flush,
+                false,
+            )?;
 
             total_transferred += read as u64;
             update_progress(
@@ -335,7 +376,15 @@ async fn execute_transfer(
             let entry = manifest.files.get_mut(&file.path).expect("entry existente");
             entry.final_hash = Some(file_hasher.finalize().to_hex().to_string());
         }
-        save_manifest(&manifest_path, &manifest)?;
+        manifest_dirty = true;
+        flush_manifest_if_needed(
+            &manifest_path,
+            &manifest,
+            &mut manifest_dirty,
+            &mut manifest_chunks_since_flush,
+            &mut last_manifest_flush,
+            true,
+        )?;
 
         update_status(
             |status| {
@@ -363,6 +412,15 @@ async fn execute_transfer(
         &manager,
         &session_id,
     );
+
+    flush_manifest_if_needed(
+        &manifest_path,
+        &manifest,
+        &mut manifest_dirty,
+        &mut manifest_chunks_since_flush,
+        &mut last_manifest_flush,
+        true,
+    )?;
 
     Ok(())
 }

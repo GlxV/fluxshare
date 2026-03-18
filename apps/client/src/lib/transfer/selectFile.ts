@@ -1,5 +1,5 @@
 import { toast } from "../../store/useToast";
-import { isTauri, getFileInfo, getPathInfo } from "../persist/tauri";
+import { getPathInfo, isTauri, registerTransferSource, releaseTransferSource } from "../persist/tauri";
 import { prepareFolderTransfer } from "./folder";
 import { type ImportStatusReporter } from "./importStatus";
 
@@ -14,6 +14,7 @@ export interface SelectedItem {
   source: "web" | "tauri" | "tauri-folder";
   file?: File;
   path?: string;
+  transferHandleId?: string;
   archiveRoot?: string;
   cleanup?: () => Promise<void>;
 }
@@ -74,9 +75,9 @@ export async function pickTauriFile(reportImportStatus?: ImportStatusReporter): 
       progress: null,
       message: "",
     });
-    const info = await getFileInfo(path);
-    const size = info.size ?? 0;
-    const name = path.split(/[\\/]/).pop() ?? "file";
+    const source = await registerTransferSource(path);
+    const size = source.size ?? 0;
+    const name = source.name || path.split(/[\\/]/).pop() || "file";
     const id = await computeFileId(name, size, Date.now());
     reportStatus(reportImportStatus, {
       active: false,
@@ -93,7 +94,11 @@ export async function pickTauriFile(reportImportStatus?: ImportStatusReporter): 
       mime: undefined,
       kind: "file",
       source: "tauri",
-      path,
+      path: source.path,
+      transferHandleId: source.handleId,
+      cleanup: async () => {
+        await releaseTransferSource(source.handleId);
+      },
     };
   } catch (error) {
     console.error("fluxshare:file", "tauri picker failed", error);
@@ -128,8 +133,11 @@ export async function pickTauriFolder(
     const name = path.split(/[\\/]/).pop() ?? "folder";
     const plan = await prepareFolderTransfer({ path, name }, translate, reportImportStatus);
     if (!plan) return null;
-    const info = await getFileInfo(plan.archivePath);
-    const size = info.size ?? plan.size ?? 0;
+    const source = await registerTransferSource(plan.archivePath).catch(async (error) => {
+      await plan.cleanup().catch(() => undefined);
+      throw error;
+    });
+    const size = source.size ?? plan.size ?? 0;
     const id = await computeFileId(plan.displayName, size || 1, Date.now());
     return {
       id,
@@ -138,9 +146,13 @@ export async function pickTauriFolder(
       mime: "application/zip",
       kind: "folder",
       source: "tauri-folder",
-      path: plan.archivePath,
+      path: source.path,
+      transferHandleId: source.handleId,
       archiveRoot: plan.archiveRoot,
-      cleanup: plan.cleanup,
+      cleanup: async () => {
+        await releaseTransferSource(source.handleId);
+        await plan.cleanup();
+      },
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -193,6 +205,10 @@ export async function selectTauriPath(
     const plan = await prepareFolderTransfer({ path, name }, translate, reportImportStatus);
     if (!plan) return null;
     const size = plan.size ?? 0;
+    const source = await registerTransferSource(plan.archivePath).catch(async (error) => {
+      await plan.cleanup().catch(() => undefined);
+      throw error;
+    });
     const id = await computeFileId(plan.displayName, size || 1, Date.now());
     return {
       id,
@@ -201,12 +217,17 @@ export async function selectTauriPath(
       mime: "application/zip",
       kind: "folder",
       source: "tauri-folder",
-      path: plan.archivePath,
+      path: source.path,
+      transferHandleId: source.handleId,
       archiveRoot: plan.archiveRoot,
-      cleanup: plan.cleanup,
+      cleanup: async () => {
+        await releaseTransferSource(source.handleId);
+        await plan.cleanup();
+      },
     };
   }
-  const size = info.size ?? 0;
+  const source = await registerTransferSource(info.path);
+  const size = source.size ?? 0;
   const id = await computeFileId(name, size, Date.now());
   reportStatus(reportImportStatus, {
     active: false,
@@ -223,6 +244,10 @@ export async function selectTauriPath(
     mime: undefined,
     kind: "file",
     source: "tauri",
-    path,
+    path: source.path,
+    transferHandleId: source.handleId,
+    cleanup: async () => {
+      await releaseTransferSource(source.handleId);
+    },
   };
 }

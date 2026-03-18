@@ -1,15 +1,22 @@
 use std::fs::{self, File};
 use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 use tauri::Manager;
 use walkdir::WalkDir;
-use zip::write::FileOptions;
+use zip::{write::FileOptions, ZipArchive};
 
 const EVENT_IMPORT_PROGRESS: &str = "fluxshare://import-progress";
 const EMIT_BYTES_STEP: u64 = 4 * 1024 * 1024;
+const ARCHIVE_CACHE_DIR: &str = "fluxshare-archives";
+const MAX_ARCHIVE_ENTRIES: usize = 20_000;
+const MAX_ARCHIVE_TOTAL_COMPRESSED_BYTES: u64 = 64 * 1024 * 1024 * 1024;
+const MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES: u64 = 128 * 1024 * 1024 * 1024;
+const MAX_ARCHIVE_ENTRY_BYTES: u64 = 32 * 1024 * 1024 * 1024;
+const MAX_ARCHIVE_DEPTH: usize = 32;
+const MAX_ARCHIVE_COMPRESSION_RATIO: u64 = 250;
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -74,7 +81,19 @@ fn build_cache_dir(app: &tauri::AppHandle) -> PathBuf {
     app.path_resolver()
         .app_cache_dir()
         .unwrap_or_else(std::env::temp_dir)
-        .join("fluxshare-archives")
+        .join(ARCHIVE_CACHE_DIR)
+}
+
+fn cleanup_directory_tree(root: &Path) -> Result<(), String> {
+    if root.exists() {
+        fs::remove_dir_all(root)
+            .map_err(|error| format!("failed to clean directory {}: {error}", root.display()))?;
+    }
+    Ok(())
+}
+
+pub fn cleanup_archive_cache(app: &tauri::AppHandle) -> Result<(), String> {
+    cleanup_directory_tree(&build_cache_dir(app))
 }
 
 fn build_archive_root(name: &str) -> String {
@@ -92,6 +111,195 @@ fn as_zip_entry(root: &str, relative: &Path) -> String {
     } else {
         format!("{root}/{relative_path}")
     }
+}
+
+fn unique_directory_path(root: &Path, folder_name: &str) -> PathBuf {
+    let candidate = root.join(folder_name);
+    if !candidate.exists() {
+        return candidate;
+    }
+
+    for index in 1..10_000 {
+        let next = root.join(format!("{folder_name} ({index})"));
+        if !next.exists() {
+            return next;
+        }
+    }
+
+    root.join(format!("{folder_name}-{}", current_timestamp()))
+}
+
+fn normalize_archive_entry_path(name: &str) -> Result<PathBuf, String> {
+    if name.trim().is_empty() {
+        return Err("archive entry path is empty".to_string());
+    }
+    if name.contains('\0') {
+        return Err(format!("archive entry contains NUL bytes: {name}"));
+    }
+
+    let normalized = name.replace('\\', "/");
+    if normalized.starts_with('/') || normalized.starts_with("//") {
+        return Err(format!("archive entry uses an absolute path: {name}"));
+    }
+    if normalized.len() >= 2 && normalized.as_bytes()[1] == b':' {
+        return Err(format!("archive entry uses a drive-prefixed path: {name}"));
+    }
+
+    let mut output = PathBuf::new();
+    let mut depth = 0usize;
+
+    for component in Path::new(&normalized).components() {
+        match component {
+            Component::CurDir => {}
+            Component::Normal(value) => {
+                depth += 1;
+                if depth > MAX_ARCHIVE_DEPTH {
+                    return Err(format!("archive entry exceeds max depth: {name}"));
+                }
+                output.push(value);
+            }
+            Component::ParentDir | Component::Prefix(_) | Component::RootDir => {
+                return Err(format!("archive entry escapes the destination root: {name}"));
+            }
+        }
+    }
+
+    if output.as_os_str().is_empty() {
+        return Err(format!("archive entry resolved to an empty path: {name}"));
+    }
+
+    Ok(output)
+}
+
+fn is_symlink_entry(file: &zip::read::ZipFile<'_>) -> bool {
+    file.unix_mode()
+        .map(|mode| (mode & 0o170000) == 0o120000)
+        .unwrap_or(false)
+}
+
+fn validate_archive_entry(file: &zip::read::ZipFile<'_>) -> Result<PathBuf, String> {
+    if file.size() > MAX_ARCHIVE_ENTRY_BYTES {
+        return Err(format!(
+            "archive entry {} exceeds the per-entry size limit",
+            file.name()
+        ));
+    }
+
+    let compressed_size = file.compressed_size();
+    if compressed_size == 0 {
+        if file.size() > 0 {
+            return Err(format!(
+                "archive entry {} has suspicious compression metadata",
+                file.name()
+            ));
+        }
+    } else if file.size() / compressed_size > MAX_ARCHIVE_COMPRESSION_RATIO {
+        return Err(format!(
+            "archive entry {} exceeds the compression ratio limit",
+            file.name()
+        ));
+    }
+
+    if is_symlink_entry(file) {
+        return Err(format!("archive entry {} is a symlink", file.name()));
+    }
+
+    normalize_archive_entry_path(file.name())
+}
+
+pub fn extract_archive_to_downloads(
+    archive_path: &Path,
+    downloads_root: &Path,
+    target_folder_name: Option<&str>,
+) -> Result<PathBuf, String> {
+    let archive_file = File::open(archive_path)
+        .map_err(|error| format!("failed to open archive {}: {error}", archive_path.display()))?;
+    let mut archive = ZipArchive::new(archive_file)
+        .map_err(|error| format!("failed to parse archive {}: {error}", archive_path.display()))?;
+
+    if archive.len() > MAX_ARCHIVE_ENTRIES {
+        return Err(format!(
+            "archive contains too many entries ({} > {})",
+            archive.len(),
+            MAX_ARCHIVE_ENTRIES
+        ));
+    }
+
+    let mut entry_specs = Vec::with_capacity(archive.len());
+    let mut total_compressed_bytes = 0u64;
+    let mut total_uncompressed_bytes = 0u64;
+
+    for index in 0..archive.len() {
+        let file = archive
+            .by_index(index)
+            .map_err(|error| format!("failed to read archive entry #{index}: {error}"))?;
+        let relative_path = validate_archive_entry(&file)?;
+        total_compressed_bytes = total_compressed_bytes.saturating_add(file.compressed_size());
+        total_uncompressed_bytes = total_uncompressed_bytes.saturating_add(file.size());
+
+        if total_compressed_bytes > MAX_ARCHIVE_TOTAL_COMPRESSED_BYTES {
+            return Err("archive exceeds the compressed size limit".to_string());
+        }
+        if total_uncompressed_bytes > MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES {
+            return Err("archive exceeds the uncompressed size limit".to_string());
+        }
+
+        entry_specs.push((index, relative_path, file.is_dir()));
+    }
+
+    fs::create_dir_all(downloads_root).map_err(|error| {
+        format!(
+            "failed to create downloads root {}: {error}",
+            downloads_root.display()
+        )
+    })?;
+    let folder_name = sanitize_filename(target_folder_name.unwrap_or("FluxShare-Folder"));
+    let target_dir = unique_directory_path(downloads_root, &folder_name);
+    fs::create_dir_all(&target_dir)
+        .map_err(|error| format!("failed to create extraction root {}: {error}", target_dir.display()))?;
+
+    let mut buffer = vec![0u8; 256 * 1024];
+
+    for (index, relative_path, is_dir) in entry_specs {
+        let target_path = target_dir.join(&relative_path);
+        if !target_path.starts_with(&target_dir) {
+            let _ = fs::remove_dir_all(&target_dir);
+            return Err(format!(
+                "archive entry escapes the destination root: {}",
+                relative_path.display()
+            ));
+        }
+
+        if is_dir {
+            fs::create_dir_all(&target_path)
+                .map_err(|error| format!("failed to create directory {}: {error}", target_path.display()))?;
+            continue;
+        }
+
+        if let Some(parent) = target_path.parent() {
+            fs::create_dir_all(parent)
+                .map_err(|error| format!("failed to create directory {}: {error}", parent.display()))?;
+        }
+
+        let mut entry = archive
+            .by_index(index)
+            .map_err(|error| format!("failed to reopen archive entry #{index}: {error}"))?;
+        let mut output = File::create(&target_path)
+            .map_err(|error| format!("failed to create extracted file {}: {error}", target_path.display()))?;
+        loop {
+            let read = entry
+                .read(&mut buffer)
+                .map_err(|error| format!("failed to extract {}: {error}", target_path.display()))?;
+            if read == 0 {
+                break;
+            }
+            output
+                .write_all(&buffer[..read])
+                .map_err(|error| format!("failed to write extracted file {}: {error}", target_path.display()))?;
+        }
+    }
+
+    Ok(target_dir)
 }
 
 fn fail_with_progress(
@@ -345,4 +553,108 @@ pub async fn prepare_folder_archive(
     })
     .await
     .map_err(|error| error.to_string())?
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn rejects_parent_traversal_archive_entries() {
+        let error = normalize_archive_entry_path("../evil.txt").expect_err("parent traversal should fail");
+        assert!(error.contains("escapes"));
+    }
+
+    #[test]
+    fn rejects_drive_prefixed_archive_entries() {
+        let error = normalize_archive_entry_path("C:/Windows/win.ini")
+            .expect_err("drive-prefixed path should fail");
+        assert!(error.contains("drive-prefixed"));
+    }
+
+    #[test]
+    fn rejects_absolute_archive_entries() {
+        let error = normalize_archive_entry_path("/etc/passwd").expect_err("absolute path should fail");
+        assert!(error.contains("absolute"));
+    }
+
+    #[test]
+    fn rejects_mixed_separator_parent_traversal_archive_entries() {
+        let error = normalize_archive_entry_path("folder\\..\\..\\evil.txt")
+            .expect_err("mixed separator traversal should fail");
+        assert!(error.contains("escapes"));
+    }
+
+    #[test]
+    fn extracts_safe_archive_to_unique_folder() {
+        let temp = tempdir().unwrap();
+        let archive_path = temp.path().join("safe.zip");
+        {
+            let file = File::create(&archive_path).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            zip.add_directory("folder/", options).unwrap();
+            zip.start_file("folder/hello.txt", options).unwrap();
+            zip.write_all(b"hello").unwrap();
+            zip.finish().unwrap();
+        }
+
+        let downloads = temp.path().join("downloads");
+        let extracted = extract_archive_to_downloads(&archive_path, &downloads, Some("Folder")).unwrap();
+        let content = fs::read_to_string(extracted.join("folder").join("hello.txt")).unwrap();
+        assert_eq!(content, "hello");
+    }
+
+    #[test]
+    fn rejects_archive_with_too_many_entries() {
+        let temp = tempdir().unwrap();
+        let archive_path = temp.path().join("many.zip");
+        {
+            let file = File::create(&archive_path).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            for index in 0..=MAX_ARCHIVE_ENTRIES {
+                zip.start_file(format!("entry-{index}.txt"), options).unwrap();
+                zip.write_all(b"x").unwrap();
+            }
+            zip.finish().unwrap();
+        }
+
+        let downloads = temp.path().join("downloads");
+        let error = extract_archive_to_downloads(&archive_path, &downloads, Some("Bomb"))
+            .expect_err("archive with too many entries should fail");
+        assert!(error.contains("too many entries"));
+    }
+
+    #[test]
+    fn rejects_archive_with_excessive_compression_ratio() {
+        let temp = tempdir().unwrap();
+        let archive_path = temp.path().join("ratio.zip");
+        {
+            let file = File::create(&archive_path).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            zip.start_file("bomb.txt", options).unwrap();
+            let data = vec![0u8; 4 * 1024 * 1024];
+            zip.write_all(&data).unwrap();
+            zip.finish().unwrap();
+        }
+
+        let downloads = temp.path().join("downloads");
+        let error = extract_archive_to_downloads(&archive_path, &downloads, Some("Bomb"))
+            .expect_err("archive with abusive ratio should fail");
+        assert!(error.contains("compression ratio"));
+    }
+
+    #[test]
+    fn cleanup_directory_tree_removes_cached_archives() {
+        let temp = tempdir().unwrap();
+        let root = temp.path().join("fluxshare-archives");
+        fs::create_dir_all(root.join("nested")).unwrap();
+        fs::write(root.join("nested").join("stale.zip"), b"payload").unwrap();
+
+        cleanup_directory_tree(&root).unwrap();
+        assert!(!root.exists());
+    }
 }

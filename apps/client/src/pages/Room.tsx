@@ -69,8 +69,8 @@ function buildTransferSource(file: SelectedItem, peerId: string): TransferSource
   };
   if (file.source === "web" && file.file) {
     source.file = file.file;
-  } else if ((file.source === "tauri" || file.source === "tauri-folder") && file.path) {
-    source.createChunk = (start, length) => readFileRange(file.path!, start, length);
+  } else if ((file.source === "tauri" || file.source === "tauri-folder") && file.transferHandleId) {
+    source.createChunk = (start, length) => readFileRange(file.transferHandleId!, start, length);
   }
   if (file.cleanup) {
     source.onDispose = () => void file.cleanup?.();

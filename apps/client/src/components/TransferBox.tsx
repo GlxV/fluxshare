@@ -8,6 +8,7 @@ import { isTauri } from "../lib/persist/tauri";
 import { usePreferencesStore } from "../state/usePreferencesStore";
 import { useI18n } from "../i18n/LanguageProvider";
 import { type ImportPreparationStatus } from "../lib/transfer/importStatus";
+import { stageBrowserFileForTauri } from "../lib/transfer/browserFile";
 
 interface TransferBoxProps {
   file: {
@@ -149,23 +150,15 @@ export function TransferBox({
     if (hostingLink) return;
     setHostingLink(true);
     setHostLinkError(null);
+    let cleanupStagedFile: (() => Promise<void>) | undefined;
     try {
       let pathToHost: string | null = null;
       if (file.source === "tauri" && file.path) {
         pathToHost = file.path;
       } else if (file.source === "web" && file.file) {
-        const [{ appCacheDir, join }, { createDir, writeBinaryFile }] = await Promise.all([
-          import("@tauri-apps/api/path"),
-          import("@tauri-apps/api/fs"),
-        ]);
-        const cacheDir = await appCacheDir();
-        const folder = await join(cacheDir, `fluxshare-host-${Date.now()}`);
-        await createDir(folder, { recursive: true });
-        const filename = file.name || `arquivo-${Date.now()}`;
-        const destination = await join(folder, filename);
-        const buffer = new Uint8Array(await file.file.arrayBuffer());
-        await writeBinaryFile({ path: destination, contents: buffer });
-        pathToHost = destination;
+        const staged = await stageBrowserFileForTauri(file.file);
+        pathToHost = staged.path;
+        cleanupStagedFile = staged.cleanup;
       }
 
       if (!pathToHost) {
@@ -175,8 +168,16 @@ export function TransferBox({
 
       const provider = fallbackEnabled ? fallbackProvider : primaryProvider;
       await host([pathToHost], provider);
+      if (provider === "mock") {
+        await cleanupStagedFile?.().catch((cleanupError) => {
+          console.warn("fluxshare:file", "failed to clean mock-host staged file", cleanupError);
+        });
+      }
       setHostLinkError(null);
     } catch (error) {
+      await cleanupStagedFile?.().catch((cleanupError) => {
+        console.warn("fluxshare:file", "failed to clean failed-host staged file", cleanupError);
+      });
       const message = typeof error === "string" ? error : (error as Error).message;
       setHostLinkError(message);
     } finally {

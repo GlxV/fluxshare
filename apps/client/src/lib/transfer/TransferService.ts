@@ -1,7 +1,19 @@
 import { nanoid } from "nanoid";
-import { isTauri } from "../persist/tauri";
-import { extractArchiveToFolder } from "./folder";
+import {
+  createTransferTempFile,
+  deleteTransferTempFile,
+  extractReceivedArchive,
+  isTauri,
+  persistReceivedFile,
+  writeFileRange,
+} from "../persist/tauri";
 import { translateInstant } from "../../i18n/translate";
+import {
+  DEFAULT_MAX_TRANSFER_SIZE,
+  MAX_TRANSFER_CHUNK_SIZE,
+  validateTransferMeta,
+  type TransferMetaLike,
+} from "./limits";
 
 export const DEFAULT_CHUNK_SIZE = 64 * 1024;
 const BUFFERED_AMOUNT_LOW = DEFAULT_CHUNK_SIZE * 8;
@@ -10,35 +22,10 @@ const BUFFERED_AMOUNT_HIGH = DEFAULT_CHUNK_SIZE * 32;
 const tError = (key: string, params?: Record<string, string | number>) =>
   translateInstant(key as any, params);
 
-async function writeArchiveToCache(meta: TransferMeta, blob: Blob): Promise<string | null> {
-  try {
-    const [{ appCacheDir, join }, { writeBinaryFile, createDir }] = await Promise.all([
-      import("@tauri-apps/api/path"),
-      import("@tauri-apps/api/fs"),
-    ]);
-    const cacheDir = await appCacheDir();
-    const folder = await join(cacheDir, "fluxshare-archives");
-    await createDir(folder, { recursive: true });
-    const name = meta.name.endsWith(".zip") ? meta.name : `${meta.name}.zip`;
-    const target = await join(folder, `recv-${Date.now()}-${name}`);
-    const buffer = new Uint8Array(await blob.arrayBuffer());
-    await writeBinaryFile({ path: target, contents: buffer });
-    return target;
-  } catch (error) {
-    console.warn("fluxshare:transfer", "failed to write archive", error);
-    return null;
-  }
-}
-
 export type TransferDirection = "send" | "receive";
 
-export interface TransferMeta {
-  id: string;
-  name: string;
-  size: number;
+export interface TransferMeta extends TransferMetaLike {
   mime?: string;
-  chunkSize: number;
-  totalChunks: number;
   isArchive?: boolean;
   archiveRoot?: string;
 }
@@ -152,19 +139,38 @@ interface SendSession {
   cancelled: boolean;
 }
 
+interface TauriReceiveStorage {
+  kind: "tauri";
+  handleId: string;
+}
+
+interface MemoryReceiveStorage {
+  kind: "memory";
+  chunks: ArrayBuffer[];
+}
+
+type ReceiveStorage = TauriReceiveStorage | MemoryReceiveStorage;
+
 interface ReceiveSession {
   meta: TransferMeta;
-  chunks: Array<ArrayBuffer | null>;
-  receivedChunks: number;
+  storage: ReceiveStorage;
+  nextChunk: number;
   bytesReceived: number;
   startedAt: number;
   cancelled: boolean;
+}
+
+function validateChunkSize(chunkSize: number) {
+  if (chunkSize <= 0 || chunkSize > MAX_TRANSFER_CHUNK_SIZE) {
+    throw new Error("Unsupported transfer chunk size.");
+  }
 }
 
 class PeerChannelController {
   private readonly peerId: string;
   private readonly channel: RTCDataChannel;
   private readonly emitter: EventEmitter;
+  private pendingMessages: Promise<void> = Promise.resolve();
   private sendSession: SendSession | null = null;
   private receiveSession: ReceiveSession | null = null;
 
@@ -175,9 +181,12 @@ class PeerChannelController {
     this.channel.binaryType = "arraybuffer";
     this.channel.bufferedAmountLowThreshold = BUFFERED_AMOUNT_LOW;
     this.channel.addEventListener("message", (event) => {
-      this.handleMessage(event.data).catch((error) => {
-        console.error("fluxshare:transfer", "message handler failed", error);
-      });
+      this.pendingMessages = this.pendingMessages
+        .then(() => this.handleMessage(event.data))
+        .catch((error) => {
+          console.error("fluxshare:transfer", "message handler failed", error);
+          this.handleProcessingError(error);
+        });
     });
     this.channel.addEventListener("close", () => {
       this.cancelActiveSessions("Canal fechado");
@@ -192,6 +201,7 @@ class PeerChannelController {
     if (this.sendSession) {
       throw new Error(tError("error.peerBusy"));
     }
+    validateChunkSize(chunkSize);
     const meta = this.createMeta(source, chunkSize);
     this.sendSession = {
       meta,
@@ -239,9 +249,13 @@ class PeerChannelController {
   }
 
   private createMeta(source: TransferSource, chunkSize: number): TransferMeta {
+    if (source.size < 0 || source.size > DEFAULT_MAX_TRANSFER_SIZE) {
+      throw new Error("Transfer source size exceeds the supported limit.");
+    }
+
     const id = source.id ?? nanoid(12);
-    const totalChunks = Math.ceil(source.size / chunkSize);
-    return {
+    const totalChunks = source.size === 0 ? 0 : Math.ceil(source.size / chunkSize);
+    const meta: TransferMeta = {
       id,
       name: source.name,
       size: source.size,
@@ -251,6 +265,8 @@ class PeerChannelController {
       isArchive: source.isArchive,
       archiveRoot: source.archiveRoot,
     };
+    validateTransferMeta(meta);
+    return meta;
   }
 
   private async handleMessage(data: unknown) {
@@ -263,7 +279,9 @@ class PeerChannelController {
           break;
         case "ack":
           if (control.ready) {
-            void this.startSendingChunks();
+            void this.startSendingChunks().catch((error) => {
+              this.handleSendError(error);
+            });
           } else {
             this.cancelTransfer(control.id, tError("error.peerCannotReceive"));
           }
@@ -280,20 +298,41 @@ class PeerChannelController {
       return;
     }
     if (data instanceof ArrayBuffer) {
-      this.handleChunk(data);
+      await this.handleChunk(data);
       return;
     }
     if (data instanceof Blob) {
+      if (data.size > MAX_TRANSFER_CHUNK_SIZE + 4) {
+        throw new Error("Received binary payload exceeds the chunk size limit.");
+      }
       const buffer = await data.arrayBuffer();
-      this.handleChunk(buffer);
+      await this.handleChunk(buffer);
     }
   }
 
   private parseControlMessage(raw: string): ControlMessage | null {
     try {
       const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object") return null;
-      return parsed as ControlMessage;
+      if (!parsed || typeof parsed !== "object" || typeof parsed.type !== "string") {
+        return null;
+      }
+      switch (parsed.type) {
+        case "meta":
+          return parsed as ControlMetaMessage;
+        case "ack":
+          return typeof parsed.id === "string" && typeof parsed.ready === "boolean"
+            ? (parsed as ControlAckMessage)
+            : null;
+        case "eof":
+          return typeof parsed.id === "string" ? (parsed as ControlEofMessage) : null;
+        case "cancel":
+          return typeof parsed.id === "string" &&
+            (typeof parsed.reason === "undefined" || typeof parsed.reason === "string")
+            ? (parsed as ControlCancelMessage)
+            : null;
+        default:
+          return null;
+      }
     } catch (error) {
       console.warn("fluxshare:transfer", "invalid control message", error);
       return null;
@@ -304,23 +343,41 @@ class PeerChannelController {
     if (this.receiveSession) {
       this.cancelTransfer(this.receiveSession.meta.id, tError("error.transferReplaced"));
     }
-    const session: ReceiveSession = {
-      meta,
-      chunks: new Array(meta.totalChunks).fill(null),
-      receivedChunks: 0,
-      bytesReceived: 0,
-      startedAt: Date.now(),
-      cancelled: false,
-    };
-    this.receiveSession = session;
-    this.emitter.emit("transfer-started", {
-      peerId: this.peerId,
-      direction: "receive",
-      meta,
-      transferId: meta.id,
-      startedAt: session.startedAt,
-    });
-    this.sendControl({ type: "ack", id: meta.id, ready: true });
+
+    try {
+      validateTransferMeta(meta);
+      const sessionStorage: ReceiveStorage = isTauri()
+        ? {
+            kind: "tauri",
+            handleId: (await createTransferTempFile(meta.name, meta.size)).handleId,
+          }
+        : {
+            kind: "memory",
+            chunks: [],
+          };
+
+      const session: ReceiveSession = {
+        meta,
+        storage: sessionStorage,
+        nextChunk: 0,
+        bytesReceived: 0,
+        startedAt: Date.now(),
+        cancelled: false,
+      };
+      this.receiveSession = session;
+      this.emitter.emit("transfer-started", {
+        peerId: this.peerId,
+        direction: "receive",
+        meta,
+        transferId: meta.id,
+        startedAt: session.startedAt,
+      });
+      this.sendControl({ type: "ack", id: meta.id, ready: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn("fluxshare:transfer", "rejected transfer metadata", message);
+      this.sendControl({ type: "ack", id: meta.id, ready: false });
+    }
   }
 
   private async startSendingChunks() {
@@ -339,13 +396,17 @@ class PeerChannelController {
         return;
       }
       const chunk = await this.readChunk(session.source, session.nextChunk, meta.chunkSize, meta.size);
+      const expectedSize = Math.min(meta.chunkSize, meta.size - session.nextChunk * meta.chunkSize);
+      if (chunk.byteLength !== expectedSize) {
+        throw new Error("Transfer source returned an unexpected chunk size.");
+      }
       await this.waitForBackpressure();
       const payload = new Uint8Array(4 + chunk.byteLength);
       new DataView(payload.buffer).setUint32(0, session.nextChunk, false);
       payload.set(new Uint8Array(chunk), 4);
       this.channel.send(payload.buffer);
       session.bytesSent = Math.min(meta.size, session.bytesSent + chunk.byteLength);
-      const progressEvent: TransferProgressEvent = {
+      this.emitter.emit("transfer-progress", {
         peerId: this.peerId,
         direction: "send",
         meta,
@@ -355,8 +416,7 @@ class PeerChannelController {
         totalBytes: meta.size,
         chunkIndex: session.nextChunk,
         updatedAt: Date.now(),
-      };
-      this.emitter.emit("transfer-progress", progressEvent);
+      });
       session.nextChunk += 1;
     }
     this.sendControl({ type: "eof", id: meta.id });
@@ -370,20 +430,34 @@ class PeerChannelController {
     this.cleanupSend();
   }
 
-  private handleChunk(buffer: ArrayBuffer) {
+  private async handleChunk(buffer: ArrayBuffer) {
     const session = this.receiveSession;
     if (!session || session.cancelled) return;
+    if (buffer.byteLength < 4) {
+      throw new Error("Received chunk header is truncated.");
+    }
+
     const view = new DataView(buffer);
     const index = view.getUint32(0, false);
-    if (index < 0 || index >= session.meta.totalChunks) {
-      return;
+    if (index !== session.nextChunk) {
+      throw new Error("Received out-of-order chunk.");
     }
-    const chunk = buffer.slice(4);
-    if (session.chunks[index]) {
-      return;
+
+    const chunk = new Uint8Array(buffer, 4);
+    const offset = index * session.meta.chunkSize;
+    const remaining = Math.max(0, session.meta.size - offset);
+    const expectedSize = remaining === 0 ? 0 : Math.min(session.meta.chunkSize, remaining);
+    if (chunk.byteLength !== expectedSize) {
+      throw new Error("Received chunk size does not match the announced metadata.");
     }
-    session.chunks[index] = chunk;
-    session.receivedChunks += 1;
+
+    if (session.storage.kind === "tauri") {
+      await writeFileRange(session.storage.handleId, offset, chunk);
+    } else {
+      session.storage.chunks.push(buffer.slice(4));
+    }
+
+    session.nextChunk += 1;
     session.bytesReceived = Math.min(session.meta.size, session.bytesReceived + chunk.byteLength);
     this.emitter.emit("transfer-progress", {
       peerId: this.peerId,
@@ -405,22 +479,18 @@ class PeerChannelController {
       this.cleanupReceive();
       return;
     }
+
+    let storageConsumed = false;
     try {
-      const merged = this.mergeChunks(session);
-      const blob = new Blob(merged, { type: session.meta.mime ?? "application/octet-stream" });
-      let savePath: string | null = null;
-      if (isTauri()) {
-        if (session.meta.isArchive) {
-          const archivePath = await writeArchiveToCache(session.meta, blob);
-          if (archivePath) {
-            const extracted = await extractArchiveToFolder(archivePath, session.meta.archiveRoot);
-            savePath = extracted ?? archivePath;
-          }
-        } else {
-          savePath = await this.saveWithTauri(session.meta, blob);
-        }
+      if (session.nextChunk !== session.meta.totalChunks || session.bytesReceived !== session.meta.size) {
+        throw new Error("Transfer ended before all announced chunks were received.");
       }
-      if (savePath) {
+
+      if (session.storage.kind === "tauri") {
+        const savePath = session.meta.isArchive
+          ? await extractReceivedArchive(session.storage.handleId, session.meta.archiveRoot)
+          : await persistReceivedFile(session.storage.handleId, session.meta.name);
+        storageConsumed = true;
         this.emitter.emit("transfer-completed", {
           peerId: this.peerId,
           direction: "receive",
@@ -430,6 +500,9 @@ class PeerChannelController {
           savePath,
         });
       } else {
+        const blob = new Blob(session.storage.chunks, {
+          type: session.meta.mime ?? "application/octet-stream",
+        });
         const url = URL.createObjectURL(blob);
         this.triggerDownload(session.meta.name, url);
         this.emitter.emit("transfer-completed", {
@@ -452,46 +525,8 @@ class PeerChannelController {
         error: error instanceof Error ? error : new Error(String(error)),
       });
     }
-    this.cleanupReceive();
-  }
 
-  private mergeChunks(session: ReceiveSession) {
-    const buffers: ArrayBuffer[] = [];
-    for (let index = 0; index < session.meta.totalChunks; index += 1) {
-      const chunk = session.chunks[index];
-      if (!chunk) {
-        throw new Error(`Chunk ${index} ausente`);
-      }
-      buffers.push(chunk);
-    }
-    return buffers;
-  }
-
-  private async saveWithTauri(meta: TransferMeta, blob: Blob) {
-    try {
-      const { save } = await import("@tauri-apps/api/dialog");
-      const { writeBinaryFile } = await import("@tauri-apps/api/fs");
-      const target = await save({ defaultPath: meta.name });
-      if (!target) {
-        return null;
-      }
-      const buffer = new Uint8Array(await blob.arrayBuffer());
-      await writeBinaryFile({ path: target, contents: buffer });
-      return target;
-    } catch (error) {
-      console.warn("fluxshare:transfer", "tauri save failed", error);
-      return null;
-    }
-  }
-
-  private triggerDownload(filename: string, url: string) {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.cleanupReceive(storageConsumed);
   }
 
   private handleCancel(transferId: string, reason?: string) {
@@ -511,7 +546,6 @@ class PeerChannelController {
     }
     if (this.receiveSession && this.receiveSession.meta.id === transferId) {
       const session = this.receiveSession;
-      this.receiveSession = null;
       this.emitter.emit("transfer-cancelled", {
         peerId: this.peerId,
         direction: "receive",
@@ -520,7 +554,7 @@ class PeerChannelController {
         startedAt: session.startedAt,
         reason,
       });
-      return;
+      this.cleanupReceive();
     }
   }
 
@@ -564,6 +598,48 @@ class PeerChannelController {
     }
   }
 
+  private handleProcessingError(error: unknown) {
+    const session = this.receiveSession;
+    if (!session) {
+      return;
+    }
+    this.sendControl({
+      type: "cancel",
+      id: session.meta.id,
+      reason: error instanceof Error ? error.message : String(error),
+    });
+    this.emitter.emit("transfer-error", {
+      peerId: this.peerId,
+      direction: "receive",
+      meta: session.meta,
+      transferId: session.meta.id,
+      startedAt: session.startedAt,
+      error: error instanceof Error ? error : new Error(String(error)),
+    });
+    this.cleanupReceive();
+  }
+
+  private handleSendError(error: unknown) {
+    const session = this.sendSession;
+    if (!session) {
+      return;
+    }
+    this.sendControl({
+      type: "cancel",
+      id: session.meta.id,
+      reason: error instanceof Error ? error.message : String(error),
+    });
+    this.emitter.emit("transfer-error", {
+      peerId: this.peerId,
+      direction: "send",
+      meta: session.meta,
+      transferId: session.meta.id,
+      startedAt: session.startedAt,
+      error: error instanceof Error ? error : new Error(String(error)),
+    });
+    this.cleanupSend();
+  }
+
   private cancelActiveSessions(reason?: string) {
     if (this.sendSession) {
       const session = this.sendSession;
@@ -597,8 +673,27 @@ class PeerChannelController {
     this.sendSession = null;
   }
 
-  private cleanupReceive() {
+  private cleanupReceive(storageConsumed = false) {
+    if (!this.receiveSession) {
+      return;
+    }
+    const session = this.receiveSession;
     this.receiveSession = null;
+    if (!storageConsumed && session.storage.kind === "tauri") {
+      void deleteTransferTempFile(session.storage.handleId).catch((error) => {
+        console.warn("fluxshare:transfer", "failed to clean temp receive file", error);
+      });
+    }
+  }
+
+  private triggerDownload(filename: string, url: string) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }
 

@@ -1,4 +1,5 @@
 import { getVersion } from "@tauri-apps/api/app";
+import { resolveTrustedReleaseUrl } from "./externalUrl";
 
 export interface UpdateInfo {
   hasUpdate: boolean;
@@ -60,7 +61,7 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
     };
 
     const latestVersion = normalizeVersion(data?.tag_name ?? "");
-    const releaseUrl = data?.html_url || RELEASES_PAGE;
+    const releaseUrl = resolveTrustedReleaseUrl(data?.html_url) ?? RELEASES_PAGE;
     const releaseNotes = data?.body?.trim() ? data.body : undefined;
     const versionToCompare = latestVersion || currentVersion;
     const hasUpdate = compareSemver(versionToCompare, currentVersion) > 0;

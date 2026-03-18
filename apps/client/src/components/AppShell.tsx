@@ -8,6 +8,7 @@ import { useRoom } from "../state/useRoomStore";
 import { usePreferencesStore, type AppLanguage } from "../state/usePreferencesStore";
 import { useUpdateStore } from "../state/useUpdateStore";
 import { useI18n } from "../i18n/LanguageProvider";
+import { resolveTrustedReleaseUrl } from "../lib/externalUrl";
 
 function buildTopbarStatusTone(hasUpdate: boolean, checking: boolean) {
   if (hasUpdate) {
@@ -65,12 +66,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [copyInviteLink]);
 
   const handleOpenRelease = useCallback(async () => {
-    if (!updateInfo?.releaseUrl) return;
+    const safeUrl = resolveTrustedReleaseUrl(updateInfo?.releaseUrl);
+    if (!safeUrl) return;
     try {
-      await open(updateInfo.releaseUrl);
+      await open(safeUrl);
     } catch {
       if (typeof window !== "undefined") {
-        window.open(updateInfo.releaseUrl, "_blank", "noopener,noreferrer");
+        window.open(safeUrl, "_blank", "noopener,noreferrer");
       }
     }
   }, [updateInfo?.releaseUrl]);

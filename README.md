@@ -1,6 +1,6 @@
-# FluxShare 2.0
+# FluxShare 2.1
 
-FluxShare 2.0 e um app desktop para compartilhamento rapido de arquivos com foco oficial em Windows. A release estavel desta fase prioriza Windows 10 e Windows 11, com UX, integracoes de shell e fluxo de distribuicao pensados primeiro para esse ambiente.
+FluxShare 2.1 e um app desktop para compartilhamento rapido de arquivos com foco oficial em Windows. A release estavel desta fase prioriza Windows 10 e Windows 11, com UX, integracoes de shell e fluxo de distribuicao pensados primeiro para esse ambiente.
 
 O projeto continua sendo um monorepo com `pnpm`, mas a narrativa da release agora e simples: o produto principal e o app Windows.
 
@@ -11,9 +11,9 @@ O projeto continua sendo um monorepo com `pnpm`, mas a narrativa da release agor
 - Compartilhamento: envio rapido local, P2P e link publico via tunel
 - Integracoes nativas: menu de contexto do Explorer e empacotamento desktop
 
-Linux e macOS nao foram removidos do codigo, mas nao sao o foco oficial da release 2.0. Eles devem ser tratados como caminhos experimentais ou de adaptacao manual.
+Linux e macOS nao foram removidos do codigo, mas nao sao o foco oficial da release 2.1. Eles devem ser tratados como caminhos experimentais ou de adaptacao manual.
 
-## Destaques do FluxShare 2.0
+## Destaques do FluxShare 2.1
 
 - Importacao mais robusta para arquivos pesados, com feedback real e menos sensacao de travamento
 - Fluxo de tunel mais consistente, com estados mais confiaveis e validacao de disponibilidade
@@ -64,7 +64,7 @@ Os artefatos de release do Tauri ficam dentro de `apps/client/src-tauri/target/r
 
 ## Linux e macOS: estado atual
 
-Linux e macOS continuam possiveis para experimentacao, mas nao fazem parte da superficie oficialmente estabilizada no FluxShare 2.0.
+Linux e macOS continuam possiveis para experimentacao, mas nao fazem parte da superficie oficialmente estabilizada no FluxShare 2.1.
 
 Se voce quiser tentar rodar nesses sistemas:
 

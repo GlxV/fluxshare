@@ -10,6 +10,7 @@ import PeerManager from "../lib/rtc/PeerManager";
 import TransferService, { type TransferSource } from "../lib/transfer/TransferService";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { useUpdateStore } from "../state/useUpdateStore";
+import { resolveTrustedReleaseUrl } from "../lib/externalUrl";
 
 interface TestContext {
   log(message: string): void;
@@ -390,12 +391,13 @@ export default function AdminPage() {
   const allSuccess = useMemo(() => TEST_DEFINITIONS.every((test) => results[test.id]?.status === "success"), [results]);
 
   const handleOpenRelease = useCallback(async () => {
-    if (!updateInfo?.releaseUrl) return;
+    const safeUrl = resolveTrustedReleaseUrl(updateInfo?.releaseUrl);
+    if (!safeUrl) return;
     try {
-      await open(updateInfo.releaseUrl);
+      await open(safeUrl);
     } catch {
       if (typeof window !== "undefined") {
-        window.open(updateInfo.releaseUrl, "_blank", "noopener,noreferrer");
+        window.open(safeUrl, "_blank", "noopener,noreferrer");
       }
     }
   }, [updateInfo?.releaseUrl]);

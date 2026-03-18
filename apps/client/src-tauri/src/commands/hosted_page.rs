@@ -5,6 +5,7 @@ pub struct HostedPageFile {
     pub id: u64,
     pub name: String,
     pub size: u64,
+    pub base_path: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -325,8 +326,8 @@ fn render_audio_preview(raw_preview_url: &str) -> String {
 
 fn render_viewer(file: &HostedPageFile) -> String {
     let safe_name = escape_html(&file.name);
-    let raw_preview_url = format!("/preview/{}/raw", file.id);
-    let browser_preview_url = format!("/preview/{}", file.id);
+    let raw_preview_url = format!("{}/preview/{}/raw", file.base_path, file.id);
+    let browser_preview_url = format!("{}/preview/{}", file.base_path, file.id);
 
     let content = match preview_kind(&file.name) {
         Some(PreviewKind::Image) => format!(
@@ -360,8 +361,8 @@ fn render_sidebar(file: &HostedPageFile) -> String {
     let type_label = kind_label(classify_file(&file.name));
     let ext_label = extension_badge(&file.name);
     let preview = preview_kind(&file.name);
-    let download_url = format!("/download/{}", file.id);
-    let preview_url = format!("/preview/{}", file.id);
+    let download_url = format!("{}/download/{}", file.base_path, file.id);
+    let preview_url = format!("{}/preview/{}", file.base_path, file.id);
     let preview_support = render_support_label(preview);
     let secondary_action = match preview {
         Some(kind) => format!(
@@ -446,8 +447,9 @@ fn render_file_list(files: &[HostedPageFile]) -> String {
     <div class="file-list__item-title" title="{safe_name}">{safe_name}</div>
     <div class="file-list__item-meta">{size}</div>
   </div>
-  <a class="file-list__item-link" href="/download/{id}" download="{safe_name}">Download</a>
+  <a class="file-list__item-link" href="{base_path}/download/{id}" download="{safe_name}">Download</a>
 </div>"#,
+            base_path = file.base_path,
             id = file.id
         );
     }
@@ -712,6 +714,7 @@ mod tests {
             id: 7,
             name: "camera-roll.mp4".to_string(),
             size: 42_000_000,
+            base_path: "/share".to_string(),
         }]);
 
         assert!(html.contains("Download file"));
@@ -725,9 +728,30 @@ mod tests {
             id: 9,
             name: "incident-log.txt".to_string(),
             size: 8_192,
+            base_path: "/share".to_string(),
         }]);
 
         assert!(html.contains("viewer__frame"));
-        assert!(html.contains("/preview/9"));
+        assert!(html.contains("/share/preview/9"));
+    }
+
+    #[test]
+    fn renders_share_scoped_download_links_for_secondary_files() {
+        let html = render_index_page(&[
+            HostedPageFile {
+                id: 9,
+                name: "incident-log.txt".to_string(),
+                size: 8_192,
+                base_path: "/share-abc".to_string(),
+            },
+            HostedPageFile {
+                id: 11,
+                name: "photo.png".to_string(),
+                size: 4_096,
+                base_path: "/share-abc".to_string(),
+            },
+        ]);
+
+        assert!(html.contains("/share-abc/download/11"));
     }
 }

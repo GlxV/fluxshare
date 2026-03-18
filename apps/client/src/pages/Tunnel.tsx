@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { AppOutletContext } from "../App";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { UrlField } from "../components/ui/UrlDisplay";
 import { useTunnelStore } from "../state/useTunnelStore";
 import { isTauri } from "../lib/persist/tauri";
 import { toast } from "../store/useToast";
@@ -225,7 +226,7 @@ export default function TunnelPage() {
 
       <Card className="space-y-4 p-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Provider padrão</p>
             <select
               className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]"
@@ -239,7 +240,7 @@ export default function TunnelPage() {
               ))}
             </select>
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Provider fallback</p>
             <select
               className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]"
@@ -341,13 +342,13 @@ export default function TunnelPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Link local</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
-                {localUrl ?? "--"}
-              </div>
-            </div>
+            <UrlField
+              url={localUrl}
+              className="min-h-0 rounded-xl bg-[var(--surface)] px-4 py-2"
+              valueClassName="font-mono text-sm"
+            />
             <p className="text-xs text-[var(--muted)]">{localReady ? "Disponivel" : "Aguardando disponibilidade"}</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => handleOpen(localUrl)} disabled={!canOpenLocal}>
@@ -358,13 +359,13 @@ export default function TunnelPage() {
               </Button>
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Link público</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 font-mono text-sm">
-                {url ?? "--"}
-              </div>
-            </div>
+            <UrlField
+              url={url}
+              className="min-h-0 rounded-xl bg-[var(--surface)] px-4 py-2"
+              valueClassName="font-mono text-sm"
+            />
             <p className="text-xs text-[var(--muted)]">
               {publicReady ? "Disponivel" : phase === "reconnecting" ? "Reconectando..." : "Aguardando disponibilidade"}
             </p>

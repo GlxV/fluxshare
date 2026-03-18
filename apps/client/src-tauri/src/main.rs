@@ -18,8 +18,12 @@ use commands::{
         get_explorer_integration_status, set_explorer_context_menu_enabled,
         sync_explorer_integration,
     },
-    files::{list_files, read_file_range, write_file_range},
-    import::prepare_folder_archive,
+    files::{
+        cleanup_transfer_temp_artifacts, create_transfer_temp_file, delete_transfer_temp_file,
+        extract_received_archive, inspect_path, persist_received_file, read_file_range,
+        register_transfer_source, release_transfer_source, write_file_range, TransferFileManager,
+    },
+    import::{cleanup_archive_cache, prepare_folder_archive},
     launch::{
         collect_share_paths_from_args, consume_pending_explorer_share_requests,
         start_single_instance_server, try_forward_to_existing_instance, LaunchRequestManager,
@@ -77,6 +81,7 @@ fn main() {
 
     init_tracing();
     let transfer_manager = TransferManager::default();
+    let transfer_file_manager = TransferFileManager::default();
     let settings_manager = SettingsManager::default();
     let launch_manager = LaunchRequestManager::with_initial_paths(launch_paths);
     let tunnel_manager = TunnelManager::default(); // LLM-LOCK: central manager for Cloudflare tunnel lifecycle and stop events
@@ -95,15 +100,22 @@ fn main() {
 
     tauri::Builder::default()
         .manage(transfer_manager.clone())
+        .manage(transfer_file_manager.clone())
         .manage(settings_manager.clone())
         .manage(launch_manager.clone())
         .manage(tunnel_manager.clone())
         .manage(webrtc_manager.clone())
         .manage(quic_manager.clone())
         .invoke_handler(tauri::generate_handler![
-            list_files,
+            inspect_path,
+            register_transfer_source,
+            release_transfer_source,
             read_file_range,
             write_file_range,
+            create_transfer_temp_file,
+            delete_transfer_temp_file,
+            persist_received_file,
+            extract_received_archive,
             prepare_folder_archive,
             start_signaling,
             webrtc_start,
@@ -125,6 +137,12 @@ fn main() {
         ])
         .setup(move |app| {
             launch_manager.attach_app(app.handle());
+            if let Err(error) = cleanup_transfer_temp_artifacts(&app.handle()) {
+                tracing::warn!(?error, "transfer_temp_cleanup_failed");
+            }
+            if let Err(error) = cleanup_archive_cache(&app.handle()) {
+                tracing::warn!(?error, "archive_cache_cleanup_failed");
+            }
             app.listen_global("tauri://close-requested", move |_event| {
                 tracing::info!("shutdown requested");
             });

@@ -31,6 +31,7 @@ type HostedFileSummary = {
 type TunnelStatusPayload = {
   running: boolean;
   url?: string | null;
+  localUrl?: string | null;
   localPort?: number | null;
   hostedFiles?: HostedFileSummary[];
   phase?: TunnelPhase;
@@ -114,12 +115,7 @@ function applyStatusPayload(
   payload: TunnelStatusPayload,
 ): Partial<TunnelStoreState> {
   const phase = payload.phase ?? (payload.running ? "online" : "stopped");
-  const localUrl =
-    typeof payload.localPort === "number"
-      ? `http://127.0.0.1:${payload.localPort}/`
-      : payload.running || phase !== "stopped"
-        ? state.localUrl
-        : null;
+  const localUrl = payload.localUrl ?? (payload.running || phase !== "stopped" ? state.localUrl : null);
 
   return {
     status: phaseToLifecycle(phase, payload.running),

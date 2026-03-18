@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0] - 2026-03-09
+## [2.1.0] - 2026-03-18
 
 ### Core / UX
 
@@ -132,13 +132,13 @@
 - Trocados placeholders de branding na interface por marcas/icones mais intencionais.
 - Mantida identidade mais sutil, menos forcada e menos artificial.
 
-### Release / versao 2.0
+### Release / versao 2.1
 
-- Atualizado o projeto para FluxShare 2.0.0 de forma consistente nos principais manifests e configs.
+- Atualizado o projeto para FluxShare 2.1.0 de forma consistente nos principais manifests e configs.
 - Atualizado o README para posicionar o app como Windows-first.
 - Mantidas notas honestas sobre Linux/macOS como caminhos experimentais, nao foco oficial da release.
 - Gerada a build release estavel.
-- Movido o executavel principal para a raiz do projeto como `FluxShare-2.0.0.exe`.
+- Movido o executavel principal para a raiz do projeto como `FluxShare-2.1.0.exe`.
 
 ### Ajustes de metadata
 

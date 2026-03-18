@@ -3,6 +3,7 @@ import QRCode from "react-qr-code";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
+import { UrlField, UrlText } from "../components/ui/UrlDisplay";
 import { FileGlyph, FolderGlyph, UploadGlyph } from "../components/branding/FluxShareMarks";
 import ImportPreparationPanel from "../components/ImportPreparationPanel";
 import { useI18n } from "../i18n/LanguageProvider";
@@ -21,6 +22,7 @@ import { toast } from "../store/useToast";
 import { isTauri } from "../lib/persist/tauri";
 import { cn } from "../utils/cn";
 import { IDLE_IMPORT_STATUS, type ImportPreparationStatus } from "../lib/transfer/importStatus";
+import { stageBrowserFileForTauri } from "../lib/transfer/browserFile";
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes)) return "--";
@@ -39,23 +41,15 @@ function formatPhaseLabel(phase: string) {
     .join(" ");
 }
 
-async function resolvePathForHost(item: SelectedItem): Promise<string | null> {
+async function resolvePathForHost(
+  item: SelectedItem,
+  reportImportStatus?: (status: ImportPreparationStatus) => void,
+): Promise<{ path: string; cleanup?: () => Promise<void> } | null> {
   if (item.source === "tauri" || item.source === "tauri-folder") {
-    return item.path ?? null;
+    return item.path ? { path: item.path } : null;
   }
-  if (item.source === "web" && item.file) {
-    const [{ appCacheDir, join }, { createDir, writeBinaryFile }] = await Promise.all([
-      import("@tauri-apps/api/path"),
-      import("@tauri-apps/api/fs"),
-    ]);
-    const cacheDir = await appCacheDir();
-    const folder = await join(cacheDir, `fluxshare-host-${Date.now()}`);
-    await createDir(folder, { recursive: true });
-    const filename = item.name || `arquivo-${Date.now()}`;
-    const destination = await join(folder, filename);
-    const buffer = new Uint8Array(await item.file.arrayBuffer());
-    await writeBinaryFile({ path: destination, contents: buffer });
-    return destination;
+  if (item.source === "web" && item.file && isTauri()) {
+    return await stageBrowserFileForTauri(item.file, reportImportStatus);
   }
   return null;
 }
@@ -192,19 +186,32 @@ export default function SendPage() {
       }
 
       const hostWithProvider = async (provider?: typeof primaryProvider) => {
-        const hostPath = await resolvePathForHost(item);
-        if (!hostPath) {
+        const resolved = await resolvePathForHost(item, setImportStatus);
+        if (!resolved) {
           throw new Error(t("transfer.hostError"));
         }
 
-        await host([hostPath], provider);
-        const nextState = useTunnelStore.getState();
-        const nextLink = resolveShareLinkForRoute(decision, nextState);
-        setShareLink(nextLink);
-        if (nextLink) {
-          toast({ message: t("send.toast.linkReady"), variant: "success" });
-        } else if (routeNeedsPublicLink(decision) && nextState.url) {
-          waitingForPublicReadyRef.current = true;
+        try {
+          await host([resolved.path], provider);
+          const nextState = useTunnelStore.getState();
+          const nextLink = resolveShareLinkForRoute(decision, nextState);
+          setShareLink(nextLink);
+          if (nextLink) {
+            toast({ message: t("send.toast.linkReady"), variant: "success" });
+          } else if (routeNeedsPublicLink(decision) && nextState.url) {
+            waitingForPublicReadyRef.current = true;
+          }
+
+          if (provider === "mock") {
+            await resolved.cleanup?.().catch((cleanupError) => {
+              console.warn("fluxshare:file", "failed to clean mock-host staged file", cleanupError);
+            });
+          }
+        } catch (error) {
+          await resolved.cleanup?.().catch((cleanupError) => {
+            console.warn("fluxshare:file", "failed to clean failed-host staged file", cleanupError);
+          });
+          throw error;
         }
       };
 
@@ -508,13 +515,17 @@ export default function SendPage() {
           </div>
         </Card>
 
-        <div className="space-y-4">
-          <Card tone="muted" className="space-y-4 p-5">
-            <div className="space-y-1">
+        <div className="min-w-0 space-y-4">
+          <Card tone="muted" className="min-w-0 space-y-4 p-5">
+            <div className="min-w-0 space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
                 {t("send.linkLabel")}
               </p>
-              <p className="text-lg font-semibold tracking-[-0.03em] text-[var(--text)]">{linkDescription}</p>
+              {shareLink ? (
+                <UrlText url={shareLink} className="text-lg font-semibold tracking-[-0.03em] text-[var(--text)]" />
+              ) : (
+                <p className="text-lg font-semibold tracking-[-0.03em] text-[var(--text)]">{linkDescription}</p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -533,7 +544,7 @@ export default function SendPage() {
 
             {shareLink ? (
               <div className="space-y-3">
-                <input readOnly value={shareLink} className="fs-input" />
+                <UrlField url={shareLink} valueClassName="text-sm" />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <Button variant="secondary" onClick={handleCopyLink}>
                     {t("send.copy")}

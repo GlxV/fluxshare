@@ -2,6 +2,7 @@ use axum::body::Body;
 use std::fs;
 use std::io::{BufRead, BufReader, Cursor, Read, SeekFrom};
 use std::net::TcpListener;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::Arc;
@@ -18,6 +19,7 @@ use axum::{
 use csv::ReaderBuilder;
 use parking_lot::Mutex;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use rand::{distributions::Alphanumeric, Rng};
 use reqwest::redirect::Policy;
 use roxmltree::Document;
 use serde::Serialize;
@@ -37,6 +39,7 @@ use super::hosted_page::{
     render_preview_document_page, render_preview_state_page, render_status_page, HostedPageFile,
     HostedPreviewDocument, PreviewDocumentBody, PreviewKind, PreviewTextTone, TextPreviewKind,
 };
+use super::files::is_managed_transfer_temp_path;
 
 const EVENT_TUNNEL_LOG: &str = "fluxshare://tunnel-log";
 const EVENT_TUNNEL_STATUS: &str = "fluxshare://tunnel-status";
@@ -86,12 +89,13 @@ const FILENAME_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'`')
     .add(b'$');
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct HostedFile {
     id: u64,
     path: PathBuf,
     name: String,
     size: u64,
+    modified_at_ms: Option<u64>,
 }
 
 #[derive(Serialize, Clone)]
@@ -109,7 +113,9 @@ struct ServerState {
 
 pub(super) struct TunnelState {
     child: Option<Child>,
+    public_base_url: Option<String>,
     url: Option<String>,
+    local_url: Option<String>,
     log_handles: Vec<ThreadJoinHandle<()>>,
     server_handle: Option<tauri::async_runtime::JoinHandle<()>>,
     server_shutdown: Option<oneshot::Sender<()>>,
@@ -117,6 +123,7 @@ pub(super) struct TunnelState {
     exit_monitor: Option<tauri::async_runtime::JoinHandle<()>>,
     files: Vec<HostedFile>,
     next_file_id: u64,
+    share_id: Option<String>,
     phase: String,
     message: Option<String>,
     public_ready: bool,
@@ -132,7 +139,9 @@ impl Default for TunnelState {
     fn default() -> Self {
         Self {
             child: None,
+            public_base_url: None,
             url: None,
+            local_url: None,
             log_handles: Vec::new(),
             server_handle: None,
             server_shutdown: None,
@@ -140,6 +149,7 @@ impl Default for TunnelState {
             exit_monitor: None,
             files: Vec::new(),
             next_file_id: 0,
+            share_id: None,
             phase: "stopped".to_string(),
             message: None,
             public_ready: false,
@@ -168,6 +178,7 @@ pub struct TunnelInfo {
 pub struct TunnelStatus {
     pub running: bool,
     pub url: Option<String>,
+    pub local_url: Option<String>,
     pub local_port: Option<u16>,
     pub hosted_files: Vec<HostedFileSummary>,
     pub phase: String,
@@ -197,6 +208,59 @@ fn now_ms() -> u64 {
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_millis() as u64)
         .unwrap_or(0)
+}
+
+fn random_share_id() -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(18)
+        .map(char::from)
+        .collect()
+}
+
+fn metadata_modified_ms(metadata: &fs::Metadata) -> Option<u64> {
+    metadata
+        .modified()
+        .ok()
+        .and_then(|value| value.duration_since(UNIX_EPOCH).ok())
+        .map(|duration| duration.as_millis() as u64)
+}
+
+fn compose_share_url(base_url: &str, share_id: Option<&str>) -> String {
+    let trimmed = base_url.trim_end_matches('/');
+    match share_id {
+        Some(share_id) if !share_id.is_empty() => format!("{trimmed}/{share_id}/"),
+        _ => format!("{trimmed}/"),
+    }
+}
+
+fn refresh_exposed_urls(state: &mut TunnelState) {
+    state.local_url = state
+        .server_port
+        .map(|port| compose_share_url(&format!("http://127.0.0.1:{port}"), state.share_id.as_deref()));
+    state.url = state
+        .public_base_url
+        .as_ref()
+        .map(|base_url| compose_share_url(base_url, state.share_id.as_deref()));
+}
+
+fn archive_cache_root(app: &tauri::AppHandle) -> PathBuf {
+    app.path_resolver()
+        .app_cache_dir()
+        .unwrap_or_else(std::env::temp_dir)
+        .join("fluxshare-archives")
+}
+
+fn is_managed_host_artifact(app: &tauri::AppHandle, path: &PathBuf) -> bool {
+    is_managed_transfer_temp_path(app, path) || path.starts_with(archive_cache_root(app))
+}
+
+fn cleanup_hosted_artifacts(app: &tauri::AppHandle, files: &[HostedFile]) {
+    for file in files {
+        if is_managed_host_artifact(app, &file.path) && file.path.exists() {
+            let _ = fs::remove_file(&file.path);
+        }
+    }
 }
 
 fn set_phase(state: &mut TunnelState, phase: &str, message: Option<String>) {
@@ -229,6 +293,7 @@ fn summarize_state(state: &TunnelState) -> TunnelStatus {
     TunnelStatus {
         running: state.child.is_some(),
         url: state.url.clone(),
+        local_url: state.local_url.clone(),
         local_port: state.server_port,
         hosted_files: summarize_files(&state.files),
         phase: state.phase.clone(),
@@ -263,7 +328,9 @@ fn cleanup_finished(state: &mut TunnelState) {
     if let Some(child) = state.child.as_mut() {
         if let Ok(Some(_)) = child.try_wait() {
             state.child = None;
+            state.public_base_url = None;
             state.url = None;
+            refresh_exposed_urls(state);
             state.public_ready = false;
         }
     }
@@ -289,20 +356,83 @@ fn ascii_filename_fallback(name: &str) -> String {
     }
 }
 
-async fn index_handler(State(state): State<ServerState>) -> Html<String> {
-    let files = {
-        let state_guard = state.manager.inner.lock();
-        state_guard
-            .files
-            .iter()
-            .map(|file| HostedPageFile {
-                id: file.id,
-                name: file.name.clone(),
-                size: file.size,
-            })
-            .collect::<Vec<_>>()
-    };
-    Html(render_index_page(&files))
+fn share_base_path(share_id: &str) -> String {
+    format!("/{share_id}")
+}
+
+fn hosted_file_matches_snapshot(file: &HostedFile) -> bool {
+    match fs::metadata(&file.path) {
+        Ok(metadata) => metadata.len() == file.size && metadata_modified_ms(&metadata) == file.modified_at_ms,
+        Err(_) => false,
+    }
+}
+
+enum HostedLookupError {
+    ShareUnavailable,
+    FileUnavailable,
+    FileChanged,
+}
+
+fn resolve_hosted_file(
+    manager: &TunnelManager,
+    requested_share_id: &str,
+    file_id: Option<u64>,
+) -> Result<Option<HostedFile>, HostedLookupError> {
+    let state = manager.inner.lock();
+    if state.share_id.as_deref() != Some(requested_share_id) {
+        return Err(HostedLookupError::ShareUnavailable);
+    }
+
+    match file_id {
+        Some(file_id) => {
+            let file = state
+                .files
+                .iter()
+                .find(|file| file.id == file_id)
+                .cloned()
+                .ok_or(HostedLookupError::FileUnavailable)?;
+            if hosted_file_matches_snapshot(&file) {
+                Ok(Some(file))
+            } else {
+                Err(HostedLookupError::FileChanged)
+            }
+        }
+        None => Ok(None),
+    }
+}
+
+async fn index_handler(
+    State(state): State<ServerState>,
+    AxumPath(share_id): AxumPath<String>,
+) -> Response {
+    match resolve_hosted_file(&state.manager, &share_id, None) {
+        Ok(None) => {
+            let base_path = share_base_path(&share_id);
+            let files = {
+                let state_guard = state.manager.inner.lock();
+                state_guard
+                    .files
+                    .iter()
+                    .filter(|file| hosted_file_matches_snapshot(file))
+                    .map(|file| HostedPageFile {
+                        id: file.id,
+                        name: file.name.clone(),
+                        size: file.size,
+                        base_path: base_path.clone(),
+                    })
+                    .collect::<Vec<_>>()
+            };
+            html_response(StatusCode::OK, render_index_page(&files))
+        }
+        _ => html_response(
+            StatusCode::NOT_FOUND,
+            render_status_page(
+                "Compartilhamento indisponível",
+                "Este link público não corresponde mais ao compartilhamento ativo.",
+                true,
+            ),
+        ),
+    }
 }
 
 fn parse_range_header(value: &str, total_size: u64) -> Result<Option<(u64, u64)>, ()> {
@@ -870,12 +1000,31 @@ async fn build_preview_document(
 
 async fn download_handler(
     State(state): State<ServerState>,
-    AxumPath(id): AxumPath<u64>,
+    AxumPath((share_id, id)): AxumPath<(String, u64)>,
     headers: HeaderMap,
 ) -> Response {
-    let file = {
-        let state_guard = state.manager.inner.lock();
-        state_guard.files.iter().find(|file| file.id == id).cloned()
+    let file = match resolve_hosted_file(&state.manager, &share_id, Some(id)) {
+        Ok(Some(file)) => Some(file),
+        Err(HostedLookupError::FileChanged) => {
+            return html_response(
+                StatusCode::GONE,
+                render_status_page(
+                    "Arquivo alterado",
+                    "O arquivo original mudou depois que este link foi criado. Gere um novo compartilhamento para publicar a nova versao.",
+                    true,
+                ),
+            )
+        }
+        _ => {
+            return html_response(
+                StatusCode::NOT_FOUND,
+                render_status_page(
+                    "Arquivo indisponivel",
+                    "Este arquivo nao esta mais disponivel para download. O compartilhamento pode ter expirado ou ter sido encerrado.",
+                    true,
+                ),
+            )
+        }
     };
 
     let Some(file) = file else {
@@ -912,12 +1061,25 @@ async fn download_handler(
 
 async fn preview_handler(
     State(state): State<ServerState>,
-    AxumPath(id): AxumPath<u64>,
+    AxumPath((share_id, id)): AxumPath<(String, u64)>,
     headers: HeaderMap,
 ) -> Response {
-    let file = {
-        let state_guard = state.manager.inner.lock();
-        state_guard.files.iter().find(|file| file.id == id).cloned()
+    let file = match resolve_hosted_file(&state.manager, &share_id, Some(id)) {
+        Ok(Some(file)) => Some(file),
+        Err(HostedLookupError::FileChanged) => {
+            return html_response(
+                StatusCode::GONE,
+                render_preview_state_page(
+                    "Changed file",
+                    "Preview",
+                    "Preview expired",
+                    "This file changed after the share was created. Ask the sender for a fresh link.",
+                    None,
+                    None,
+                ),
+            )
+        }
+        _ => None,
     };
 
     let Some(file) = file else {
@@ -933,6 +1095,7 @@ async fn preview_handler(
             ),
         );
     };
+    let base_path = share_base_path(&share_id);
 
     let Some(kind) = preview_kind(&file.name) else {
         return html_response(
@@ -942,7 +1105,7 @@ async fn preview_handler(
                 "Preview",
                 "Preview not supported",
                 "This file type does not expose a safe inline renderer yet. Download the original file to open it locally.",
-                Some(&format!("/download/{}", file.id)),
+                Some(&format!("{base_path}/download/{}", file.id)),
                 Some("Download original"),
             ),
         );
@@ -950,7 +1113,7 @@ async fn preview_handler(
 
     match kind {
         PreviewKind::Image | PreviewKind::Video | PreviewKind::Audio | PreviewKind::Pdf => {
-            let download_url = format!("/download/{}", file.id);
+            let download_url = format!("{base_path}/download/{}", file.id);
             let file_name = file.name.clone();
             match serve_hosted_file(file, headers, FileDisposition::Inline).await {
                 Ok(response) => response,
@@ -988,7 +1151,7 @@ async fn preview_handler(
                     preview_kind_label(kind),
                     error.title,
                     &error.description,
-                    Some(&format!("/download/{}", file.id)),
+                    Some(&format!("{base_path}/download/{}", file.id)),
                     Some("Download original"),
                 ),
             ),
@@ -998,12 +1161,25 @@ async fn preview_handler(
 
 async fn raw_preview_handler(
     State(state): State<ServerState>,
-    AxumPath(id): AxumPath<u64>,
+    AxumPath((share_id, id)): AxumPath<(String, u64)>,
     headers: HeaderMap,
 ) -> Response {
-    let file = {
-        let state_guard = state.manager.inner.lock();
-        state_guard.files.iter().find(|file| file.id == id).cloned()
+    let file = match resolve_hosted_file(&state.manager, &share_id, Some(id)) {
+        Ok(Some(file)) => Some(file),
+        Err(HostedLookupError::FileChanged) => {
+            return html_response(
+                StatusCode::GONE,
+                render_preview_state_page(
+                    "Changed file",
+                    "Preview",
+                    "Preview expired",
+                    "This file changed after the share was created. Ask the sender for a fresh link.",
+                    None,
+                    None,
+                ),
+            )
+        }
+        _ => None,
     };
 
     let Some(file) = file else {
@@ -1019,6 +1195,7 @@ async fn raw_preview_handler(
             ),
         );
     };
+    let base_path = share_base_path(&share_id);
 
     let Some(kind) = preview_kind(&file.name) else {
         return html_response(
@@ -1028,7 +1205,7 @@ async fn raw_preview_handler(
                 "Preview",
                 "Preview not supported",
                 "This file type does not expose a raw inline preview stream. Download the original file to open it locally.",
-                Some(&format!("/download/{}", file.id)),
+                Some(&format!("{base_path}/download/{}", file.id)),
                 Some("Download original"),
             ),
         );
@@ -1036,7 +1213,7 @@ async fn raw_preview_handler(
 
     match kind {
         PreviewKind::Image | PreviewKind::Video | PreviewKind::Audio | PreviewKind::Pdf => {
-            let download_url = format!("/download/{}", file.id);
+            let download_url = format!("{base_path}/download/{}", file.id);
             let file_name = file.name.clone();
             match serve_hosted_file(file, headers, FileDisposition::Inline).await {
                 Ok(response) => response,
@@ -1071,7 +1248,7 @@ async fn raw_preview_handler(
                 preview_kind_label(kind),
                 "Open the reading view instead",
                 "This file uses FluxShare's document preview renderer rather than a raw inline media stream.",
-                Some(&format!("/preview/{}", file.id)),
+                Some(&format!("{base_path}/preview/{}", file.id)),
                 Some("Open preview"),
             ),
         ),
@@ -1120,10 +1297,11 @@ async fn ensure_http_server(manager: &TunnelManager) -> Result<u16, String> {
         };
 
         let router = Router::new()
-            .route("/", get(index_handler))
-            .route("/download/:id", get(download_handler))
-            .route("/preview/:id", get(preview_handler))
-            .route("/preview/:id/raw", get(raw_preview_handler))
+            .route("/:share_id", get(index_handler))
+            .route("/:share_id/", get(index_handler))
+            .route("/:share_id/download/:id", get(download_handler))
+            .route("/:share_id/preview/:id", get(preview_handler))
+            .route("/:share_id/preview/:id/raw", get(raw_preview_handler))
             .route("/health", get(|| async { Html("ok") }))
             .fallback(get(not_found_handler))
             .with_state(ServerState {
@@ -1152,6 +1330,7 @@ async fn ensure_http_server(manager: &TunnelManager) -> Result<u16, String> {
     state.server_handle = Some(handle);
     state.server_shutdown = Some(shutdown_tx);
     state.server_port = Some(port);
+    refresh_exposed_urls(&mut state);
     Ok(port)
 }
 
@@ -1164,13 +1343,103 @@ fn build_cloudflared_ready_url(port: u16) -> String {
 }
 
 fn build_probe_url(base_url: &str) -> String {
-    match url::Url::parse(base_url)
-        .ok()
-        .and_then(|url| url.host_str().map(str::to_string))
-    {
-        Some(host) if host == "127.0.0.1" || host == "localhost" => build_health_url(base_url),
-        _ => base_url.trim_end_matches('/').to_string(),
+    match url::Url::parse(base_url) {
+        Ok(url) => match url.host_str() {
+            Some(host) if host == "127.0.0.1" || host == "localhost" => format!(
+                "{}://{}:{}/health",
+                url.scheme(),
+                host,
+                url.port_or_known_default().unwrap_or(80)
+            ),
+            _ => base_url.trim_end_matches('/').to_string(),
+        },
+        Err(_) => base_url.trim_end_matches('/').to_string(),
     }
+}
+
+fn is_private_ipv4(ip: Ipv4Addr) -> bool {
+    ip.is_private()
+        || ip.is_loopback()
+        || ip.is_link_local()
+        || ip.is_broadcast()
+        || ip.is_documentation()
+        || ip.octets() == [169, 254, 169, 254]
+        || (ip.octets()[0] == 100 && (ip.octets()[1] & 0b1100_0000) == 0b0100_0000)
+}
+
+fn is_private_ipv6(ip: Ipv6Addr) -> bool {
+    ip.is_loopback()
+        || ip.is_unspecified()
+        || ip.is_multicast()
+        || ip.is_unicast_link_local()
+        || (ip.segments()[0] & 0xfe00) == 0xfc00
+}
+
+fn normalize_host(host: &str) -> String {
+    host.trim().trim_end_matches('.').to_ascii_lowercase()
+}
+
+fn is_internal_hostname(host: &str) -> bool {
+    host == "localhost"
+        || host.ends_with(".localhost")
+        || host.ends_with(".local")
+        || host.ends_with(".internal")
+        || host.ends_with(".home")
+        || !host.contains('.')
+}
+
+fn validate_probe_target(
+    target: &str,
+    allowed_public_host: Option<&str>,
+    allowed_local_port: Option<u16>,
+) -> Result<url::Url, String> {
+    let url = url::Url::parse(target).map_err(|error| format!("invalid probe target: {error}"))?;
+    if !matches!(url.scheme(), "http" | "https") {
+        return Err("probe target must use http or https".to_string());
+    }
+
+    let host = url
+        .host_str()
+        .map(normalize_host)
+        .ok_or_else(|| "probe target is missing a host".to_string())?;
+    let allowed_public_host = allowed_public_host.map(normalize_host);
+
+    if let Ok(ip) = host.parse::<IpAddr>() {
+        match ip {
+            IpAddr::V4(ipv4) => {
+                if let Some(port) = allowed_local_port {
+                    if url.scheme() == "http"
+                        && ipv4 == Ipv4Addr::new(127, 0, 0, 1)
+                        && url.port_or_known_default() == Some(port)
+                    {
+                        return Ok(url);
+                    }
+                }
+                if is_private_ipv4(ipv4) {
+                    return Err("probe target resolves to a blocked private IPv4 address".to_string());
+                }
+            }
+            IpAddr::V6(ipv6) => {
+                if is_private_ipv6(ipv6) {
+                    return Err("probe target resolves to a blocked private IPv6 address".to_string());
+                }
+            }
+        }
+    } else {
+        if let Some(allowed_host) = allowed_public_host {
+            if host == allowed_host && url.scheme() == "https" {
+                return Ok(url);
+            }
+        }
+
+        if is_internal_hostname(&host) {
+            return Err("probe target uses a blocked internal hostname".to_string());
+        }
+
+        return Err("probe target host is not on the allowlist".to_string());
+    }
+
+    Ok(url)
 }
 
 fn reserve_loopback_port() -> Result<u16, String> {
@@ -1183,6 +1452,26 @@ fn reserve_loopback_port() -> Result<u16, String> {
 fn build_http_client() -> Result<reqwest::Client, String> {
     reqwest::Client::builder()
         .redirect(Policy::limited(5))
+        .timeout(Duration::from_secs(6))
+        .build()
+        .map_err(|error| error.to_string())
+}
+
+fn build_probe_http_client(
+    allowed_public_host: Option<&str>,
+    allowed_local_port: Option<u16>,
+) -> Result<reqwest::Client, String> {
+    let allowed_public_host = allowed_public_host.map(normalize_host);
+    reqwest::Client::builder()
+        .redirect(Policy::custom(move |attempt| {
+            if attempt.previous().len() >= 3 {
+                return attempt.error("too many redirects");
+            }
+            match validate_probe_target(attempt.url().as_str(), allowed_public_host.as_deref(), allowed_local_port) {
+                Ok(_) => attempt.follow(),
+                Err(error) => attempt.error(error),
+            }
+        }))
         .timeout(Duration::from_secs(6))
         .build()
         .map_err(|error| error.to_string())
@@ -1352,7 +1641,7 @@ fn spawn_cloudflared_ready_monitor(
             Err(error) => {
                 let should_emit = {
                     let mut state = manager.inner.lock();
-                    if state.url.as_deref() != Some(url.as_str()) || state.child.is_none() {
+                    if state.public_base_url.as_deref() != Some(url.as_str()) || state.child.is_none() {
                         false
                     } else {
                         state.public_ready = false;
@@ -1386,7 +1675,7 @@ fn spawn_cloudflared_ready_monitor(
             Err(error) => {
                 let should_emit = {
                     let mut state = manager.inner.lock();
-                    if state.url.as_deref() != Some(url.as_str()) || state.child.is_none() {
+                    if state.public_base_url.as_deref() != Some(url.as_str()) || state.child.is_none() {
                         false
                     } else {
                         state.public_ready = false;
@@ -1415,12 +1704,13 @@ fn spawn_cloudflared_ready_monitor(
 fn mark_tunnel_online(app: &tauri::AppHandle, manager: &TunnelManager, url: &str, message: &str) {
     let should_emit = {
         let mut state = manager.inner.lock();
-        if state.url.as_deref() != Some(url) || state.child.is_none() {
+        if state.public_base_url.as_deref() != Some(url) || state.child.is_none() {
             false
         } else {
             state.public_ready = true;
             state.last_error = None;
             state.reconnect_attempts = 0;
+            refresh_exposed_urls(&mut state);
             set_phase(&mut state, "online", Some(message.to_string()));
             true
         }
@@ -1434,7 +1724,12 @@ fn mark_tunnel_online(app: &tauri::AppHandle, manager: &TunnelManager, url: &str
 
 #[cfg(test)]
 mod tests {
-    use super::{build_cloudflared_ready_url, build_probe_url, extract_url};
+    use super::{
+        build_cloudflared_ready_url, build_probe_url, compose_share_url, extract_url,
+        resolve_hosted_file, validate_probe_target, HostedFile, HostedLookupError, TunnelManager,
+    };
+    use std::fs;
+    use tempfile::tempdir;
 
     #[test]
     fn extracts_plain_trycloudflare_url() {
@@ -1474,6 +1769,53 @@ mod tests {
         let url = build_cloudflared_ready_url(60123);
         assert_eq!(url, "http://127.0.0.1:60123/ready");
     }
+
+    #[test]
+    fn builds_share_scoped_urls() {
+        let url = compose_share_url("https://orange-waterfall.trycloudflare.com/", Some("share123"));
+        assert_eq!(url, "https://orange-waterfall.trycloudflare.com/share123/");
+    }
+
+    #[test]
+    fn old_share_ids_do_not_resolve_new_files() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("file.txt");
+        fs::write(&path, b"hello").unwrap();
+        let metadata = fs::metadata(&path).unwrap();
+
+        let manager = TunnelManager::default();
+        {
+            let mut state = manager.inner.lock();
+            state.share_id = Some("new-share".to_string());
+            state.files = vec![HostedFile {
+                id: 0,
+                path: path.clone(),
+                name: "file.txt".to_string(),
+                size: metadata.len(),
+                modified_at_ms: super::metadata_modified_ms(&metadata),
+            }];
+        }
+
+        let error = resolve_hosted_file(&manager, "old-share", Some(0)).expect_err("old share must not resolve");
+        assert!(matches!(error, HostedLookupError::ShareUnavailable));
+    }
+
+    #[test]
+    fn blocks_loopback_and_internal_probe_targets() {
+        let loopback = validate_probe_target("http://127.0.0.1:9000/", None, Some(7777))
+            .expect_err("unexpected local port should be blocked");
+        assert!(loopback.contains("blocked"));
+
+        let private_ip =
+            validate_probe_target("https://10.20.30.40/status", Some("orange-waterfall.trycloudflare.com"), None)
+                .expect_err("private IPv4 should be blocked");
+        assert!(private_ip.contains("blocked"));
+
+        let internal =
+            validate_probe_target("https://db.internal/status", Some("orange-waterfall.trycloudflare.com"), None)
+                .expect_err("internal hostname should be blocked");
+        assert!(internal.contains("blocked"));
+    }
 }
 
 async fn start_cloudflared_inner(
@@ -1490,7 +1832,7 @@ async fn start_cloudflared_inner(
                 .is_none()
                 && state.public_ready
             {
-                if let Some(url) = state.url.clone() {
+                if let Some(url) = state.public_base_url.clone() {
                     return Ok(url);
                 }
             }
@@ -1498,6 +1840,7 @@ async fn start_cloudflared_inner(
         state.provider = Some("cloudflare".to_string());
         state.last_error = None;
         state.public_ready = false;
+        refresh_exposed_urls(&mut state);
         set_phase(
             &mut state,
             "starting",
@@ -1595,7 +1938,8 @@ async fn start_cloudflared_inner(
     {
         let mut state = manager.inner.lock();
         state.child = Some(child);
-        state.url = Some(url.clone());
+        state.public_base_url = Some(url.clone());
+        refresh_exposed_urls(&mut state);
         state.log_handles.extend(log_handles);
         state.public_ready = false;
         set_phase(
@@ -1635,9 +1979,11 @@ async fn handle_unexpected_exit(
     let (log_handles, should_reconnect) = {
         let mut state = manager.inner.lock();
         state.child = None;
+        state.public_base_url = None;
         state.url = None;
         state.public_ready = false;
         state.exit_monitor = None;
+        refresh_exposed_urls(&mut state);
         let should_reconnect =
             state.desired_tunnel && state.reconnect_attempts < MAX_RECONNECT_ATTEMPTS;
         if should_reconnect {
@@ -1678,7 +2024,9 @@ async fn handle_unexpected_exit(
                     state.desired_tunnel = false;
                     state.last_error = Some(error.clone());
                     state.public_ready = false;
+                    state.public_base_url = None;
                     state.url = None;
+                    refresh_exposed_urls(&mut state);
                     set_phase(
                         &mut state,
                         "failed",
@@ -1754,14 +2102,19 @@ async fn stop_all(app: &tauri::AppHandle, manager: &TunnelManager) -> Result<(),
         let mut state = manager.inner.lock();
         let shutdown = state.server_shutdown.take();
         let handle = state.server_handle.take();
+        let hosted_files = state.files.drain(..).collect::<Vec<_>>();
+        cleanup_hosted_artifacts(app, &hosted_files);
         state.server_port = None;
-        state.files.clear();
         state.next_file_id = 0;
+        state.share_id = None;
+        state.public_base_url = None;
         state.url = None;
+        state.local_url = None;
         state.provider = None;
         state.public_ready = false;
         state.local_ready = false;
         state.last_error = None;
+        refresh_exposed_urls(&mut state);
         set_phase(&mut state, "stopped", Some("Tunnel stopped".to_string()));
         (shutdown, handle)
     };
@@ -1814,17 +2167,19 @@ pub async fn start_host(
                 .file_name()
                 .map(|value| value.to_string_lossy().to_string())
                 .unwrap_or_else(|| raw.clone());
-            Ok((path, name, metadata.len()))
+            Ok((path, name, metadata.len(), metadata_modified_ms(&metadata)))
         })
         .collect::<Result<Vec<_>, String>>()?;
 
     let summaries = {
         let mut state = manager.inner.lock();
         cleanup_finished(&mut state);
-        state.files.clear();
+        let previous_files = state.files.drain(..).collect::<Vec<_>>();
+        cleanup_hosted_artifacts(&app, &previous_files);
         state.next_file_id = 0;
+        state.share_id = Some(random_share_id());
         let mut hosted = Vec::with_capacity(prepared.len());
-        for (path, name, size) in prepared {
+        for (path, name, size, modified_at_ms) in prepared {
             let id = state.next_file_id;
             state.next_file_id += 1;
             hosted.push(HostedFile {
@@ -1832,22 +2187,29 @@ pub async fn start_host(
                 path,
                 name,
                 size,
+                modified_at_ms,
             });
         }
         state.files = hosted;
         state.public_ready = false;
         state.last_error = None;
+        refresh_exposed_urls(&mut state);
         summarize_files(&state.files)
     };
 
     let port = ensure_http_server(&manager).await?;
-    let local_url = format!("http://127.0.0.1:{port}/");
-    let local_health_url = build_health_url(&local_url);
+    let share_id = {
+        let state = manager.inner.lock();
+        state.share_id.clone()
+    };
+    let local_url = compose_share_url(&format!("http://127.0.0.1:{port}"), share_id.as_deref());
+    let local_health_url = build_health_url(&format!("http://127.0.0.1:{port}/"));
     let client = build_http_client()?;
 
     {
         let mut state = manager.inner.lock();
         state.local_ready = false;
+        refresh_exposed_urls(&mut state);
         set_phase(
             &mut state,
             "waiting_local",
@@ -1860,6 +2222,7 @@ pub async fn start_host(
     {
         let mut state = manager.inner.lock();
         state.local_ready = true;
+        refresh_exposed_urls(&mut state);
         set_phase(&mut state, "starting", Some("Local host ready".to_string()));
     }
     emit_status(&app, &manager);
@@ -1885,9 +2248,10 @@ pub async fn start_host(
             let mut state = manager.inner.lock();
             state.desired_tunnel = true;
             state.reconnect_attempts = 0;
+            refresh_exposed_urls(&mut state);
         }
         match start_cloudflared_inner(&app, &manager).await {
-            Ok(url) => Some(url),
+            Ok(url) => Some(compose_share_url(&url, share_id.as_deref())),
             Err(error) => {
                 let mut state = manager.inner.lock();
                 state.desired_tunnel = false;
@@ -1908,9 +2272,11 @@ pub async fn start_host(
             let mut state = manager.inner.lock();
             state.desired_tunnel = false;
             state.provider = None;
+            state.public_base_url = None;
             state.url = None;
             state.public_ready = false;
             state.last_error = None;
+            refresh_exposed_urls(&mut state);
             set_phase(
                 &mut state,
                 "online",
@@ -1938,14 +2304,26 @@ pub async fn start_tunnel(
         state.desired_tunnel = true;
         state.reconnect_attempts = 0;
         state.last_error = None;
+        refresh_exposed_urls(&mut state);
     }
 
     match start_cloudflared_inner(&app, &manager).await {
-        Ok(url) => Ok(TunnelInfo { public_url: url }),
+        Ok(url) => {
+            let share_id = {
+                let state = manager.inner.lock();
+                state.share_id.clone()
+            };
+            Ok(TunnelInfo {
+                public_url: compose_share_url(&url, share_id.as_deref()),
+            })
+        }
         Err(error) => {
             let mut state = manager.inner.lock();
             state.desired_tunnel = false;
             state.last_error = Some(error.clone());
+            state.public_base_url = None;
+            state.url = None;
+            refresh_exposed_urls(&mut state);
             set_phase(
                 &mut state,
                 "failed",
@@ -1988,25 +2366,43 @@ pub async fn probe_tunnel_endpoint(
     manager: tauri::State<'_, TunnelManager>,
     target: Option<String>,
 ) -> Result<ProbeResult, String> {
-    let endpoint = if let Some(target) = target {
-        target
-    } else {
+    let (endpoint, allowed_public_host, allowed_local_port) = {
         let state = manager.inner.lock();
-        if let Some(url) = state.url.clone() {
+        let endpoint = if let Some(target) = target {
+            target
+        } else if let Some(url) = state.url.clone() {
             url
-        } else if let Some(port) = state.server_port {
-            format!("http://127.0.0.1:{port}/")
+        } else if let Some(local_url) = state.local_url.clone() {
+            local_url
         } else {
             return Ok(ProbeResult {
                 ok: false,
                 status_code: None,
                 message: "No tunnel endpoint available".to_string(),
             });
+        };
+
+        let allowed_public_host = state
+            .public_base_url
+            .as_ref()
+            .and_then(|url| url::Url::parse(url).ok())
+            .and_then(|url| url.host_str().map(str::to_string));
+        (endpoint, allowed_public_host, state.server_port)
+    };
+
+    let validated = match validate_probe_target(&endpoint, allowed_public_host.as_deref(), allowed_local_port) {
+        Ok(url) => url,
+        Err(message) => {
+            return Ok(ProbeResult {
+                ok: false,
+                status_code: None,
+                message,
+            })
         }
     };
 
-    let client = build_http_client()?;
-    match probe_endpoint_with_client(&client, &build_probe_url(&endpoint)).await {
+    let client = build_probe_http_client(allowed_public_host.as_deref(), allowed_local_port)?;
+    match probe_endpoint_with_client(&client, &build_probe_url(validated.as_str())).await {
         Ok((ok, status_code, message)) => Ok(ProbeResult {
             ok,
             status_code,
